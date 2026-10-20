@@ -4,9 +4,9 @@
 > The YAML ledger remains authoritative. This page is safe to publish through Zensical.
 
 - Overall status: `in_progress`
-- Runtime status: `running`
+- Runtime status: `completed`
 - Last run: `project-usb-camera-taytay-bounded-1473a0277735d05c-slice-4`
-- Last run result: `running`
+- Last run result: `completed`
 
 ## Phases and slices
 
@@ -34,7 +34,7 @@
 |  |  | phase-2-slice-18 Implement MVP2-V4L2-008 | completed | de5da62 | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-1 |
 |  |  | phase-2-slice-19 Implement DEV-001 | completed | 63df54b | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-2 |
 |  |  | phase-2-slice-20 Implement DEV-002 | completed | 9f06acc | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-3 |
-|  |  | phase-2-slice-21 Implement DEV-003 | in_progress | — | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-4 |
+|  |  | phase-2-slice-21 Implement DEV-003 | completed | c258fb6 | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-4 |
 |  |  | phase-2-slice-22 Implement DEV-004 | pending | — | — |
 |  |  | phase-2-slice-23 Implement DEV-005 | pending | — | — |
 |  |  | phase-2-slice-24 Implement DEV-006 | pending | — | — |

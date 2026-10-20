@@ -26,8 +26,10 @@ jobs:
       run: cargo check --workspace --all-targets --all-features
     - name: 'Quality gate: declared_cargo_test'
       run: cargo test --workspace --all-features
+    - name: Install cargo-llvm-cov
+      run: cargo install cargo-llvm-cov --version 0.9.1 --locked --root .tools/cargo
     - name: 'Quality gate: declared_cargo_llvm_cov'
-      run: cargo llvm-cov --workspace --all-features --fail-under-lines 90
+      run: bin/ci declared_cargo_llvm_cov
     - name: 'Quality gate: declared_cargo_clippy'
       run: cargo clippy --workspace --all-targets --all-features -- -D warnings
     - name: 'Quality gate: declared_quality'

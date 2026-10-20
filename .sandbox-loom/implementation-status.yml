@@ -306,16 +306,16 @@ phases:
     title: Publish technical documentation
     status: pending
     resume:
-      previous_run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-14
-      interrupted_at: '2026-10-20T21:16:01Z'
+      previous_run_id: project-usb-camera-taytay-2f817aba111717dd
+      interrupted_at: '2026-10-20T21:18:10Z'
       reason: failed
       completed_tasks:
       - inspect_scope
       - bootstrap_scope
       interrupted_task: implement_scope
       evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
-    interrupted_at: '2026-10-20T21:16:01Z'
-    interrupted_run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-14
+    interrupted_at: '2026-10-20T21:18:10Z'
+    interrupted_run_id: project-usb-camera-taytay-2f817aba111717dd
     interruption_reason: failed
 runtime:
   status: failed
@@ -2084,9 +2084,36 @@ runtime:
 
           '
         error_class: ProjectHarness::Error
-  last_run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-14
+    project-usb-camera-taytay-2f817aba111717dd:
+      status: failed
+      pid: 1498615
+      started_at: '2026-10-20T21:16:02Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T21:16:31Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T21:17:10Z'
+          attempts: 1
+          repairs: 0
+        implement_scope:
+          status: running
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T21:17:10Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+      finished_at: '2026-10-20T21:17:27Z'
+      failure:
+        error: 'invalid CLI event JSON: unexpected end of input, expected closing
+          " at line 1 column 999425'
+        error_class: Backends::RuntimeError
+  last_run_id: project-usb-camera-taytay-2f817aba111717dd
   active_slice:
     phase_id: phase-4
     slice_id: phase-4-slice-1
-    run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-14
-updated_at: '2026-10-20T21:15:30Z'
+    run_id: project-usb-camera-taytay-2f817aba111717dd
+updated_at: '2026-10-20T21:17:27Z'

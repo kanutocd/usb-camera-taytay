@@ -60,6 +60,18 @@ phases:
   - id: phase-2-slice-4
     title: Implement MVP1-FS-004
     status: pending
+    resume:
+      previous_run_id: project-usb-camera-taytay-bounded-3ba4431918e6c886-slice-2
+      interrupted_at: '2026-10-20T18:52:15Z'
+      reason: failed
+      completed_tasks:
+      - inspect_scope
+      - bootstrap_scope
+      interrupted_task: implement_scope
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+    interrupted_at: '2026-10-20T18:52:15Z'
+    interrupted_run_id: project-usb-camera-taytay-bounded-3ba4431918e6c886-slice-2
+    interruption_reason: failed
   - id: phase-2-slice-5
     title: Implement MVP1-FS-005
     status: pending
@@ -150,7 +162,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: completed
+  status: failed
   runs:
     project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1:
       status: completed
@@ -419,5 +431,38 @@ runtime:
       - verify
       - commit
       - checkpoint
-  last_run_id: project-usb-camera-taytay-bounded-3ba4431918e6c886-slice-1
-updated_at: '2026-10-20T18:45:13Z'
+    project-usb-camera-taytay-bounded-3ba4431918e6c886-slice-2:
+      status: failed
+      pid: 1127388
+      started_at: '2026-10-20T18:45:16Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T18:45:49Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T18:46:53Z'
+          attempts: 1
+          repairs: 0
+        implement_scope:
+          status: running
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T18:46:53Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+      finished_at: '2026-10-20T18:51:53Z'
+      failure:
+        error: 'coding-agent execution timed_out: CLI execution timed_out; exit_status=0;
+          Reading prompt from stdin...
+
+          '
+        error_class: ProjectHarness::Error
+  last_run_id: project-usb-camera-taytay-bounded-3ba4431918e6c886-slice-2
+  active_slice:
+    phase_id: phase-2
+    slice_id: phase-2-slice-4
+    run_id: project-usb-camera-taytay-bounded-3ba4431918e6c886-slice-2
+updated_at: '2026-10-20T18:51:53Z'

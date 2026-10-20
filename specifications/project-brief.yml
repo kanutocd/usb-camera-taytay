@@ -3,7 +3,7 @@
 version: '0.1'
 authoring:
   audience: mixed
-  completion_status: needs_answers
+  completion_status: ready_for_normalization
   skill:
     name: sandbox-loom-intake
     version: '0.1'

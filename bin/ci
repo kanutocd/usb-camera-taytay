@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+usage() {
+  echo "Usage: bin/ci {documentation_links|documentation_navigation|documentation_redaction|mermaid_validation|zensical_build|declared_cargo_llvm_cov}"
+}
+
+case "${1:-}" in
+  documentation_links|documentation_navigation|documentation_redaction|mermaid_validation)
+    exec python3 scripts/documentation_checks.py "$1"
+    ;;
+  zensical_build)
+    exec bin/zensical build --clean --strict
+    ;;
+  declared_cargo_llvm_cov)
+    if [[ ! -x .tools/cargo/bin/cargo-llvm-cov ]]; then
+      echo "Missing project-local cargo-llvm-cov; install it with bin/setup-dev" >&2
+      exit 1
+    fi
+    PATH="$repo_root/.tools/cargo/bin:$PATH" cargo llvm-cov --workspace --all-features --fail-under-lines 90
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac

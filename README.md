@@ -2,7 +2,7 @@
 
 Provide a small, reproducible Linux Rust CLI reference application that captures or receives local USB-camera media and delivers durable, checksum-bound, resumable uploads to Lunsaran through Taytay, while keeping filesystem ingestion and pure Rust V4L2 capture as deliberately staged MVPs.
 
-This project is being developed under a proposed Sandbox Loom harness
+This project is being developed under an approved Sandbox Loom harness
 using the `rust-binary` template.
 
 ## Project guidance
@@ -16,6 +16,14 @@ using the `rust-binary` template.
 - [Changelog](CHANGELOG.md)
 - [Quality gates](project-docs/harness/QUALITY_GATES.md)
 - [Executable harness configuration](.sandbox-loom/)
+
+## Development
+
+Run `bin/setup-dev` to install the pinned documentation tools and the
+project-local coverage tool. Run `scripts/quality.sh` for Rust formatting,
+build, tests, and linting; run `scripts/acceptance-mock.sh` for the camera-free
+CLI smoke check. The individual commands and documentation gates are listed in
+[Quality gates](project-docs/harness/QUALITY_GATES.md).
 
 ## Baseline constraints
 

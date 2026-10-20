@@ -1,0 +1,13 @@
+[package]
+name = "usb-camera-taytay"
+version = "0.1.0"
+edition = "2024"
+description = "Linux USB camera ingestion reference CLI"
+license = "MIT"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(coverage)'] }
+
+[workspace]
+members = ["."]
+resolver = "3"

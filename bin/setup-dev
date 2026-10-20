@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+if [[ ! -x .tools/cargo/bin/cargo-llvm-cov ]]; then
+  cargo install cargo-llvm-cov --version 0.9.1 --locked --root .tools/cargo
+fi
+python3 -m venv .venv-zensical
+source .venv-zensical/bin/activate
+python -m pip install --requirement requirements-zensical.txt

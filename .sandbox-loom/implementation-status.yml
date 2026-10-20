@@ -6,11 +6,11 @@ status: in_progress
 phases:
 - id: phase-1
   title: Project bootstrap and local development
-  status: pending
+  status: in_progress
   slices:
   - id: phase-1-slice-1
     title: Initialize the repository and project structure
-    status: pending
+    status: in_progress
     resume:
       previous_run_id: project-usb-camera-taytay-fc3ab93e2ae65ace
       interrupted_at: '2026-10-20T17:20:44Z'
@@ -22,6 +22,8 @@ phases:
     interrupted_at: '2026-10-20T17:20:44Z'
     interrupted_run_id: project-usb-camera-taytay-fc3ab93e2ae65ace
     interruption_reason: failed
+    run_id: project-usb-camera-taytay-d98bbede883dbf31
+    started_at: '2026-10-20T17:20:45Z'
   - id: phase-1-slice-2
     title: Local development environment
     status: pending
@@ -131,7 +133,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: failed
+  status: running
   runs:
     project-usb-camera-taytay-fc3ab93e2ae65ace:
       status: failed
@@ -153,9 +155,43 @@ runtime:
       failure:
         error: 'invalid CLI event JSON: duplicate key "id" at line 1 column 31'
         error_class: Backends::RuntimeError
-  last_run_id: project-usb-camera-taytay-fc3ab93e2ae65ace
+    project-usb-camera-taytay-d98bbede883dbf31:
+      status: running
+      pid: 970125
+      started_at: '2026-10-20T17:20:45Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T17:21:03Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T17:22:15Z'
+          attempts: 1
+          repairs: 0
+        implement_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T17:23:44Z'
+          attempts: 1
+          repairs: 0
+        verify:
+          status: completed
+          action: verify
+          updated_at: '2026-10-20T17:23:46Z'
+          attempts: 1
+          repairs: 0
+        commit:
+          status: running
+          action: gateway.git.commit
+          updated_at: '2026-10-20T17:23:46Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+  last_run_id: project-usb-camera-taytay-d98bbede883dbf31
   active_slice:
     phase_id: phase-1
     slice_id: phase-1-slice-1
-    run_id: project-usb-camera-taytay-fc3ab93e2ae65ace
-updated_at: '2026-10-20T17:15:05Z'
+    run_id: project-usb-camera-taytay-d98bbede883dbf31
+updated_at: '2026-10-20T17:23:46Z'

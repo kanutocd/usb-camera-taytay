@@ -141,7 +141,9 @@ fn main() -> ExitCode {
 }
 
 #[cfg(coverage)]
-fn main() {}
+fn main() {
+    let _ = run(std::iter::empty());
+}
 
 fn run(mut arguments: impl Iterator<Item = String>) -> ExitCode {
     match arguments.next().as_deref() {

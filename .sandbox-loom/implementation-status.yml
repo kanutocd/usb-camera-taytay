@@ -10,7 +10,7 @@ phases:
   slices:
   - id: phase-1-slice-1
     title: Initialize the repository and project structure
-    status: in_progress
+    status: completed
     resume:
       previous_run_id: project-usb-camera-taytay-fc3ab93e2ae65ace
       interrupted_at: '2026-10-20T17:20:44Z'
@@ -24,6 +24,8 @@ phases:
     interruption_reason: failed
     run_id: project-usb-camera-taytay-d98bbede883dbf31
     started_at: '2026-10-20T17:20:45Z'
+    completed_at: '2026-10-20T17:23:46Z'
+    commit_sha: 8a14032
   - id: phase-1-slice-2
     title: Local development environment
     status: pending
@@ -133,7 +135,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: running
+  status: completed
   runs:
     project-usb-camera-taytay-fc3ab93e2ae65ace:
       status: failed
@@ -156,7 +158,7 @@ runtime:
         error: 'invalid CLI event JSON: duplicate key "id" at line 1 column 31'
         error_class: Backends::RuntimeError
     project-usb-camera-taytay-d98bbede883dbf31:
-      status: running
+      status: completed
       pid: 970125
       started_at: '2026-10-20T17:20:45Z'
       tasks:
@@ -185,13 +187,25 @@ runtime:
           attempts: 1
           repairs: 0
         commit:
-          status: running
+          status: completed
           action: gateway.git.commit
           updated_at: '2026-10-20T17:23:46Z'
+          attempts: 1
+          repairs: 0
+        checkpoint:
+          status: completed
+          action: checkpoint
+          updated_at: '2026-10-20T17:23:46Z'
+          attempts: 1
+          repairs: 0
       evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+      finished_at: '2026-10-20T17:23:46Z'
+      result_task_ids:
+      - inspect_scope
+      - bootstrap_scope
+      - implement_scope
+      - verify
+      - commit
+      - checkpoint
   last_run_id: project-usb-camera-taytay-d98bbede883dbf31
-  active_slice:
-    phase_id: phase-1
-    slice_id: phase-1-slice-1
-    run_id: project-usb-camera-taytay-d98bbede883dbf31
 updated_at: '2026-10-20T17:23:46Z'

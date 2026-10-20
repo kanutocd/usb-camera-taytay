@@ -18,10 +18,11 @@ spool_quota_bytes = 1048576
 EOF
 
 [[ "$("$binary" check-config "$work_dir/config.toml")" == "configuration is valid" ]]
-[[ "$("$binary" fixture "$work_dir/config.toml")" == "published fixture.jpg" ]]
-[[ "$("$binary" run-filesystem "$work_dir/config.toml")" == *"published 1 stable artifact(s)"* ]]
+[[ "$("$binary" fixture "$work_dir/config.toml")" == "published fixture.jpg and fixture.mp4" ]]
+[[ "$("$binary" run-filesystem "$work_dir/config.toml")" == *"published 2 stable artifact(s)"* ]]
 test -f "$work_dir/spool/ledger.jsonl"
 test -f "$work_dir/input/fixture.jpg"
+test -f "$work_dir/input/fixture.mp4"
 status_output="$("$binary" status "$work_dir/config.toml")"
 artifact_id="${status_output%% *}"
 [[ "$status_output" == *"Published"* ]]

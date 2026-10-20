@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-2-slice-9: synthetic fixture producer for camera-independent acceptance
+
 - phase-2-slice-8: status, pause, resume, and redacted failure diagnostics
 
 - phase-2-slice-7: completed-file cleanup only after durable upload completion

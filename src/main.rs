@@ -191,14 +191,23 @@ fn write_fixture(config: &Config) -> Result<String, String> {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff,
         0xda, 0x00, 0x08, 0x01, 0x01, 0x00, 0x00, 0x3f, 0x00, 0x00, 0xff, 0xd9,
     ];
-    let target = config.input_dir.join("fixture.jpg");
-    if target.exists() {
-        return Err("fixture.jpg already exists".into());
+    const MP4: &[u8] = &[
+        0x00, 0x00, 0x00, 0x18, b'f', b't', b'y', b'p', b'i', b's', b'o', b'm', 0x00, 0x00, 0x02,
+        0x00, b'i', b's', b'o', b'm', b'm', b'p', b'4', b'2', 0x00, 0x00, 0x00, 0x08, b'm', b'd',
+        b'a', b't',
+    ];
+    for name in ["fixture.jpg", "fixture.mp4"] {
+        if config.input_dir.join(name).exists() {
+            return Err(format!("{name} already exists"));
+        }
     }
-    let temporary = config.input_dir.join("fixture.jpg.part");
-    fs::write(&temporary, JPEG).map_err(|_| "could not write fixture".to_owned())?;
-    fs::rename(temporary, target).map_err(|_| "could not publish fixture".to_owned())?;
-    Ok("published fixture.jpg".into())
+    for (name, bytes) in [("fixture.jpg", JPEG), ("fixture.mp4", MP4)] {
+        let target = config.input_dir.join(name);
+        let temporary = config.input_dir.join(format!("{name}.part"));
+        fs::write(&temporary, bytes).map_err(|_| "could not write fixture".to_owned())?;
+        fs::rename(temporary, target).map_err(|_| "could not publish fixture".to_owned())?;
+    }
+    Ok("published fixture.jpg and fixture.mp4".into())
 }
 
 fn ingest_stable_files(config: &Config) -> Result<String, String> {
@@ -656,7 +665,7 @@ mod tests {
         assert_eq!(execute("status", &config_path).unwrap(), "no artifacts");
         assert_eq!(
             execute("fixture", &config_path).unwrap(),
-            "published fixture.jpg"
+            "published fixture.jpg and fixture.mp4"
         );
         fs::write(
             root.join("input/fixture.json"),
@@ -667,18 +676,19 @@ mod tests {
         assert!(
             execute("run-filesystem", &config_path)
                 .unwrap()
-                .contains("published 1")
+                .contains("published 2")
         );
         assert!(root.join("spool/ledger.jsonl").is_file());
-        assert_eq!(fs::read_dir(root.join("spool")).unwrap().count(), 2);
+        assert_eq!(fs::read_dir(root.join("spool")).unwrap().count(), 3);
         assert!(root.join("input/fixture.jpg").is_file());
+        assert!(root.join("input/fixture.mp4").is_file());
         assert!(root.join("input/pending.jpg.part").is_file());
         assert!(root.join("archive").is_dir());
         assert_eq!(
             execute("run-filesystem", &config_path).unwrap(),
-            "published 0 stable artifact(s); skipped 1 verified duplicate(s); archived 0 completed source(s)"
+            "published 0 stable artifact(s); skipped 2 verified duplicate(s); archived 0 completed source(s)"
         );
-        assert_eq!(fs::read_dir(root.join("spool")).unwrap().count(), 2);
+        assert_eq!(fs::read_dir(root.join("spool")).unwrap().count(), 3);
 
         let spool = Spool::open(root.join("spool"), 1048576).unwrap();
         let job_id = spool.ledger().pending()[0].artifact.id.0.clone();
@@ -739,7 +749,7 @@ mod tests {
 
         assert_eq!(
             execute("run-filesystem", &config_path).unwrap(),
-            "published 0 stable artifact(s); skipped 1 verified duplicate(s); archived 1 completed source(s)"
+            "published 0 stable artifact(s); skipped 2 verified duplicate(s); archived 1 completed source(s)"
         );
         assert!(!root.join("input/fixture.jpg").exists());
         assert!(!root.join("input/fixture.json").exists());

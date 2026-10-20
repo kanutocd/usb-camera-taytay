@@ -44,8 +44,10 @@ cargo run -- pause ARTIFACT_ID config.toml
 cargo run -- resume ARTIFACT_ID config.toml
 ```
 
-`fixture` atomically places a small JPEG in the input directory. External
-producers can write to a `.part` filename and atomically rename it to the final
+`fixture` atomically places deterministic JPEG and MP4 fixtures in the input
+directory. The MP4 is a minimal synthetic container sample for ingestion and
+media-type acceptance; it is not a camera recording. External producers can
+write to a `.part` filename and atomically rename it to the final
 filename when complete; `.part` files are ignored. `run-filesystem` scans three
 times with one second intervals so files that appear during the scan can still
 receive two stable observations. It publishes stable files through Taytay's

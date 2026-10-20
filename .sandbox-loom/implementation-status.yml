@@ -305,8 +305,20 @@ phases:
   - id: phase-4-slice-1
     title: Publish technical documentation
     status: pending
+    resume:
+      previous_run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-14
+      interrupted_at: '2026-10-20T21:16:01Z'
+      reason: failed
+      completed_tasks:
+      - inspect_scope
+      - bootstrap_scope
+      interrupted_task: implement_scope
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+    interrupted_at: '2026-10-20T21:16:01Z'
+    interrupted_run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-14
+    interruption_reason: failed
 runtime:
-  status: completed
+  status: failed
   runs:
     project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1:
       status: completed
@@ -2043,5 +2055,38 @@ runtime:
       - verify
       - commit
       - checkpoint
-  last_run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-13
-updated_at: '2026-10-20T21:14:07Z'
+    project-usb-camera-taytay-bounded-1473a0277735d05c-slice-14:
+      status: failed
+      pid: 1367252
+      started_at: '2026-10-20T21:14:10Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T21:14:34Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T21:15:03Z'
+          attempts: 1
+          repairs: 0
+        implement_scope:
+          status: running
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T21:15:03Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+      finished_at: '2026-10-20T21:15:30Z'
+      failure:
+        error: 'coding-agent execution output_limit: CLI execution output_limit; exit_status=0;
+          Reading prompt from stdin...
+
+          '
+        error_class: ProjectHarness::Error
+  last_run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-14
+  active_slice:
+    phase_id: phase-4
+    slice_id: phase-4-slice-1
+    run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-14
+updated_at: '2026-10-20T21:15:30Z'

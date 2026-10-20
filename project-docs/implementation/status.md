@@ -4,15 +4,15 @@
 > The YAML ledger remains authoritative. This page is safe to publish through Zensical.
 
 - Overall status: `in_progress`
-- Runtime status: `running`
+- Runtime status: `completed`
 - Last run: `project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1`
-- Last run result: `running`
+- Last run result: `completed`
 
 ## Phases and slices
 
 | Phase | Status | Slice | Slice status | Commit | Run |
 | --- | --- | --- | --- | --- | --- |
-| phase-1 Project bootstrap and local development | in_progress | phase-1-slice-1 Initialize the repository and project structure | in_progress | — | project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1 |
+| phase-1 Project bootstrap and local development | in_progress | phase-1-slice-1 Initialize the repository and project structure | completed | 66e508f | project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1 |
 |  |  | phase-1-slice-2 Local development environment | pending | — | — |
 | phase-2 Functional requirements | pending | phase-2-slice-1 Implement MVP1-FS-001 | pending | — | — |
 |  |  | phase-2-slice-2 Implement MVP1-FS-002 | pending | — | — |

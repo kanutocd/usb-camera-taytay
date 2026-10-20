@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-3-slice-1: lunsaran organization and project authorization; acceptance uses a
+
 - phase-2-slice-28: explicit approval before consequential repository or release
 
 - phase-2-slice-27: quality-gate and evidence correlation for each implementation

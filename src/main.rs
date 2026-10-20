@@ -1146,6 +1146,50 @@ mod tests {
     }
 
     #[test]
+    fn v4l2_capture_uses_the_filesystem_taytay_publication_path() {
+        let root = std::env::temp_dir().join(format!(
+            "usb-camera-taytay-v4l2-publication-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let input_dir = root.join("input");
+        fs::create_dir_all(&input_dir).unwrap();
+        let config_path = root.join("config.toml");
+        fs::write(
+            &config_path,
+            format!(
+                "input_dir = {:?}\nspool_dir = {:?}\narchive_dir = {:?}\nsource_id = \"camera-1\"\nspool_quota_bytes = 1048576\n",
+                input_dir.display().to_string(),
+                root.join("spool").display().to_string(),
+                root.join("archive").display().to_string(),
+            ),
+        )
+        .unwrap();
+        let frame = [0xff, 0xd8, 0x01, 0xff, 0xd9];
+        write_jpeg_frame(&input_dir, &frame, "2026-10-21T00:00:00Z").unwrap();
+
+        let result = execute("run-filesystem", &config_path).unwrap();
+        assert!(result.contains("published 1 stable artifact(s)"));
+
+        let spool = Spool::open(root.join("spool"), 1048576).unwrap();
+        let job = spool.ledger().pending().pop().unwrap();
+        assert_eq!(job.artifact.media_type, "image/jpeg");
+        assert_eq!(
+            job.artifact.captured_at.as_deref(),
+            Some("2026-10-21T00:00:00Z")
+        );
+        assert_eq!(
+            job.artifact.checksum_sha256,
+            Some(format!("{:x}", Sha256::digest(frame)))
+        );
+        spool.verify(&job).unwrap();
+        assert_eq!(fs::read_dir(&input_dir).unwrap().count(), 2);
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
     fn formats_system_capture_time_as_utc() {
         assert_eq!(utc_timestamp(UNIX_EPOCH).unwrap(), "1970-01-01T00:00:00Z");
     }

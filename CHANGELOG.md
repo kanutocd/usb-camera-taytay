@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-2-slice-18: reuse MVP1's Taytay Artifact publication, durable spool, and
+
 - phase-2-slice-17: hardware acceptance evidence and troubleshooting guide
 
 - phase-2-slice-16: capture-to-spool backpressure

@@ -1,0 +1,6 @@
+# Directories are created by check-config when absent.
+input_dir = "./var/input"
+spool_dir = "./var/spool"
+archive_dir = "./var/archive"
+source_id = "usb-camera-1"
+spool_quota_bytes = 1073741824

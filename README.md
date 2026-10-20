@@ -25,6 +25,25 @@ build, tests, and linting; run `scripts/acceptance-mock.sh` for the camera-free
 CLI smoke check. The individual commands and documentation gates are listed in
 [Quality gates](project-docs/harness/QUALITY_GATES.md).
 
+## MVP1 filesystem ingestion
+
+Copy [config.example.toml](config.example.toml) and set the input, spool, and
+archive directories to paths writable by the current user. The CLI creates
+these directories when they do not exist. `spool_quota_bytes` bounds durable
+spool usage; individual input artifacts are limited to 64 MiB.
+
+```sh
+cargo run -- check-config config.toml
+cargo run -- fixture config.toml
+cargo run -- run-filesystem config.toml
+```
+
+`fixture` atomically places a small JPEG in the input directory. `run-filesystem`
+scans twice with a one second interval, publishes files observed stable through
+Taytay's durable spool and ledger, and verifies each published checksum. It
+retains source files; archive cleanup is not part of this command. This slice
+does not start an uploader or require camera hardware or Lunsaran credentials.
+
 ## Baseline constraints
 
 The generated harness applies these baseline constraints where applicable:

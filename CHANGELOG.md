@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-2-slice-24: release and compatibility notes for the Taytay crate version
+
 - phase-2-slice-23: rust formatting, check, test, clippy, and coverage guidance
 
 - phase-2-slice-22: documentation build and local-link drift checks

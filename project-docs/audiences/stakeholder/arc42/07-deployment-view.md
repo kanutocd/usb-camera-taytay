@@ -1,17 +1,31 @@
 # Deployment View
 
-```yaml
----
-platform:
-  os: Linux.
-  hosting: No hosted control plane; deployment/hosting targets are not specified.
-  hardware: Optional USB camera through V4L2; one configured device in MVP2.
-development_environment:
-  platform: Linux with USB camera exposed through V4L2 for hardware work.
-  local_services: Optional local Lunsaran/Brutus acceptance environment when provisioned;
-    record readiness and end-to-end result without retaining secrets or media.
-  synthetic_mode: MVP1 local setup and tests must work with synthetic fixtures and
-    no production credentials or live Lunsaran environment.
-  hardware_tools: Use standard V4L2 inspection tools to verify an available camera
-    capture mode.
+## Local reference setup
+
+```mermaid
+flowchart TB
+  subgraph linux[Linux edge or development machine]
+    camera[Optional USB camera via V4L2]
+    producer[Optional external media producer]
+    app[USB Camera Taytay Rust CLI]
+    input[Configured MVP1 input directory]
+    spool[Configured Taytay spool and ledger]
+    camera --> app
+    producer --> input
+    input --> app
+    app --> spool
+  end
+  spool --> taytay[Taytay upload integration]
+  taytay --> services[ Lunsaran and Brutus services ]
+  loom[Separate private Sandbox Loom workflow] -. governs reviewed project work .-> app
 ```
+
+The deployment target is a local Linux application, not a hosted control plane. MVP1 setup and camera-independent acceptance use synthetic files and do not require production credentials, a camera, or live Lunsaran. MVP2 hardware work uses one configured V4L2 device. Local Lunsaran/Brutus services are used for end-to-end acceptance when provisioned.
+
+## Operational boundaries
+
+- Run the app unprivileged and grant only the filesystem, device, and network access explicitly needed for the selected run.
+- Keep the spool narrowly scoped and bound its use, memory, segment size, and capture pressure.
+- Store credentials in protected local files. Do not include them, signed URLs, or captured media in committed evidence.
+- Hardware acceptance records Linux version, camera model, negotiated mode, segment settings, checksum, and disconnect/reconnect result. It supplements deterministic tests; it does not replace them.
+- No production hosting topology, availability target, or fleet deployment is specified.

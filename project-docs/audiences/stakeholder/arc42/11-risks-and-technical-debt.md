@@ -1,30 +1,16 @@
 # Risks and Technical Debt
 
-```yaml
----
-- risk: Files are observed before they are complete.
-  impact: Corrupt or partial uploads.
-  mitigation: Require atomic rename, completion marker, or repeated stable observations.
-- risk: Capture rate exceeds upload or disk capacity.
-  impact: Backlog and eventual data loss.
-  mitigation: Bound spool, expose pressure, and define retention/backpressure behavior.
-- risk: USB camera format is unsupported.
-  impact: MVP2 cannot capture.
-  mitigation: Inspect capabilities first and support one verified format initially.
-- risk: Camera disconnects during a segment.
-  impact: Corrupt segment or stalled loop.
-  mitigation: Close incomplete output safely and reconnect with bounded backoff.
-- risk: Credential or URL leakage.
-  impact: Security incident.
-  mitigation: Strict file permissions, redaction tests, and secret-free fixtures.
-- risk: Local and remote state diverge.
-  impact: Duplicate or lost uploads.
-  mitigation: Preserve artifact identity, checksum-bound resume state, and durable
-    ledger records.
-- risk: Hardware-only tests become required for every change.
-  impact: Slow or unavailable CI.
-  mitigation: Keep MVP1 fixtures and mock acceptance as the default test layer.
-- risk: Codec implementation expands scope.
-  impact: Delayed MVP2.
-  mitigation: Start with one camera-supported format and defer transcoding.
-```
+The risks below are carried from the approved scope. The source material does not assign probability or severity, so this page does not invent priority ratings. No separate technical-debt items are identified in the scope brief.
+
+| Risk | Effect | Mitigation or evidence |
+| --- | --- | --- |
+| A file is observed before it is complete. | Partial or corrupt upload. | Require atomic rename, completion marker, or repeated stable observations; test incomplete-file suppression. |
+| Capture rate exceeds upload or disk capacity. | Growing backlog and eventual data loss. | Bound spool and buffers, expose pressure, and apply MVP2 backpressure; test quota behavior. |
+| The camera does not support a usable mode. | MVP2 cannot capture with the available hardware. | Inspect capabilities before selecting one verified format, resolution, and frame interval. |
+| The camera disconnects during a segment. | Corrupt segment or stalled capture. | Safely close incomplete output and test bounded disconnect/reconnect behavior. |
+| A credential or signed URL leaks. | Security incident. | Restrict credential files, redact output, and use secret-free fixtures and evidence. |
+| Local and remote upload state diverge. | Duplicate or lost uploads. | Preserve stable artifact identity, checksum-bound resume state, Taytay ledger records, and the remote committed offset. |
+| Hardware-only checks become required for ordinary changes. | Slow or unavailable CI and developer validation. | Keep MVP1 fixture and mock acceptance as the default layer. |
+| Codec implementation expands MVP2. | Delayed capture MVP. | Prefer a suitable camera-provided encoded mode; evaluate encoding only after the required artifact format is confirmed. |
+
+The scope does not guarantee lossless capture under arbitrary hardware, disk, or network overload. That limitation should remain visible in operator-facing material.

@@ -1,0 +1,795 @@
+# yaml-language-server: $schema=../../../agent-platform/specifications/intake/v0.1/scope.schema.json
+---
+version: '0.1'
+authoring:
+  audience: mixed
+  completion_status: ready_for_normalization
+  skill:
+    name: sandbox-loom-intake
+    version: '0.1'
+    source_hash: a785abea2128d0336782d30c2d8f393188a7cd7fff93967a6063939323abc785
+project: usb-camera-taytay
+objective: Provide a small, reproducible Linux Rust CLI reference application that
+  captures or receives local USB-camera media and delivers durable, checksum-bound,
+  resumable uploads to Lunsaran through Taytay, while keeping filesystem ingestion
+  and pure Rust V4L2 capture as deliberately staged MVPs.
+harness:
+  template: rust-binary
+  coding_agent:
+    provider: codex
+    executable: codex
+design_system: {}
+documentation:
+  audiences:
+    consumer:
+      public: true
+      template: consumer
+    technical:
+      public: true
+      template: technical
+    stakeholder:
+      public: true
+      template: arc42-detailed
+  publication:
+    targets:
+    - github-pages
+execution: {}
+mvp:
+- id: mvp-001
+  outcome: MVP1 — Filesystem/file-segment ingestion. Use completed files produced
+    by an existing camera or media tool, or synthetic fixtures, and exercise Taytay's
+    durable spool and upload path. MVP1 remains valid without a camera or live Lunsaran
+    environment for ordinary local tests.
+  exit_criteria: A documented command or producer creates synthetic or real media
+    segments in one input directory. Only stable, complete, readable files are published,
+    once, with stable artifact and source identity, media type, capture time when
+    available, metadata, size, and checksum. Source files are not mutated or deleted
+    before durable publication and successful upload completion. Uploads use Taytay's
+    checksum, retry, resume, bounded-worker, cancellation, and durable-ledger behavior.
+    Restart and repeated execution do not lose or duplicate logical uploads. Failures
+    remain inspectable and retryable with credentials, signed URLs, and media payloads
+    redacted. Acceptance includes deterministic fixture and mock runs, restart and
+    failure-path coverage, a real camera-produced file-segment command sequence, and
+    validation of a successful end-to-end upload against a locally running Lunsaran
+    platform using a provisioned test project and scoped device credential. Record
+    service readiness and upload result without retaining credentials, signed URLs,
+    or media in evidence.
+  milestone_ids:
+  - milestone-002
+  - milestone-003
+  - milestone-004
+  feature_ids:
+  - MVP1-FS-001
+  - MVP1-FS-002
+  - MVP1-FS-003
+  - MVP1-FS-004
+  - MVP1-FS-005
+  - MVP1-FS-006
+  - MVP1-FS-007
+  - MVP1-FS-008
+  - MVP1-FS-009
+  - MVP1-FS-010
+  - DEV-001
+  - DEV-002
+  - DEV-003
+  - DEV-004
+  - DEV-005
+  - DEV-006
+- id: mvp-002
+  outcome: MVP2 — Pure Rust V4L2 capture loop. Replace MVP1's external producer with
+    a Rust capture loop reading directly from one configured /dev/video* device, while
+    retaining the same artifact publication and durable upload boundary.
+  exit_criteria: Discover and open a configured device, negotiate a supported capture
+    format, resolution, and frame interval, configure streaming buffers and return
+    them safely to the driver, and write frames into bounded, timestamped segments
+    or another explicitly approved artifact format. Emit only complete, readable artifacts
+    and feed the same MVP1 filesystem/spool-to-upload boundary or an equivalent Artifact
+    publication boundary without duplicating upload logic. Handle camera disconnect,
+    reconnect, malformed frames, and shutdown without corrupting completed artifacts.
+    Apply backpressure when the spool is full or upload throughput falls below capture
+    throughput. Hardware acceptance records Linux version, camera model, negotiated
+    format, segment settings, disconnect/reconnect result, and checksum. MVP2 does
+    not require support for every USB camera, arbitrary codecs, audio, multi-camera
+    synchronization, or production-grade video analytics.
+  milestone_ids:
+  - milestone-005
+  - milestone-006
+  - milestone-007
+  feature_ids:
+  - MVP2-V4L2-001
+  - MVP2-V4L2-002
+  - MVP2-V4L2-003
+  - MVP2-V4L2-004
+  - MVP2-V4L2-005
+  - MVP2-V4L2-006
+  - MVP2-V4L2-007
+  - MVP2-V4L2-008
+milestones:
+- id: milestone-001
+  title: Confirm scope and resolve initial MVP decisions
+  exit_criteria: Confirm this scope and resolve MVP1 format and source-file retention
+    decisions before implementation proceeds on those choices.
+- id: milestone-002
+  title: Build MVP1 filesystem ingestion and Taytay adapter
+  exit_criteria: Build the MVP1 fixture producer, filesystem observer, and Taytay
+    adapter, including stable artifact publication, checksum verification, and durable-ledger
+    integration.
+  mvp_ids:
+  - mvp-001
+  feature_ids:
+  - MVP1-FS-001
+  - MVP1-FS-002
+  - MVP1-FS-003
+  - MVP1-FS-004
+  - MVP1-FS-005
+  - MVP1-FS-006
+  - MVP1-FS-007
+  - MVP1-FS-008
+  - MVP1-FS-009
+  - MVP1-FS-010
+- id: milestone-003
+  title: Prove deterministic mock acceptance and document the local runbook
+  exit_criteria: Demonstrate deterministic fixture and mock acceptance, including
+    incomplete-file suppression, duplicate-observation handling, checksum and quota
+    behavior, pause/resume, retry and resume across restart, cancellation, and credential/media
+    redaction. Document reproducible local setup and operation without production
+    credentials. When a local Lunsaran/Brutus environment is provisioned, verify service
+    readiness and a successful end-to-end upload using a test project and scoped device
+    credential; retain only redacted readiness and result evidence, with no credentials,
+    signed URLs, or media.
+  mvp_ids:
+  - mvp-001
+  feature_ids:
+  - MVP1-FS-008
+  - MVP1-FS-009
+  - MVP1-FS-010
+  - DEV-001
+  - DEV-002
+  - DEV-003
+  - DEV-004
+  - DEV-005
+- id: milestone-004
+  title: Demonstrate USB-camera-to-file-segment ingestion
+  exit_criteria: Run and record a real USB-camera-to-file-segment demonstration using
+    an external producer.
+  mvp_ids:
+  - mvp-001
+  feature_ids:
+  - MVP1-FS-001
+  - MVP1-FS-002
+  - MVP1-FS-004
+  - MVP1-FS-005
+- id: milestone-005
+  title: Inspect and select a V4L2 capture mode
+  exit_criteria: Inspect available camera capabilities and record the Linux version,
+    camera model, and one supported pixel format, resolution, and frame interval selected
+    for MVP2.
+  mvp_ids:
+  - mvp-002
+  feature_ids:
+  - MVP2-V4L2-001
+  - MVP2-V4L2-002
+- id: milestone-006
+  title: Implement the MVP2 V4L2 capture loop
+  exit_criteria: Implement pure Rust capture for the selected V4L2 mode, configure
+    and safely return streaming buffers, and write bounded timestamped segments that
+    are complete and readable before publication. Handle malformed frames, shutdown,
+    disconnect, and reconnect without corrupting completed artifacts. Apply backpressure
+    at the spool boundary and publish through the same Taytay Artifact, spool, and
+    upload path used by MVP1, without application-specific upload logic.
+  mvp_ids:
+  - mvp-002
+  feature_ids:
+  - MVP2-V4L2-003
+  - MVP2-V4L2-004
+  - MVP2-V4L2-005
+  - MVP2-V4L2-006
+  - MVP2-V4L2-008
+- id: milestone-007
+  title: Add hardware acceptance and operational guidance
+  exit_criteria: Record a hardware capture run with Linux version, camera model, negotiated
+    mode, segment settings, artifact checksums, and disconnect/reconnect results.
+    Verify that the captured artifact uses MVP1's Taytay durable upload path, maintain
+    a hardware matrix entry for the available camera, and document troubleshooting
+    guidance.
+  mvp_ids:
+  - mvp-002
+  feature_ids:
+  - MVP2-V4L2-004
+  - MVP2-V4L2-005
+  - MVP2-V4L2-007
+  - MVP2-V4L2-008
+- id: milestone-008
+  title: Release after applicable quality and governance evidence
+  exit_criteria: Release only after applicable quality gates and documentation checks
+    pass, including approved Sandbox Loom evidence and approval boundaries when that
+    workflow is used.
+features:
+- id: MVP1-FS-001
+  description: Configurable input, spool, and archive directories.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-002
+  - milestone-004
+- id: MVP1-FS-002
+  description: Atomic-rename and stable-file completion detection.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-002
+  - milestone-004
+- id: MVP1-FS-003
+  description: Deterministic artifact-ID derivation and duplicate handling.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-002
+- id: MVP1-FS-004
+  description: Media-type and capture-time detection from filename or sidecar.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-002
+  - milestone-004
+- id: MVP1-FS-005
+  description: Taytay spool publication and checksum verification.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-002
+  - milestone-004
+- id: MVP1-FS-006
+  description: Bounded observation and upload scheduling.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-002
+- id: MVP1-FS-007
+  description: Completed-file cleanup only after durable upload completion.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-002
+- id: MVP1-FS-008
+  description: Status, pause, resume, and redacted failure diagnostics.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-002
+  - milestone-003
+- id: MVP1-FS-009
+  description: Synthetic fixture producer for camera-independent acceptance.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-002
+  - milestone-003
+- id: MVP1-FS-010
+  description: Taytay durable-ledger recovery, bounded retry/resume, and repeated-execution
+    deduplication.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-002
+  - milestone-003
+- id: MVP2-V4L2-001
+  description: Configured device discovery and capability inspection.
+  mvp_ids:
+  - mvp-002
+  milestone_ids:
+  - milestone-005
+- id: MVP2-V4L2-002
+  description: Format, resolution, and frame-interval negotiation.
+  mvp_ids:
+  - mvp-002
+  milestone_ids:
+  - milestone-005
+- id: MVP2-V4L2-003
+  description: Memory-mapped or explicitly approved V4L2 buffer lifecycle.
+  mvp_ids:
+  - mvp-002
+  milestone_ids:
+  - milestone-006
+- id: MVP2-V4L2-004
+  description: Frame timestamping and bounded segment writing that emits only complete,
+    readable artifacts.
+  mvp_ids:
+  - mvp-002
+  milestone_ids:
+  - milestone-006
+  - milestone-007
+- id: MVP2-V4L2-005
+  description: Safe malformed-frame handling, capture-loop shutdown, and device disconnect/reconnect
+    behavior.
+  mvp_ids:
+  - mvp-002
+  milestone_ids:
+  - milestone-006
+  - milestone-007
+- id: MVP2-V4L2-006
+  description: Capture-to-spool backpressure.
+  mvp_ids:
+  - mvp-002
+  milestone_ids:
+  - milestone-006
+- id: MVP2-V4L2-007
+  description: Hardware acceptance evidence and troubleshooting guide.
+  mvp_ids:
+  - mvp-002
+  milestone_ids:
+  - milestone-007
+- id: MVP2-V4L2-008
+  description: Reuse MVP1's Taytay Artifact publication, durable spool, and upload
+    boundary without application-specific upload logic.
+  mvp_ids:
+  - mvp-002
+  milestone_ids:
+  - milestone-006
+  - milestone-007
+- id: DEV-001
+  description: One-command local setup with no production credentials.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-003
+- id: DEV-002
+  description: Configuration example and protected-token instructions.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-003
+- id: DEV-003
+  description: Deterministic mock acceptance against the published client.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-003
+- id: DEV-004
+  description: Documentation build and local-link drift checks.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-003
+- id: DEV-005
+  description: Rust formatting, check, test, clippy, and coverage guidance.
+  mvp_ids:
+  - mvp-001
+  milestone_ids:
+  - milestone-003
+- id: DEV-006
+  description: Release and compatibility notes for the Taytay crate version.
+  mvp_ids:
+  - mvp-001
+- id: LOOM-001
+  description: Sandbox Loom intake and normalized-scope traceability.
+  milestone_ids:
+  - milestone-008
+- id: LOOM-002
+  description: Reviewed project-specific harness and bounded execution plan.
+  milestone_ids:
+  - milestone-008
+- id: LOOM-003
+  description: Quality-gate and evidence correlation for each implementation slice.
+  milestone_ids:
+  - milestone-008
+- id: LOOM-004
+  description: Explicit approval before consequential repository or release operations.
+  milestone_ids:
+  - milestone-008
+stakeholders:
+- role: Project owner
+  concerns: Approves scope, MVP acceptance, assumptions, and open questions.
+- role: Technical lead
+  concerns: Owns application architecture, source boundary, runtime behavior, and
+    release quality.
+- role: Security lead
+  concerns: Reviews credential handling, local permissions, logs, media exposure,
+    and least-privilege operation.
+- role: QA lead
+  concerns: Owns deterministic fixtures, camera-independent tests, and optional hardware
+    acceptance evidence.
+- role: Reference-app developer
+  concerns: Runs the application against USB-camera or file-producer input and changes
+    one integration boundary at a time.
+- role: Rust integrator
+  concerns: Uses the project as an example of composing a source adapter, Spool, scheduler,
+    and uploader.
+- role: Edge operator
+  concerns: Configures the local spool, credential file, device source, and status
+    checks.
+- role: Taytay maintainer
+  concerns: Verifies alignment with the public Taytay crate API and security boundaries.
+- role: Sandbox Loom maintainer
+  concerns: Verifies policy-governed, bounded, auditable workflow separate from application
+    authority.
+ownership:
+  project_owner: Approves scope, MVP acceptance, assumptions, and open questions.
+  technical_lead: Owns application architecture, source boundary, runtime behavior,
+    and release quality.
+  security_lead: Reviews credential handling, local permissions, logs, media exposure,
+    and least-privilege operation.
+  qa_lead: Owns deterministic fixtures, camera-independent tests, and optional hardware
+    acceptance evidence.
+actors:
+- Reference-app developer
+- Rust integrator
+- Edge operator
+- Taytay maintainer
+- Sandbox Loom maintainer
+- USB camera or external media producer
+- Taytay Artifact, Spool, scheduler, ledger, and uploader
+- Lunsaran identity, organization/project authorization, and upload-session API
+- Brutus TUS data plane and provider execution
+- Private Sandbox Loom / sandbox-loom governance workflow
+requirements:
+  functional: []
+  non_functional: []
+constraints:
+  application: One Linux reference application; one configured MVP1 input directory;
+    one configured MVP2 V4L2 device.
+  cli: Rust CLI; command names and behavior should be consumer-oriented and documented
+    before being treated as stable.
+  mvp_boundary: MVP1 consumes completed files from an external producer or fixtures;
+    MVP2 replaces that producer with a pure Rust V4L2 capture loop.
+  artifact_contract: Filesystem and V4L2 source boundaries produce the same Taytay
+    Artifact contract; only complete, stable, readable artifacts are emitted.
+  durability: Publication is atomic and checksum-bound before upload; the durable
+    ledger is authoritative for local job state; the remote TUS offset is authoritative
+    for resumable transfer.
+  retry: Retries are bounded and classified; permanent authorization or protocol failures
+    are not hidden as transport retries.
+  upload_boundary: Use published lunsaran-taytay and lunsaran-entregar integrations
+    and Taytay ArtifactUploader; no application-specific HTTP or TUS upload path.
+  local_tests: Synthetic fixtures and camera-independent tests are required; camera
+    hardware is not required for ordinary unit and mock acceptance.
+  hardware: MVP2 targets one configured /dev/video* device and initially supports
+    one verified pixel format, resolution, and frame interval.
+  operations: Keep the application unprivileged and use a narrowly scoped writable
+    spool; bound memory, segment size, spool, and capture-to-upload pressure.
+  deployment: Local reference application and integration example; no hosted control
+    plane or production deployment scope is defined.
+api: {}
+security:
+  credential_storage: Read credentials from protected local files; require no group/other
+    access.
+  secret_redaction: Never commit or expose device credentials, Lunsaran tokens, signed
+    URLs, authorization headers, camera passwords, or captured media in logs, artifact
+    metadata, filenames, metrics, diagnostics, fixtures, acceptance output, or evidence.
+  least_privilege: Do not grant implicit or unrestricted credentials, network, device,
+    filesystem, publication, or commit capabilities; these remain external and explicitly
+    configured/approved where needed.
+  upload_auth: Lunsaran owns identity, organization/project authorization, and upload-session
+    policy.
+  evidence: Preserve redacted evidence without credentials, raw media, device-specific
+    secrets, generated site output, or unverifiable hardware logs.
+compliance: {}
+tenancy:
+  model: Lunsaran organization and project authorization; acceptance uses a provisioned
+    test project and scoped device credential when available.
+  application_scope: No user management, billing, tenant administration, or replacement
+    for Lunsaran authorization.
+isolation:
+  boundaries:
+  - USB Camera Taytay owns local capture, buffering, configuration, and reference-app
+    orchestration.
+  - Taytay owns durable local publication, checksums, ledger, retries, resume, cancellation,
+    bounded workers, and upload integration.
+  - Lunsaran owns identity and project authorization.
+  - Brutus owns TUS data transfer and provider execution.
+  - Sandbox Loom owns governed execution, policy, approvals, quality evidence, and
+    commit boundaries.
+development_environment:
+  platform: Linux with USB camera exposed through V4L2 for hardware work.
+  local_services: Optional local Lunsaran/Brutus acceptance environment when provisioned;
+    record readiness and end-to-end result without retaining secrets or media.
+  synthetic_mode: MVP1 local setup and tests must work with synthetic fixtures and
+    no production credentials or live Lunsaran environment.
+  hardware_tools: Use standard V4L2 inspection tools to verify an available camera
+    capture mode.
+operations:
+  runbook: Provide a concise operator/developer guide and local runbook.
+  diagnostics: Expose safe operator diagnostics; failed or offline uploads remain
+    inspectable and retryable without leaking secrets or media.
+  recovery: Preserve durable jobs across restart; handle temporary network failure
+    and repeated execution; hardware reconnect behavior is covered for MVP2.
+  source_retention: Do not mutate or delete a source file before durable publication
+    and successful upload completion; retention after success remains an open decision.
+platform:
+  os: Linux.
+  hosting: No hosted control plane; deployment/hosting targets are not specified.
+  hardware: Optional USB camera through V4L2; one configured device in MVP2.
+services:
+  local_acceptance:
+    lunsaran: Locally running platform used for provisioned end-to-end acceptance
+      when available.
+    brutus: Lunsaran/Brutus local acceptance may be used when provisioned.
+  relationships:
+  - USB Camera Taytay publishes artifacts to Taytay's durable spool and ledger.
+  - Taytay/Entregar creates checksum-bound upload sessions through Lunsaran and transfers
+    through Brutus/TUS.
+dependencies:
+- name: lunsaran-taytay
+  role: Published Rust crate providing Taytay edge integration, durable spool, ledger,
+    and upload runtime.
+- name: lunsaran-entregar
+  role: Supported Entregar upload client integration.
+- name: Lunsaran
+  role: Identity, organization/project authorization, and upload-session API; do not
+    build or change it in this project.
+- name: Brutus
+  role: TUS data plane and provider execution; do not build or change it in this project.
+- name: Sandbox Loom / sandbox-loom
+  role: Private control plane, policy, workflow, intake, harness, and evidence conventions;
+    remains separate from this application repository.
+- name: Linux V4L2
+  role: MVP2 camera device interface and hardware acceptance environment.
+database: {}
+email: {}
+object_storage: {}
+redis: {}
+components:
+- name: USB Camera Taytay CLI
+  responsibility: Local filesystem observation or V4L2 capture, configuration, and
+    application orchestration.
+- name: Taytay spool and ledger
+  responsibility: Durable local artifact publication, checksum state, and upload job
+    state.
+- name: Entregar uploader
+  responsibility: Supported upload-session and artifact upload integration through
+    Taytay.
+- name: Lunsaran
+  responsibility: Identity and project authorization.
+- name: Brutus
+  responsibility: TUS data plane and provider execution.
+- name: Sandbox Loom
+  responsibility: Separate policy-governed workflow, approvals, quality evidence,
+    and commits.
+quality_expectations:
+  commands:
+  - cargo fmt --all -- --check
+  - cargo check --workspace --all-targets --all-features
+  - cargo test --workspace --all-features
+  - cargo llvm-cov --workspace --all-features --fail-under-lines 90
+  - cargo clippy --workspace --all-targets --all-features -- -D warnings
+  - scripts/quality.sh
+  - scripts/acceptance-mock.sh
+  documentation: Run documented Zensical and Markdown checks for documentation changes.
+  release: Run applicable quality gates and documentation checks before release.
+  scope_note: Commands apply as relevant to the application/workspace; they are transcribed
+    from scope and do not assert that the current repository checkout contains each
+    script or a Cargo workspace.
+qa:
+  strategy: Deterministic synthetic and mock acceptance by default; live platform
+    and hardware acceptance add evidence when provisioned and available.
+  mvp1:
+  - Deterministic fixture run showing file stabilization, spool publication, and mock
+    upload completion.
+  - Tests suppress incomplete files and prevent duplicate logical jobs from repeated
+    observations.
+  - Restart coverage proves durable jobs resume without data loss.
+  - Cover checksum, quota, pause/resume, retry, cancellation, and redaction.
+  - Record a real USB-camera-produced file-segment command sequence.
+  - Validate successful end-to-end upload against a locally running Lunsaran platform
+    using a provisioned test project and scoped device credential; record service
+    readiness and result without retaining credentials, signed URLs, or media.
+  mvp2:
+  - Record device capability and negotiated format without credential leakage.
+  - Record capture run with artifact checksums and segment metadata.
+  - Test buffer ownership, shutdown, malformed input, disconnect, and reconnect behavior.
+  - Maintain hardware matrix entry for available USB camera.
+  - Verify capture loop uses same Taytay durable upload path as MVP1.
+  test_data: Synthetic media fixtures; no captured media or secrets in committed evidence.
+  hardware: Optional for MVP2-specific acceptance; hardware failures are not code-quality
+    failures.
+risks:
+- risk: Files are observed before they are complete.
+  impact: Corrupt or partial uploads.
+  mitigation: Require atomic rename, completion marker, or repeated stable observations.
+- risk: Capture rate exceeds upload or disk capacity.
+  impact: Backlog and eventual data loss.
+  mitigation: Bound spool, expose pressure, and define retention/backpressure behavior.
+- risk: USB camera format is unsupported.
+  impact: MVP2 cannot capture.
+  mitigation: Inspect capabilities first and support one verified format initially.
+- risk: Camera disconnects during a segment.
+  impact: Corrupt segment or stalled loop.
+  mitigation: Close incomplete output safely and reconnect with bounded backoff.
+- risk: Credential or URL leakage.
+  impact: Security incident.
+  mitigation: Strict file permissions, redaction tests, and secret-free fixtures.
+- risk: Local and remote state diverge.
+  impact: Duplicate or lost uploads.
+  mitigation: Preserve artifact identity, checksum-bound resume state, and durable
+    ledger records.
+- risk: Hardware-only tests become required for every change.
+  impact: Slow or unavailable CI.
+  mitigation: Keep MVP1 fixtures and mock acceptance as the default test layer.
+- risk: Codec implementation expands scope.
+  impact: Delayed MVP2.
+  mitigation: Start with one camera-supported format and defer transcoding.
+approvals: {}
+release: {}
+observability: {}
+out_of_scope:
+- Build or change Lunsaran, Brutus, or their authorization model.
+- Build or change Sandbox Loom itself.
+- Hosted control plane, user management, billing, or tenant administration.
+- Mobile, Android, iOS, PWA, or browser camera clients.
+- Cloud storage-provider credentials or direct object-storage uploads.
+- Video analytics, object detection, facial recognition, or event inference.
+- Audio capture, multi-camera synchronization, PTZ control, or camera fleet management.
+- Supporting every V4L2 pixel format and codec in the first hardware MVP.
+- Guarantee of lossless capture under arbitrary hardware, disk, or network overload.
+- Production-grade video analytics.
+assumptions:
+- Reference machine runs Linux and exposes a USB camera through V4L2.
+- MVP1 may use an external producer such as FFmpeg or GStreamer, but remains valid
+  with synthetic files.
+- Taytay and the published Entregar crates remain the upload integration boundary.
+- A Lunsaran organization, project, and scoped device credential can be provisioned
+  for live acceptance; they are not required for ordinary local tests.
+- Private Sandbox Loom / sandbox-loom remains available to review and execute the
+  project's approved harness workflow.
+- Available USB camera has at least one capture mode verifiable with standard V4L2
+  inspection tools.
+- Reference app is single-device and single-process for both MVPs.
+open_questions:
+- id: Q-001
+  question: 'Which file format should MVP1 treat as the primary reference artifact:
+    JPEG, MP4, or both?'
+  owner: Technical lead
+  blocking: true
+  status: answered
+  answer: |-
+    Support both JPEG and MP4 as MVP1 reference artifacts, while using small
+          synthetic fixtures for deterministic acceptance. This exercises both
+          still-image and video-segment handling without requiring a camera; the
+          trade-off is added fixture and media-type coverage compared with choosing
+          one format.
+  answer_suggestion: Support both JPEG and MP4 as MVP1 reference artifacts, while
+    using small synthetic fixtures for deterministic acceptance. This exercises both
+    still-image and video-segment handling without requiring a camera; the trade-off
+    is added fixture and media-type coverage compared with choosing one format.
+  answered_by: Technical lead
+- id: Q-002
+  question: Which capture format and resolution should MVP2 support first on the available
+    USB camera?
+  owner: Technical lead
+  blocking: true
+  status: answered
+  answer: |-
+    Select one format and resolution from the available camera's
+        reported V4L2 capabilities, favoring a mode that can be captured and segmented
+        reliably with the reference hardware. This follows the scope's one-verified-mode
+        MVP boundary; the specific mode remains undecided until the camera is inspected,
+        and supporting only that mode limits initial hardware compatibility.
+  answer_suggestion: Select one format and resolution from the available camera's
+    reported V4L2 capabilities, favoring a mode that can be captured and segmented
+    reliably with the reference hardware. This follows the scope's one-verified-mode
+    MVP boundary; the specific mode remains undecided until the camera is inspected,
+    and supporting only that mode limits initial hardware compatibility.
+  answered_by: Technical lead
+- id: Q-003
+  question: Should MVP1 invoke an external producer, document a manual drop directory,
+    or support both?
+  owner: Project owner
+  blocking: false
+  status: answered
+  answer: |-
+    Support a documented manual drop directory and document an external
+        producer command as an optional demonstration path. This keeps ordinary MVP1 setup
+        simple while retaining a real-camera demonstration; the trade- off is that producer
+        lifecycle management is not automated.
+  answer_suggestion: Support a documented manual drop directory and document an external
+    producer command as an optional demonstration path. This keeps ordinary MVP1 setup
+    simple while retaining a real-camera demonstration; the trade- off is that producer
+    lifecycle management is not automated.
+  answered_by: Project owner
+- id: Q-004
+  question: Should MVP2 write encoded camera frames directly or depend on a Rust encoder?
+  owner: Technical lead
+  blocking: true
+  status: answered
+  answer: |-
+    Prefer writing a camera-provided encoded format directly when the
+        available device exposes a suitable mode; otherwise evaluate a Rust
+        encoder only after confirming the required artifact format. This avoids
+        adding encoding complexity when the camera can provide usable encoded
+        frames; the trade-off is that supported formats and resulting artifacts
+        depend on the selected camera mode.
+  answer_suggestion: Prefer writing a camera-provided encoded format directly when
+    the available device exposes a suitable mode; otherwise evaluate a Rust encoder
+    only after confirming the required artifact format. This avoids adding encoding
+    complexity when the camera can provide usable encoded frames; the trade-off is
+    that supported formats and resulting artifacts depend on the selected camera mode.
+  answered_by: Technical lead
+- id: Q-005
+  question: What retention policy applies to successfully uploaded source files?
+  owner: Project owner
+  blocking: true
+  status: answered
+  answer: |-
+    Retain successfully uploaded source files in the configured archive
+        until an operator removes them, rather than deleting immediately. This preserves
+        a local recovery copy; the trade-off is additional disk usage and a need for a
+        later cleanup policy.
+  answer_suggestion: Retain successfully uploaded source files in the configured archive
+    until an operator removes them, rather than deleting immediately. This preserves
+    a local recovery copy; the trade-off is additional disk usage and a need for a
+    later cleanup policy.
+  answered_by: Project owner
+- id: Q-006
+  question: Which live Lunsaran/Brutus environment and credential lifecycle will be
+    used for hardware acceptance?
+  owner: Security lead
+  blocking: false
+  status: answered
+  answer: |-
+    Use a local provisioned Lunsaran/Brutus environment with a dedicated
+        test project and narrowly scoped device credential, and define rotation or revocation
+        after acceptance. This keeps live validation separate from production access;
+        the trade-off is environment and credential setup overhead.
+  answer_suggestion: Use a local provisioned Lunsaran/Brutus environment with a dedicated
+    test project and narrowly scoped device credential, and define rotation or revocation
+    after acceptance. This keeps live validation separate from production access;
+    the trade-off is environment and credential setup overhead.
+  answered_by: Security lead
+facts:
+- The project is a small Linux reference application and integration example, not
+  a hosted camera platform or replacement for Lunsaran authorization/storage.
+- The project has two staged MVPs: MVP1 completed-file ingestion and MVP2 pure Rust
+    V4L2 capture.
+- The application owns local capture/buffering and orchestration; Taytay owns local
+  durability and transfer orchestration; Lunsaran owns identity/project authorization;
+  Brutus owns TUS transfer and provider execution.
+- The public Taytay crate and Entregar client are the upload integration boundary.
+- The private Sandbox Loom / sandbox-loom repository remains separate and governs
+  intake, policy, workflow, harness, evidence, approvals, and commits.
+- Every coherent change should update user-facing documentation and changelog when
+  behavior or scope changes.
+- Release follows applicable quality and documentation gates and approved Sandbox
+  Loom evidence and boundaries when that workflow is used.
+- field: project
+  value: usb-camera-taytay
+- field: objective
+  value: Provide a small, reproducible Linux Rust CLI reference application that captures
+    or receives local USB-camera media and delivers durable, checksum-bound, resumable
+    uploads to Lunsaran through Taytay, while keeping filesystem ingestion and pure
+    Rust V4L2 capture as deliberately staged MVPs.
+proposals:
+- proposal: Add MVP2-V4L2-008 for using MVP1's Taytay Artifact publication, durable
+    spool, and upload boundary.
+  rationale: Reuse of that boundary is an explicit MVP2 exit criterion, but the source
+    feature list did not have a dedicated feature for it.
+  trade_off: This adds a candidate feature for implementation traceability; it does
+    not approve a separate capture or upload architecture.
+- proposal: Add MVP1-FS-010 for durable-ledger recovery, bounded retry/resume, and
+    repeated-execution deduplication.
+  rationale: These behaviors are explicit MVP1 exit criteria but were not represented
+    by a dedicated feature in the source feature list.
+  trade_off: This adds a candidate feature for traceability; it remains subject to
+    stakeholder review like the other source feature IDs.
+- proposal: Treat source feature IDs as candidate features pending stakeholder review.
+  rationale: The scope statement explicitly says feature IDs are proposals until accepted
+    in the implementation brief; the schema has no per-feature status field.
+  trade_off: The features remain separately traceable in the features list, while
+    this proposal records that their inclusion is not approval.
+- proposal: Infer the rust-binary harness template from the single Rust CLI project
+    shape.
+  rationale: The project skill identifies this as a Rust CLI reference application;
+    the intake skill maps a single Rust CLI to rust-binary.
+  trade_off: This is an intake inference for review, not a stakeholder-approved harness
+    choice.
+- proposal: Use the codex CLI as the harness coding agent, with executable codex.
+  rationale: The Sandbox Loom intake skill's generated project context selects target
+    codex.
+  trade_off: Review the execution provider and executable before harness generation;
+    no credentials or model are specified here.
+provenance:
+- stored_path: source-materials/project-brief.yml
+  sha256: 6808333e6654e79add2295e4e4e3e94ad79c3b45d0586170b556ff620511dd4c
+  bytes: 33942
+  source_sha256: fc20650ec708b3cd6f836b4ccfb5aa422a0cdb97eae20fefd39736a89ba773e7
+  source_bytes: 33936
+  format: yml

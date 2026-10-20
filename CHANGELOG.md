@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-2-slice-22: documentation build and local-link drift checks
+
 - phase-2-slice-21: deterministic mock acceptance against the published client
 
 - phase-2-slice-20: configuration example and protected-token instructions

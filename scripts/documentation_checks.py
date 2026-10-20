@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "project-docs"
 EXCLUDED = ("harness/", "backlog/", "evidence/", "documentation/manifests/", "adrs/")
 LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)|<((?:\.\.?/|/)[^>]+)>")
+REFERENCE_DEFINITION = re.compile(r"^\s{0,3}\[[^\]]+\]:\s*<?(\S+?)>?(?:\s+['\"(].*)?$", re.MULTILINE)
 FENCE = re.compile(r"^```(\w+)\s*$")
 
 
@@ -28,8 +29,11 @@ def published_markdown() -> list[Path]:
 def links() -> list[str]:
     errors: list[str] = []
     for source in published_markdown():
-        for match in LINK.finditer(source.read_text(encoding="utf-8")):
-            target = (match.group(1) or match.group(2)).strip()
+        content = source.read_text(encoding="utf-8")
+        targets = [match.group(1) or match.group(2) for match in LINK.finditer(content)]
+        targets.extend(match.group(1) for match in REFERENCE_DEFINITION.finditer(content))
+        for raw_target in targets:
+            target = raw_target.strip()
             if not target or target.startswith(("#", "https://", "http://", "mailto:", "tel:")):
                 continue
             target = unquote(target.split("#", 1)[0].split("?", 1)[0])

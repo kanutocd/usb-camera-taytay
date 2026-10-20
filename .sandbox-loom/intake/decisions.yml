@@ -1,31 +1,71 @@
 ---
 version: '0.1'
-status: pending
+status: approved
 project: usb-camera-taytay
 template: rust-binary
 open_questions: []
 decisions:
 - id: tenant-isolation
   title: Tenant isolation
-  status: proposed
+  status: approved
   source: tenancy/isolation
   proposal: Enforce tenant boundaries in application authorization and the persistence
     layer.
   rationale: Cross-tenant access must fail closed even if one enforcement layer is
     bypassed or misconfigured.
+  approved_by: Technical lead
+  approval_rationale: 'Accepted: enforce tenant boundaries in application authorization
+    and persistence so either layer fails closed independently.'
 - id: local-development-services
   title: Local development services
-  status: proposed
+  status: approved
   source: development_environment/services
   proposal: Use the declared local orchestration and dependency services as the reproducible
     development boundary.
   rationale: Health checks and disposable local dependencies make setup and verification
     repeatable without production credentials.
+  approved_by: Technical lead
+  approval_rationale: 'Accepted: use the declared local services as the reproducible
+    development boundary; live acceptance remains conditional on provisioned services.'
 - id: quality-gates-and-evidence
   title: Quality gates and evidence
-  status: proposed
+  status: approved
   source: quality_expectations/qa
   proposal: Treat the declared quality gates, coverage thresholds, contract tests,
     and E2E expectations as required acceptance evidence.
   rationale: Autonomous changes must be reviewable through deterministic, recorded
     verification results.
+  approved_by: QA lead
+  approval_rationale: 'Accepted: require the declared deterministic quality gates
+    and preserve their evidence for slice acceptance.'
+- decision: approved
+  reviewer: Project owner
+  rationale: Approved USB Camera Taytay scope, quality gates, and execution policy.
+  artifact_hashes:
+    components.yml: 61b3f4696a590756f2eb2062c93f127b9c7ad4e5b00d491a52773b8fa89dfabe
+    harness.yml: efd01f75d2a3f60f5a0689caf0026d54de12532b1545bea8ad780e9768ffc37e
+    implementation-plan.yml: 2d38995ffa646b65483978de280d59cb60dae658c52a661dbd0f22c6dcc48378
+    implementation-status.yml: 454ffb8c960abeb28dff289b4087dfc5ac8f18591e47515dd58925d309ba1610
+    intake-20261020-230819/normalized-scope.yml: 937ceafca80d9214dd79cc1f976c4fd8312d11b92064c7b6a2e4909bdcc16e56
+    intake-20261020-230819/provenance.json: 6e9497a31b043126816bdf0e8b8f749e0439d0321a37a8b5d4676bcc0d79032d
+    intake-20261020-230819/source-materials/project-brief.yml: 775a002303040b5adf12e857fdd929d78fa52c1c2c329846701947d48cb5eac6
+    intake/decisions.yml: 8304af23e2313d7f3907f55e7755c86d81ee87e65a46a40b2bc7843af85c249d
+    policy-profile.yml: 4ed3ced94b6144dbd66461b4af831147de048ef1b31dc80c36b5fff587118540
+    project.yml: 14c86fa9dce1558e81be95c903be7ec6f7719b0d7cf39decbcaf45c669cb8f7d
+    quality-gates.yml: 79e633b2fa815b352af1ed57003bb4b9a45b12986a857db44b2c1d075fb83916
+    requirements.yml: 16dbcf92d30e6ecf13841acb1646797e5c80f89ca7ff7685f1fe60bd025db15a
+    skills/sandbox-loom-intake/SKILL.md: 9d9ab18514eb29d0ac75bf5eb64f0e3aaab21c1015c513b0a3b9e78bcd3c6159
+    workflow.yml: 93da7c71ed6ecb8d1bfb4635ba3c4ea5451b0671ad29f466cf31efe30d76b23a
+decision_approvals:
+- id: tenant-isolation
+  reviewer: Technical lead
+  rationale: 'Accepted: enforce tenant boundaries in application authorization and
+    persistence so either layer fails closed independently.'
+- id: local-development-services
+  reviewer: Technical lead
+  rationale: 'Accepted: use the declared local services as the reproducible development
+    boundary; live acceptance remains conditional on provisioned services.'
+- id: quality-gates-and-evidence
+  reviewer: QA lead
+  rationale: 'Accepted: require the declared deterministic quality gates and preserve
+    their evidence for slice acceptance.'

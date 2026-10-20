@@ -43,8 +43,11 @@ deployment: Local reference application and integration example; no hosted contr
 - Brutus
 - Sandbox Loom
 
-The current `run-v4l2` command is a buffer-lifecycle increment: it captures one
-frame, copies only the driver's reported byte count, and queues the buffer back
-before continuing. Capture mappings and streaming are released by RAII cleanup.
-Timestamped segments and Taytay publication are delivered by later MVP2 slices.
-
+The current `run-v4l2` command copies each driver's reported frame bytes and
+returns its buffer before writing. For `MJPG`, it validates the JPEG markers and
+writes timestamped JPEG frames with capture-time sidecars through `.part` files
+and atomic rename into the configured MVP1 input directory. Frame count and
+aggregate bytes per invocation are bounded. This reuses MVP1 filesystem
+publication in a subsequent `run-filesystem` invocation; capture mappings and
+streaming are released by RAII cleanup. Additional lifecycle and backpressure
+behavior is covered by later MVP2 slices.

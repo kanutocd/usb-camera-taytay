@@ -61,23 +61,29 @@ configured archive directory. Pending, failed, paused, and uploading artifacts
 remain in input. The archive keeps the source copy. This command does not start
 an uploader or require camera hardware or Lunsaran credentials.
 
-## MVP2 V4L2 buffer lifecycle
+## MVP2 V4L2 MJPEG segments
 
 On Linux, `run-v4l2` opens the configured device, requests the configured
 capture mode, maps four driver-owned buffers, queues them for streaming, copies
-one dequeued frame, and returns that buffer to the driver. Set
+each dequeued frame, and returns that buffer to the driver. Set
 `v4l2_device`, `v4l2_width`, `v4l2_height`, and the four-character
 `v4l2_pixel_format` in the config after inspecting the device's capabilities.
-The command requires device access and currently verifies capture of one frame;
-it does not write or publish a segment.
+This increment writes complete MJPEG frames as timestamped JPEG files into the
+configured input directory, with matching capture-time sidecars. Files are
+synced and atomically renamed from `.part` paths, so the existing filesystem
+ingestion command can publish them through Taytay. Configure
+`v4l2_segment_frames` (default 30, maximum 300) and
+`v4l2_segment_max_bytes` (default 64 MiB) to bound each run. Only `MJPG` is
+currently written; other capture formats are rejected.
 
 ```sh
 cargo run -- run-v4l2 config.toml
 ```
 
 The mappings and stream are released when the capture command exits, including
-on frame validation errors. Camera-independent tests cover frame length and
-buffer-index validation.
+on frame validation errors. Camera-independent tests cover frame length,
+buffer-index validation, JPEG completeness, timestamp sidecars, and atomic file
+publication.
 
 `status` reads artifact IDs and lifecycle states from the durable ledger.
 `pause` and `resume` persist state changes through Taytay's ledger; resume makes

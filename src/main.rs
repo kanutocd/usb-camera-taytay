@@ -38,6 +38,8 @@ struct Config {
     v4l2_width: Option<u32>,
     v4l2_height: Option<u32>,
     v4l2_pixel_format: Option<String>,
+    v4l2_segment_frames: Option<usize>,
+    v4l2_segment_max_bytes: Option<u64>,
 }
 
 impl Config {
@@ -147,14 +149,14 @@ fn execute(command: &str, config_path: &Path) -> Result<String, String> {
         "check-config" => Ok("configuration is valid".into()),
         "fixture" => write_fixture(&config),
         "run-filesystem" => ingest_stable_files(&config),
-        "run-v4l2" => capture_v4l2_frame(&config),
+        "run-v4l2" => capture_v4l2_segment(&config),
         "status" => show_status(&config),
         _ => unreachable!(),
     }
 }
 
 #[cfg(target_os = "linux")]
-fn capture_v4l2_frame(config: &Config) -> Result<String, String> {
+fn capture_v4l2_segment(config: &Config) -> Result<String, String> {
     let (Some(device), Some(width), Some(height), Some(pixel_format)) = (
         config.v4l2_device.as_deref(),
         config.v4l2_width,
@@ -169,18 +171,117 @@ fn capture_v4l2_frame(config: &Config) -> Result<String, String> {
     if bytes.len() != 4 || !bytes.is_ascii() {
         return Err("V4L2 pixel format must contain four ASCII characters".into());
     }
+    if pixel_format != "MJPG" {
+        return Err("run-v4l2 currently writes complete MJPEG frames only".into());
+    }
+    let frame_count = config.v4l2_segment_frames.unwrap_or(30);
+    let max_bytes = config.v4l2_segment_max_bytes.unwrap_or(MAX_ARTIFACT_BYTES);
+    if frame_count == 0 || frame_count > 300 || max_bytes == 0 || max_bytes > MAX_ARTIFACT_BYTES {
+        return Err("V4L2 segment limits must be 1-300 frames and at most 64 MiB".into());
+    }
     let fourcc = u32::from_ne_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
     let mut capture = v4l2::Capture::open(device, width, height, fourcc)
         .map_err(|_| "could not initialize V4L2 capture; verify device and mode".to_owned())?;
-    let frame = capture
-        .next_frame()
-        .map_err(|_| "could not read a complete V4L2 frame".to_owned())?;
-    Ok(format!("captured one V4L2 frame ({} bytes)", frame.len()))
+    write_v4l2_frames(&config.input_dir, frame_count, max_bytes, || {
+        capture
+            .next_frame()
+            .map_err(|_| "could not read a complete V4L2 frame".to_owned())
+    })
+}
+
+fn write_v4l2_frames(
+    directory: &Path,
+    frame_count: usize,
+    max_bytes: u64,
+    mut next_frame: impl FnMut() -> Result<Vec<u8>, String>,
+) -> Result<String, String> {
+    let mut total_bytes = 0_u64;
+    let mut written = 0;
+    for _ in 0..frame_count {
+        let frame = next_frame()?;
+        let frame_size = u64::try_from(frame.len()).map_err(|_| "invalid V4L2 frame size")?;
+        total_bytes = total_bytes
+            .checked_add(frame_size)
+            .filter(|size| *size <= max_bytes)
+            .ok_or_else(|| "V4L2 segment reached its configured size limit".to_owned())?;
+        let captured_at = utc_timestamp(std::time::SystemTime::now())?;
+        write_jpeg_frame(directory, &frame, &captured_at)?;
+        written += 1;
+    }
+    Ok(format!(
+        "captured {written} timestamped V4L2 JPEG frames ({total_bytes} bytes)"
+    ))
 }
 
 #[cfg(not(target_os = "linux"))]
-fn capture_v4l2_frame(_config: &Config) -> Result<String, String> {
+fn capture_v4l2_segment(_config: &Config) -> Result<String, String> {
     Err("V4L2 capture is supported only on Linux".into())
+}
+
+fn write_jpeg_frame(directory: &Path, frame: &[u8], captured_at: &str) -> Result<(), String> {
+    if frame.len() < 4 || !frame.starts_with(&[0xff, 0xd8]) || !frame.ends_with(&[0xff, 0xd9]) {
+        return Err("V4L2 returned an incomplete JPEG frame".into());
+    }
+    if !valid_utc_timestamp(captured_at) {
+        return Err("invalid V4L2 capture timestamp".into());
+    }
+    let nonce = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|_| "system clock is before the Unix epoch".to_owned())?
+        .as_nanos();
+    let stem = format!("v4l2_{}_{}", captured_at.replace(['-', ':'], ""), nonce);
+    let image_path = directory.join(format!("{stem}.jpg"));
+    let image_partial = directory.join(format!("{stem}.jpg.part"));
+    let sidecar_path = directory.join(format!("{stem}.json"));
+    let sidecar_partial = directory.join(format!("{stem}.json.part"));
+
+    write_synced_file(
+        &sidecar_partial,
+        format!("{{\"captured_at\":\"{captured_at}\"}}\n").as_bytes(),
+    )?;
+    fs::rename(&sidecar_partial, &sidecar_path)
+        .map_err(|_| "could not publish V4L2 capture metadata".to_owned())?;
+    write_synced_file(&image_partial, frame)?;
+    fs::rename(&image_partial, &image_path)
+        .map_err(|_| "could not publish V4L2 JPEG frame".to_owned())?;
+    Ok(())
+}
+
+fn write_synced_file(path: &Path, bytes: &[u8]) -> Result<(), String> {
+    use std::io::Write;
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(path)
+        .map_err(|_| "could not create V4L2 capture file".to_owned())?;
+    file.write_all(bytes)
+        .and_then(|()| file.sync_all())
+        .map_err(|_| "could not write V4L2 capture file".to_owned())
+}
+
+fn utc_timestamp(time: std::time::SystemTime) -> Result<String, String> {
+    let seconds = time
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|_| "system clock is before the Unix epoch".to_owned())?
+        .as_secs();
+    let seconds = libc::time_t::try_from(seconds)
+        .map_err(|_| "system clock timestamp is out of range".to_owned())?;
+    let mut broken_down = std::mem::MaybeUninit::<libc::tm>::uninit();
+    // SAFETY: gmtime_r initializes the supplied tm and does not retain either pointer.
+    if unsafe { libc::gmtime_r(&seconds, broken_down.as_mut_ptr()) }.is_null() {
+        return Err("could not format V4L2 capture timestamp".into());
+    }
+    // SAFETY: gmtime_r returned a non-null pointer to the initialized value.
+    let tm = unsafe { broken_down.assume_init() };
+    Ok(format!(
+        "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z",
+        tm.tm_year + 1900,
+        tm.tm_mon + 1,
+        tm.tm_mday,
+        tm.tm_hour,
+        tm.tm_min,
+        tm.tm_sec
+    ))
 }
 
 fn open_spool(config: &Config) -> Result<Spool, String> {
@@ -526,9 +627,10 @@ fn valid_utc_timestamp(value: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{
-        Config, ExitCode, USAGE, capture_v4l2_frame, enrich_capture_metadata, execute,
-        filename_capture_time, manage_job, poll_completed_files, run, show_status,
-        supported_media_type, valid_utc_timestamp,
+        CaptureSidecar, Config, ExitCode, USAGE, capture_v4l2_segment, enrich_capture_metadata,
+        execute, filename_capture_time, manage_job, poll_completed_files, run, show_status,
+        supported_media_type, utc_timestamp, valid_utc_timestamp, write_jpeg_frame,
+        write_v4l2_frames,
     };
     use lunsaran_taytay::{
         Artifact, ArtifactId, ArtifactState, SourceId, adapter::filesystem::FilesystemAdapter,
@@ -560,11 +662,130 @@ mod tests {
             v4l2_width: None,
             v4l2_height: None,
             v4l2_pixel_format: None,
+            v4l2_segment_frames: None,
+            v4l2_segment_max_bytes: None,
         };
         assert_eq!(
-            capture_v4l2_frame(&config).unwrap_err(),
+            capture_v4l2_segment(&config).unwrap_err(),
             "V4L2 device, width, height, and four-character pixel format are required"
         );
+    }
+
+    #[test]
+    fn v4l2_rejects_unsupported_formats_and_unbounded_segment_settings() {
+        let mut config = Config {
+            input_dir: "input".into(),
+            spool_dir: "spool".into(),
+            archive_dir: "archive".into(),
+            source_id: "camera-1".into(),
+            spool_quota_bytes: 1024,
+            v4l2_device: Some("/not/a/camera".into()),
+            v4l2_width: Some(640),
+            v4l2_height: Some(480),
+            v4l2_pixel_format: Some("YUYV".into()),
+            v4l2_segment_frames: None,
+            v4l2_segment_max_bytes: None,
+        };
+        assert!(capture_v4l2_segment(&config).unwrap_err().contains("MJPEG"));
+        config.v4l2_pixel_format = Some("MJPG".into());
+        config.v4l2_segment_frames = Some(301);
+        assert!(
+            capture_v4l2_segment(&config)
+                .unwrap_err()
+                .contains("segment limits")
+        );
+        config.v4l2_segment_frames = Some(1);
+        config.v4l2_segment_max_bytes = Some(64 * 1024 * 1024 + 1);
+        assert!(
+            capture_v4l2_segment(&config)
+                .unwrap_err()
+                .contains("segment limits")
+        );
+        config.v4l2_segment_max_bytes = None;
+        assert!(
+            capture_v4l2_segment(&config)
+                .unwrap_err()
+                .contains("initialize V4L2")
+        );
+    }
+
+    #[test]
+    fn bounds_and_reports_v4l2_frame_sequences() {
+        let root = std::env::temp_dir().join(format!(
+            "usb-camera-taytay-v4l2-sequence-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let mut count = 0;
+        let result = write_v4l2_frames(&root, 2, 10, || {
+            count += 1;
+            Ok(vec![0xff, 0xd8, 0x01, 0xff, 0xd9])
+        })
+        .unwrap();
+        assert!(result.contains("captured 2 timestamped V4L2 JPEG frames (10 bytes)"));
+        assert_eq!(count, 2);
+        assert_eq!(fs::read_dir(&root).unwrap().count(), 4);
+
+        let result = write_v4l2_frames(&root, 2, 9, || Ok(vec![0xff, 0xd8, 0x01, 0xff, 0xd9]));
+        assert!(result.unwrap_err().contains("size limit"));
+        let result = write_v4l2_frames(&root, 1, 10, || Err("frame failure".into()));
+        assert_eq!(result.unwrap_err(), "frame failure");
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn writes_only_complete_timestamped_jpegs_atomically() {
+        let root = std::env::temp_dir().join(format!(
+            "usb-camera-taytay-v4l2-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let captured_at = "2026-10-21T00:00:00Z";
+        assert!(write_jpeg_frame(&root, &[0, 1, 2, 3], captured_at).is_err());
+        assert_eq!(fs::read_dir(&root).unwrap().count(), 0);
+
+        write_jpeg_frame(&root, &[0xff, 0xd8, 0x01, 0xff, 0xd9], captured_at).unwrap();
+        let entries = fs::read_dir(&root)
+            .unwrap()
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap();
+        assert_eq!(entries.len(), 2);
+        assert!(
+            entries
+                .iter()
+                .all(|entry| !entry.file_name().to_string_lossy().ends_with(".part"))
+        );
+        let image = entries
+            .iter()
+            .find(|entry| entry.path().extension().is_some_and(|ext| ext == "jpg"))
+            .unwrap();
+        let sidecar = entries
+            .iter()
+            .find(|entry| entry.path().extension().is_some_and(|ext| ext == "json"))
+            .unwrap();
+        assert_eq!(
+            fs::read(image.path()).unwrap(),
+            [0xff, 0xd8, 0x01, 0xff, 0xd9]
+        );
+        assert_eq!(
+            serde_json::from_slice::<CaptureSidecar>(&fs::read(sidecar.path()).unwrap())
+                .unwrap()
+                .captured_at
+                .as_deref(),
+            Some(captured_at)
+        );
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn formats_system_capture_time_as_utc() {
+        assert_eq!(utc_timestamp(UNIX_EPOCH).unwrap(), "1970-01-01T00:00:00Z");
     }
 
     #[test]

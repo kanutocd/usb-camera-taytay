@@ -13,8 +13,7 @@ use std::{
     time::Duration,
 };
 
-const USAGE: &str =
-    "Usage: usb-camera-taytay <check-config|fixture|run-filesystem> CONFIG | --help | --version";
+const USAGE: &str = "Usage: usb-camera-taytay <check-config|fixture|run-filesystem|status> CONFIG | <pause|resume> ARTIFACT_ID CONFIG | --help | --version";
 const MAX_ARTIFACT_BYTES: u64 = 64 * 1024 * 1024;
 const PARTIAL_FILE_SUFFIX: &str = ".part";
 const OBSERVATION_POLL_COUNT: usize = 3;
@@ -84,7 +83,7 @@ fn run(mut arguments: impl Iterator<Item = String>) -> ExitCode {
             println!("usb-camera-taytay {}", env!("CARGO_PKG_VERSION"));
             ExitCode::SUCCESS
         }
-        Some(command @ ("check-config" | "fixture" | "run-filesystem")) => {
+        Some(command @ ("check-config" | "fixture" | "run-filesystem" | "status")) => {
             let Some(path) = arguments.next() else {
                 eprintln!("configuration path is required\n{USAGE}");
                 return ExitCode::from(2);
@@ -94,6 +93,26 @@ fn run(mut arguments: impl Iterator<Item = String>) -> ExitCode {
                 return ExitCode::from(2);
             }
             match execute(command, Path::new(&path)) {
+                Ok(message) => {
+                    println!("{message}");
+                    ExitCode::SUCCESS
+                }
+                Err(message) => {
+                    eprintln!("{message}");
+                    ExitCode::FAILURE
+                }
+            }
+        }
+        Some(command @ ("pause" | "resume")) => {
+            let (Some(id), Some(path)) = (arguments.next(), arguments.next()) else {
+                eprintln!("artifact ID and configuration path are required\n{USAGE}");
+                return ExitCode::from(2);
+            };
+            if arguments.next().is_some() {
+                eprintln!("unexpected argument\n{USAGE}");
+                return ExitCode::from(2);
+            }
+            match manage_job(command, &id, Path::new(&path)) {
                 Ok(message) => {
                     println!("{message}");
                     ExitCode::SUCCESS
@@ -121,8 +140,44 @@ fn execute(command: &str, config_path: &Path) -> Result<String, String> {
         "check-config" => Ok("configuration is valid".into()),
         "fixture" => write_fixture(&config),
         "run-filesystem" => ingest_stable_files(&config),
+        "status" => show_status(&config),
         _ => unreachable!(),
     }
+}
+
+fn open_spool(config: &Config) -> Result<Spool, String> {
+    Spool::open(&config.spool_dir, config.spool_quota_bytes)
+        .map_err(|_| "could not open durable spool".to_owned())
+}
+
+fn show_status(config: &Config) -> Result<String, String> {
+    let spool = open_spool(config)?;
+    let ledger = spool.ledger();
+    let mut jobs = ledger.pending();
+    jobs.extend(ledger.paused());
+    jobs.extend(ledger.completed());
+    jobs.sort_by(|left, right| left.artifact.id.0.cmp(&right.artifact.id.0));
+    if jobs.is_empty() {
+        return Ok("no artifacts".into());
+    }
+    Ok(jobs
+        .iter()
+        .map(|job| format!("{} {:?}", job.artifact.id.0, job.state))
+        .collect::<Vec<_>>()
+        .join("\n"))
+}
+
+fn manage_job(command: &str, id: &str, config_path: &Path) -> Result<String, String> {
+    let config = Config::load(config_path)?;
+    let spool = open_spool(&config)?;
+    let artifact_id = lunsaran_taytay::ArtifactId::new(id);
+    let job = match command {
+        "pause" => spool.pause(&artifact_id),
+        "resume" => spool.resume(&artifact_id),
+        _ => unreachable!(),
+    }
+    .map_err(|_| format!("could not {command} artifact; check its ID and current state"))?;
+    Ok(format!("artifact {} is {:?}", job.artifact.id.0, job.state))
 }
 
 fn write_fixture(config: &Config) -> Result<String, String> {
@@ -424,8 +479,9 @@ fn valid_utc_timestamp(value: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{
-        ExitCode, USAGE, enrich_capture_metadata, execute, filename_capture_time,
-        poll_completed_files, run, supported_media_type, valid_utc_timestamp,
+        Config, ExitCode, USAGE, enrich_capture_metadata, execute, filename_capture_time,
+        manage_job, poll_completed_files, run, show_status, supported_media_type,
+        valid_utc_timestamp,
     };
     use lunsaran_taytay::{
         Artifact, ArtifactId, ArtifactState, SourceId, adapter::filesystem::FilesystemAdapter,
@@ -547,6 +603,26 @@ mod tests {
             run(["check-config".to_owned()].into_iter()),
             ExitCode::from(2)
         );
+        assert_eq!(run(["pause".to_owned()].into_iter()), ExitCode::from(2));
+        assert_eq!(
+            run([
+                "status".to_owned(),
+                "config.toml".to_owned(),
+                "extra".to_owned()
+            ]
+            .into_iter()),
+            ExitCode::from(2)
+        );
+        assert_eq!(
+            run([
+                "resume".to_owned(),
+                "id".to_owned(),
+                "config.toml".to_owned(),
+                "extra".to_owned()
+            ]
+            .into_iter()),
+            ExitCode::from(2)
+        );
     }
 
     #[test]
@@ -577,6 +653,7 @@ mod tests {
             execute("check-config", &config_path).unwrap(),
             "configuration is valid"
         );
+        assert_eq!(execute("status", &config_path).unwrap(), "no artifacts");
         assert_eq!(
             execute("fixture", &config_path).unwrap(),
             "published fixture.jpg"
@@ -604,6 +681,57 @@ mod tests {
         assert_eq!(fs::read_dir(root.join("spool")).unwrap().count(), 2);
 
         let spool = Spool::open(root.join("spool"), 1048576).unwrap();
+        let job_id = spool.ledger().pending()[0].artifact.id.0.clone();
+        let config = Config::load(&config_path).unwrap();
+        assert_eq!(
+            run(["status".to_owned(), config_path.display().to_string()].into_iter()),
+            ExitCode::SUCCESS
+        );
+        let status = show_status(&config).unwrap();
+        assert!(status.contains(&job_id));
+        assert!(status.contains("Published"));
+        assert!(!status.contains("fixture.jpg"));
+        assert_eq!(
+            run([
+                "pause".to_owned(),
+                job_id.clone(),
+                config_path.display().to_string()
+            ]
+            .into_iter()),
+            ExitCode::SUCCESS
+        );
+        assert_eq!(
+            run([
+                "pause".to_owned(),
+                job_id.clone(),
+                config_path.display().to_string()
+            ]
+            .into_iter()),
+            ExitCode::from(1)
+        );
+        assert!(show_status(&config).unwrap().contains("Paused"));
+        assert_eq!(
+            Spool::open(root.join("spool"), 1048576)
+                .unwrap()
+                .ledger()
+                .paused()
+                .len(),
+            1
+        );
+        assert_eq!(
+            run([
+                "resume".to_owned(),
+                job_id.clone(),
+                config_path.display().to_string()
+            ]
+            .into_iter()),
+            ExitCode::SUCCESS
+        );
+        assert!(show_status(&config).unwrap().contains("Published"));
+        assert_eq!(
+            manage_job("pause", "missing-artifact", &config_path).unwrap_err(),
+            "could not pause artifact; check its ID and current state"
+        );
         let mut job = spool.ledger().pending().remove(0);
         job.transition(ArtifactState::Uploading).unwrap();
         job.transition(ArtifactState::Completed).unwrap();

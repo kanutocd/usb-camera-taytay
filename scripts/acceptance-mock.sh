@@ -22,3 +22,10 @@ EOF
 [[ "$("$binary" run-filesystem "$work_dir/config.toml")" == *"published 1 stable artifact(s)"* ]]
 test -f "$work_dir/spool/ledger.jsonl"
 test -f "$work_dir/input/fixture.jpg"
+status_output="$("$binary" status "$work_dir/config.toml")"
+artifact_id="${status_output%% *}"
+[[ "$status_output" == *"Published"* ]]
+[[ "$("$binary" pause "$artifact_id" "$work_dir/config.toml")" == *"Paused"* ]]
+[[ "$("$binary" status "$work_dir/config.toml")" == *"Paused"* ]]
+[[ "$("$binary" resume "$artifact_id" "$work_dir/config.toml")" == *"Published"* ]]
+[[ "$("$binary" status "$work_dir/config.toml")" == *"Published"* ]]

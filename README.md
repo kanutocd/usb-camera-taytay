@@ -39,6 +39,9 @@ spool usage; individual input artifacts are limited to 64 MiB.
 cargo run -- check-config config.toml
 cargo run -- fixture config.toml
 cargo run -- run-filesystem config.toml
+cargo run -- status config.toml
+cargo run -- pause ARTIFACT_ID config.toml
+cargo run -- resume ARTIFACT_ID config.toml
 ```
 
 `fixture` atomically places a small JPEG in the input directory. External
@@ -55,6 +58,11 @@ checksum-verified source file and optional JSON sidecar from input to the
 configured archive directory. Pending, failed, paused, and uploading artifacts
 remain in input. The archive keeps the source copy. This command does not start
 an uploader or require camera hardware or Lunsaran credentials.
+
+`status` reads artifact IDs and lifecycle states from the durable ledger.
+`pause` and `resume` persist state changes through Taytay's ledger; resume makes
+the artifact eligible for a later uploader run. Command errors omit underlying
+paths, credentials, and provider diagnostics.
 
 MVP1 accepts `.jpg`/`.jpeg` images as `image/jpeg` and `.mp4` videos as
 `video/mp4`; other file types are ignored. To attach a capture time, either

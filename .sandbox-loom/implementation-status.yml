@@ -167,7 +167,7 @@ phases:
     commit_sha: b919755
   - id: phase-2-slice-16
     title: Implement MVP2-V4L2-006
-    status: in_progress
+    status: completed
     resume:
       previous_run_id: project-usb-camera-taytay-bounded-0d61c83422c7809a-slice-2
       interrupted_at: '2026-10-20T20:09:54Z'
@@ -182,6 +182,8 @@ phases:
     interruption_reason: failed
     run_id: project-usb-camera-taytay-55eb280d1cba3fd6
     started_at: '2026-10-20T20:09:55Z'
+    completed_at: '2026-10-20T20:15:47Z'
+    commit_sha: 88ec10e
   - id: phase-2-slice-17
     title: Implement MVP2-V4L2-007
     status: pending
@@ -236,7 +238,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: running
+  status: completed
   runs:
     project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1:
       status: completed
@@ -1193,7 +1195,7 @@ runtime:
           '
         error_class: ProjectHarness::Error
     project-usb-camera-taytay-55eb280d1cba3fd6:
-      status: running
+      status: completed
       pid: 1324124
       started_at: '2026-10-20T20:09:55Z'
       tasks:
@@ -1222,13 +1224,25 @@ runtime:
           attempts: 1
           repairs: 0
         commit:
-          status: running
+          status: completed
           action: gateway.git.commit
-          updated_at: '2026-10-20T20:15:46Z'
+          updated_at: '2026-10-20T20:15:47Z'
+          attempts: 1
+          repairs: 0
+        checkpoint:
+          status: completed
+          action: checkpoint
+          updated_at: '2026-10-20T20:15:47Z'
+          attempts: 1
+          repairs: 0
       evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+      finished_at: '2026-10-20T20:15:47Z'
+      result_task_ids:
+      - inspect_scope
+      - bootstrap_scope
+      - implement_scope
+      - verify
+      - commit
+      - checkpoint
   last_run_id: project-usb-camera-taytay-55eb280d1cba3fd6
-  active_slice:
-    phase_id: phase-2
-    slice_id: phase-2-slice-16
-    run_id: project-usb-camera-taytay-55eb280d1cba3fd6
-updated_at: '2026-10-20T20:15:46Z'
+updated_at: '2026-10-20T20:15:47Z'

@@ -18,9 +18,19 @@ jobs:
         with:
           python-version: "3.x"
       - name: Install Zensical
-        run: python -m pip install zensical
-      - name: Check documentation quality
-        run: scripts/docs-quality.sh
+        run: |
+          python3 -m venv .venv-zensical
+          .venv-zensical/bin/python -m pip install --requirement requirements-zensical.txt
+      - name: 'Quality gate: documentation_links'
+        run: bin/ci documentation_links
+      - name: 'Quality gate: documentation_navigation'
+        run: bin/ci documentation_navigation
+      - name: 'Quality gate: documentation_redaction'
+        run: bin/ci documentation_redaction
+      - name: 'Quality gate: mermaid_validation'
+        run: bin/ci mermaid_validation
+      - name: 'Quality gate: zensical_build'
+        run: bin/ci zensical_build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:

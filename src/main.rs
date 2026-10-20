@@ -17,6 +17,8 @@ const USAGE: &str =
     "Usage: usb-camera-taytay <check-config|fixture|run-filesystem> CONFIG | --help | --version";
 const MAX_ARTIFACT_BYTES: u64 = 64 * 1024 * 1024;
 const PARTIAL_FILE_SUFFIX: &str = ".part";
+const OBSERVATION_POLL_COUNT: usize = 3;
+const OBSERVATION_POLL_INTERVAL: Duration = Duration::from_secs(1);
 
 #[derive(Debug, Deserialize)]
 struct CaptureSidecar {
@@ -148,7 +150,7 @@ fn ingest_stable_files(config: &Config) -> Result<String, String> {
     let mut adapter =
         FilesystemAdapter::new(SourceId::new(config.source_id.clone()), &config.input_dir);
     let mut artifacts = poll_completed_files(&mut adapter, || {
-        thread::sleep(Duration::from_millis(1100));
+        thread::sleep(OBSERVATION_POLL_INTERVAL);
     })
     .map_err(|_| "filesystem scan failed".to_owned())?;
     artifacts.retain(|artifact| supported_media_type(&artifact.media_type));
@@ -216,14 +218,14 @@ fn poll_completed_files(
     mut wait_between_polls: impl FnMut(),
 ) -> Result<Vec<Artifact>, TaytayError> {
     let mut artifacts = Vec::new();
-    for poll in 0..3 {
+    for poll in 0..OBSERVATION_POLL_COUNT {
         artifacts.extend(
             adapter
                 .poll()?
                 .into_iter()
                 .filter(|artifact| !is_partial_file(&artifact.path)),
         );
-        if poll < 2 {
+        if poll + 1 < OBSERVATION_POLL_COUNT {
             wait_between_polls();
         }
     }

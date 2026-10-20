@@ -85,7 +85,9 @@ phases:
     commit_sha: '018c54f'
   - id: phase-2-slice-6
     title: Implement MVP1-FS-006
-    status: pending
+    status: in_progress
+    run_id: project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-2
+    started_at: '2026-10-20T19:06:37Z'
   - id: phase-2-slice-7
     title: Implement MVP1-FS-007
     status: pending
@@ -170,7 +172,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: completed
+  status: running
   runs:
     project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1:
       status: completed
@@ -568,5 +570,43 @@ runtime:
       - verify
       - commit
       - checkpoint
-  last_run_id: project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-1
-updated_at: '2026-10-20T19:06:35Z'
+    project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-2:
+      status: running
+      pid: 1168037
+      started_at: '2026-10-20T19:06:37Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T19:07:05Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T19:07:43Z'
+          attempts: 1
+          repairs: 0
+        implement_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T19:09:08Z'
+          attempts: 1
+          repairs: 0
+        verify:
+          status: completed
+          action: verify
+          updated_at: '2026-10-20T19:09:29Z'
+          attempts: 1
+          repairs: 0
+        commit:
+          status: running
+          action: gateway.git.commit
+          updated_at: '2026-10-20T19:09:29Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+  last_run_id: project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-2
+  active_slice:
+    phase_id: phase-2
+    slice_id: phase-2-slice-6
+    run_id: project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-2
+updated_at: '2026-10-20T19:09:29Z'

@@ -28,7 +28,9 @@ phases:
     commit_sha: 8a14032
   - id: phase-1-slice-2
     title: Local development environment
-    status: pending
+    status: in_progress
+    run_id: project-usb-camera-taytay-40bf93655b41468a
+    started_at: '2026-10-20T17:25:35Z'
 - id: phase-2
   title: Functional requirements
   status: pending
@@ -135,7 +137,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: completed
+  status: running
   runs:
     project-usb-camera-taytay-fc3ab93e2ae65ace:
       status: failed
@@ -207,5 +209,43 @@ runtime:
       - verify
       - commit
       - checkpoint
-  last_run_id: project-usb-camera-taytay-d98bbede883dbf31
-updated_at: '2026-10-20T17:23:46Z'
+    project-usb-camera-taytay-40bf93655b41468a:
+      status: running
+      pid: 981059
+      started_at: '2026-10-20T17:25:35Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T17:25:59Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T17:26:37Z'
+          attempts: 1
+          repairs: 0
+        implement_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T17:27:27Z'
+          attempts: 1
+          repairs: 0
+        verify:
+          status: completed
+          action: verify
+          updated_at: '2026-10-20T17:27:30Z'
+          attempts: 1
+          repairs: 0
+        commit:
+          status: running
+          action: gateway.git.commit
+          updated_at: '2026-10-20T17:27:30Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+  last_run_id: project-usb-camera-taytay-40bf93655b41468a
+  active_slice:
+    phase_id: phase-1
+    slice_id: phase-1-slice-2
+    run_id: project-usb-camera-taytay-40bf93655b41468a
+updated_at: '2026-10-20T17:27:30Z'

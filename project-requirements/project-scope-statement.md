@@ -5,7 +5,7 @@
 USB Camera Taytay is a small reference application that demonstrates how a
 Linux machine with a USB camera can capture local media and deliver it to
 Lunsaran through the Taytay edge bridge. It is also a reference application
-for the private Sandbox Loom project in the `agent-platform` repository,
+for the private Sandbox Loom project in the `sandbox-loom` repository,
 showing how Sandbox Loom can take a concrete hardware-integrating project from
 scoped intent through bounded implementation, quality evidence, and reviewed
 delivery.
@@ -31,7 +31,7 @@ architecture choice until the project owner accepts it.
 ### Sandbox Loom reference-app role
 
 Sandbox Loom remains separate from this application repository. The private
-`agent-platform` repository supplies the Sandbox Loom control plane, policy,
+`sandbox-loom` repository supplies the Sandbox Loom control plane, policy,
 workflow, intake, harness, and evidence conventions. USB Camera Taytay owns
 its application code, public-facing documentation, source fixtures, Taytay
 integration, and hardware-specific acceptance evidence.
@@ -41,7 +41,7 @@ The relationship is intentionally bounded:
 ```text
 USB Camera Taytay scope and repository
         ↓ reviewed intake and proposed harness
-private Sandbox Loom / agent-platform
+private Sandbox Loom / sandbox-loom
         ↓ policy-governed, bounded execution and evidence
 USB Camera Taytay implementation and release
 ```
@@ -49,7 +49,7 @@ USB Camera Taytay implementation and release
 Sandbox Loom may orchestrate approved work in the USB Camera Taytay checkout,
 run the project's declared quality gates, preserve redacted evidence, and
 require approval at configured boundaries. It does not replace the project's
-technical ownership, Taytay's runtime contracts, Linux/V4L2 behavior,
+technical leadship, Taytay's runtime contracts, Linux/V4L2 behavior,
 Lunsaran authorization, code review, or release governance. Credentials,
 hardware access, network access, and commit or publication authority remain
 external capabilities that must be explicitly configured and approved.
@@ -68,7 +68,7 @@ classify statements as:
 
 Every open question should retain a stable identifier, owner, blocking status,
 status, answer, and answer suggestion. An answer suggestion is not an answer;
-keep the question open until the project owner or delegated technical owner
+keep the question open until the project owner or delegated technical lead
 accepts it.
 
 ## 1. Project intent
@@ -135,11 +135,11 @@ and Brutus owns the TUS data plane and provider execution.
 
 - **Project owner:** approves scope, MVP acceptance, assumptions, and open
   questions.
-- **Technical owner:** owns the application architecture, source boundary,
+- **Technical lead:** owns the application architecture, source boundary,
   runtime behavior, and release quality.
-- **Security owner:** reviews credential handling, local permissions, logs,
+- **Security lead:** reviews credential handling, local permissions, logs,
   media exposure, and least-privilege operation.
-- **Test owner:** owns deterministic fixtures, camera-independent tests, and
+- **QA lead:** owns deterministic fixtures, camera-independent tests, and
   optional hardware acceptance evidence.
 
 ## 3. MVP outcomes
@@ -205,7 +205,7 @@ multi-camera synchronization, or production-grade video analytics.
 - Optional local Lunsaran/Brutus acceptance when a provisioned environment is
   available.
 - Sandbox Loom intake, proposed harness, bounded execution, quality evidence,
-  and approval workflow artifacts maintained in the private `agent-platform`
+  and approval workflow artifacts maintained in the private `sandbox-loom`
   repository.
 
 ### Out of scope
@@ -295,6 +295,10 @@ Feature IDs are proposals until accepted in the implementation brief.
 - Restart coverage proving durable jobs resume without data loss.
 - Checksum, quota, pause/resume, retry, cancellation, and redaction coverage.
 - A recorded command sequence for a real USB-camera-produced file segment.
+- Validation against a locally running Lunsaran platform, including a
+  successful end-to-end upload using a provisioned test project and scoped
+  device credential; record service readiness and upload result without
+  retaining credentials, signed URLs, or media in acceptance evidence.
 
 ### MVP2 evidence
 
@@ -328,7 +332,7 @@ Feature IDs are proposals until accepted in the implementation brief.
   boundary.
 - A Lunsaran organization, project, and scoped device credential can be
   provisioned for live acceptance, but they are not required for local tests.
-- The private Sandbox Loom `agent-platform` repository remains available to
+- The private Sandbox Loom `sandbox-loom` repository remains available to
   review and execute the project's approved harness workflow.
 - The available USB camera has at least one capture mode that can be verified
   with standard V4L2 inspection tools.
@@ -338,12 +342,12 @@ Feature IDs are proposals until accepted in the implementation brief.
 
 | ID | Question | Owner | Blocking | Status | Answer |
 | --- | --- | --- | --- | --- | --- |
-| `Q-001` | Which file format should MVP1 treat as the primary reference artifact: JPEG, MP4, or both? | Technical owner | Yes | Open | — |
-| `Q-002` | Which capture format and resolution should MVP2 support first on the available USB camera? | Technical owner | Yes | Open | — |
+| `Q-001` | Which file format should MVP1 treat as the primary reference artifact: JPEG, MP4, or both? | Technical lead | Yes | Open | — |
+| `Q-002` | Which capture format and resolution should MVP2 support first on the available USB camera? | Technical lead | Yes | Open | — |
 | `Q-003` | Should MVP1 invoke an external producer, document a manual drop directory, or support both? | Project owner | No | Open | — |
-| `Q-004` | Should MVP2 write encoded camera frames directly or depend on a Rust encoder? | Technical owner | Yes | Open | — |
+| `Q-004` | Should MVP2 write encoded camera frames directly or depend on a Rust encoder? | Technical lead | Yes | Open | — |
 | `Q-005` | What retention policy applies to successfully uploaded source files? | Project owner | Yes | Open | — |
-| `Q-006` | Which live Lunsaran/Brutus environment and credential lifecycle will be used for hardware acceptance? | Security owner | No | Open | — |
+| `Q-006` | Which live Lunsaran/Brutus environment and credential lifecycle will be used for hardware acceptance? | Security lead | No | Open | — |
 
 ## 11. Delivery sequence
 

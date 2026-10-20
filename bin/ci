@@ -4,10 +4,28 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
 usage() {
-  echo "Usage: bin/ci {documentation_links|documentation_navigation|documentation_redaction|mermaid_validation|zensical_build|declared_cargo_llvm_cov}"
+  echo "Usage: bin/ci {declared_cargo_fmt|declared_cargo_check|declared_cargo_test|declared_cargo_llvm_cov|declared_cargo_clippy|declared_quality|declared_acceptance_mock|documentation_links|documentation_navigation|documentation_redaction|mermaid_validation|zensical_build}"
 }
 
 case "${1:-}" in
+  declared_cargo_fmt)
+    exec cargo fmt --all -- --check
+    ;;
+  declared_cargo_check)
+    exec cargo check --workspace --all-targets --all-features
+    ;;
+  declared_cargo_test)
+    exec cargo test --workspace --all-features
+    ;;
+  declared_cargo_clippy)
+    exec cargo clippy --workspace --all-targets --all-features -- -D warnings
+    ;;
+  declared_quality)
+    exec scripts/quality.sh
+    ;;
+  declared_acceptance_mock)
+    exec scripts/acceptance-mock.sh
+    ;;
   documentation_links|documentation_navigation|documentation_redaction|mermaid_validation)
     exec python3 scripts/documentation_checks.py "$1"
     ;;
@@ -19,7 +37,8 @@ case "${1:-}" in
       echo "Missing project-local cargo-llvm-cov; install it with bin/setup-dev" >&2
       exit 1
     fi
-    PATH="$repo_root/.tools/cargo/bin:$PATH" cargo llvm-cov --workspace --all-features --fail-under-lines 90
+    export PATH="$repo_root/.tools/cargo/bin:$PATH"
+    exec cargo llvm-cov --workspace --all-features --fail-under-lines 90
     ;;
   *)
     usage >&2

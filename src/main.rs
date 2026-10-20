@@ -148,6 +148,7 @@ fn ingest_stable_files(config: &Config) -> Result<String, String> {
     let spool = Spool::open(&config.spool_dir, config.spool_quota_bytes)
         .map_err(|_| "could not open durable spool".to_owned())?;
     let mut published = 0;
+    let mut duplicates = 0;
     for artifact in artifacts {
         let source_path = PathBuf::from(&artifact.path);
         let file =
@@ -158,6 +159,16 @@ fn ingest_stable_files(config: &Config) -> Result<String, String> {
             .map_err(|_| "stable input is unreadable".to_owned())?;
         if bytes.len() as u64 > MAX_ARTIFACT_BYTES {
             return Err("input exceeds the 64 MiB MVP1 artifact limit".into());
+        }
+        if let Some(existing) = spool.ledger().get(&artifact.id) {
+            if existing.artifact.checksum_sha256 != artifact.checksum_sha256 {
+                return Err("artifact ID conflicts with a different durable checksum".into());
+            }
+            spool
+                .verify(&existing)
+                .map_err(|_| "existing duplicate checksum verification failed".to_owned())?;
+            duplicates += 1;
+            continue;
         }
         let job = spool
             .publish(
@@ -175,7 +186,7 @@ fn ingest_stable_files(config: &Config) -> Result<String, String> {
         published += 1;
     }
     Ok(format!(
-        "published {published} stable artifact(s); source files retained"
+        "published {published} stable artifact(s); skipped {duplicates} verified duplicate(s); source files retained"
     ))
 }
 
@@ -295,6 +306,11 @@ mod tests {
         assert!(root.join("input/fixture.jpg").is_file());
         assert!(root.join("input/pending.jpg.part").is_file());
         assert!(root.join("archive").is_dir());
+        assert_eq!(
+            execute("run-filesystem", &config_path).unwrap(),
+            "published 0 stable artifact(s); skipped 1 verified duplicate(s); source files retained"
+        );
+        assert_eq!(fs::read_dir(root.join("spool")).unwrap().count(), 2);
 
         fs::remove_dir_all(root).unwrap();
     }

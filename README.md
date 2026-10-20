@@ -46,9 +46,12 @@ producers can write to a `.part` filename and atomically rename it to the final
 filename when complete; `.part` files are ignored. `run-filesystem` scans three
 times with one second intervals so files that appear during the scan can still
 receive two stable observations. It publishes stable files through Taytay's
-durable spool and ledger, and verifies each published checksum. It retains
-source files; archive cleanup is not part of this command. This slice does not
-start an uploader or require camera hardware or Lunsaran credentials.
+durable spool and ledger, and verifies each published checksum. Artifact IDs
+are content-derived; a file already represented in the ledger with the same
+full checksum is skipped as a verified duplicate on later runs. A conflicting
+checksum for an existing ID is reported as an error. It retains source files;
+archive cleanup is not part of this command. This slice does not start an
+uploader or require camera hardware or Lunsaran credentials.
 
 ## Baseline constraints
 

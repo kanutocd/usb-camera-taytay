@@ -544,12 +544,19 @@ documentation:
         ## Setup and operation
 
         The scope requires a concise operator and developer guide, protected
-        local credential files, and safe diagnostics. Stable installation
-        steps, configuration fields, and CLI commands are not specified in
-        this brief; refer to the repository's current README and operator
-        documentation for available instructions. MVP1 synthetic fixtures are
-        intended to allow local testing without a camera or live Lunsaran
-        environment.
+        local credential files, and safe diagnostics. The CLI command shape,
+        installation steps, and configuration fields are not yet specified as
+        stable in the project scope. Check the repository README and current
+        operator documentation for available setup instructions. MVP1
+        synthetic fixtures are intended to allow local testing without a
+        camera or live Lunsaran environment.
+
+        ## Upload and operation
+
+        Complete, stable artifacts are published to Taytay's durable spool and
+        uploaded through the supported Taytay integration. Failed or offline
+        uploads should remain inspectable and retryable. Do not bypass Taytay
+        with a separate application-specific HTTP or TUS upload path.
 
         ## Media and credentials
 
@@ -602,6 +609,14 @@ documentation:
         same Taytay artifact and upload boundary as MVP1; application-specific
         HTTP or TUS upload code is out of scope.
 
+        ## CLI and configuration
+
+        Keep the application a Rust CLI with consumer-oriented commands.
+        Document command names and behavior before treating them as stable.
+        Configuration examples and protected-token instructions are expected
+        documentation, but this brief does not define an approved command
+        surface or configuration schema.
+
         ## Reliability and security
 
         The durable ledger is authoritative for local job state; the remote
@@ -620,7 +635,12 @@ documentation:
         camera-produced file segment, and a local Lunsaran end-to-end upload
         when the test environment is provisioned. MVP2 adds V4L2 capability
         and format evidence, buffer lifecycle, malformed input, shutdown,
-        disconnect/reconnect, checksums, and a hardware matrix entry.
+        disconnect/reconnect, checksums, and a hardware matrix entry. Run
+        applicable Rust formatting, check, test, coverage, and clippy gates,
+        plus declared quality and mock-acceptance scripts. Documentation
+        changes also use the documented Zensical and Markdown checks. Hardware
+        acceptance supplements deterministic tests and applies when the
+        camera and environment are available.
     stakeholder:
       public: true
       template: arc42-detailed
@@ -650,6 +670,10 @@ documentation:
         camera-mode, buffer, segment, disconnect/reconnect, and hardware
         evidence.
 
+        Delivery proceeds from MVP1 ingestion and local acceptance to V4L2
+        mode inspection, MVP2 capture, hardware acceptance, and release after
+        applicable quality, documentation, and Sandbox Loom review boundaries.
+
         ## Ownership and boundaries
 
         USB Camera Taytay owns local capture, buffering, and application
@@ -668,6 +692,11 @@ documentation:
         risks. The scope does not promise lossless capture under arbitrary
         hardware, disk, or network overload, and excludes hosted service,
         analytics, audio, and multi-camera operation.
+
+        Open decisions include MVP1's primary file format and source retention,
+        MVP2's first camera mode and encoding approach, and the live acceptance
+        environment and credential lifecycle. The brief records their answers
+        and suggestions; a suggestion is not an approval.
 
         Credentials, signed URLs, raw media, and device-specific secrets must
         not be copied into public documentation or evidence. Sandbox Loom

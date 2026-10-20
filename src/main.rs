@@ -1,5 +1,6 @@
 use lunsaran_taytay::{
-    SourceId, adapter::SourceAdapter, adapter::filesystem::FilesystemAdapter, spool::Spool,
+    Artifact, SourceId, TaytayError, adapter::SourceAdapter,
+    adapter::filesystem::FilesystemAdapter, spool::Spool,
 };
 use serde::Deserialize;
 use std::{
@@ -14,6 +15,7 @@ use std::{
 const USAGE: &str =
     "Usage: usb-camera-taytay <check-config|fixture|run-filesystem> CONFIG | --help | --version";
 const MAX_ARTIFACT_BYTES: u64 = 64 * 1024 * 1024;
+const PARTIAL_FILE_SUFFIX: &str = ".part";
 
 #[derive(Debug, Deserialize)]
 struct Config {
@@ -139,13 +141,10 @@ fn write_fixture(config: &Config) -> Result<String, String> {
 fn ingest_stable_files(config: &Config) -> Result<String, String> {
     let mut adapter =
         FilesystemAdapter::new(SourceId::new(config.source_id.clone()), &config.input_dir);
-    adapter
-        .poll()
-        .map_err(|_| "filesystem scan failed".to_owned())?;
-    thread::sleep(Duration::from_millis(1100));
-    let artifacts = adapter
-        .poll()
-        .map_err(|_| "filesystem scan failed".to_owned())?;
+    let artifacts = poll_completed_files(&mut adapter, || {
+        thread::sleep(Duration::from_millis(1100));
+    })
+    .map_err(|_| "filesystem scan failed".to_owned())?;
     let spool = Spool::open(&config.spool_dir, config.spool_quota_bytes)
         .map_err(|_| "could not open durable spool".to_owned())?;
     let mut published = 0;
@@ -180,9 +179,36 @@ fn ingest_stable_files(config: &Config) -> Result<String, String> {
     ))
 }
 
+fn poll_completed_files(
+    adapter: &mut FilesystemAdapter,
+    mut wait_between_polls: impl FnMut(),
+) -> Result<Vec<Artifact>, TaytayError> {
+    let mut artifacts = Vec::new();
+    for poll in 0..3 {
+        artifacts.extend(
+            adapter
+                .poll()?
+                .into_iter()
+                .filter(|artifact| !is_partial_file(&artifact.path)),
+        );
+        if poll < 2 {
+            wait_between_polls();
+        }
+    }
+    Ok(artifacts)
+}
+
+fn is_partial_file(path: &str) -> bool {
+    Path::new(path)
+        .file_name()
+        .and_then(|name| name.to_str())
+        .is_some_and(|name| name.to_ascii_lowercase().ends_with(PARTIAL_FILE_SUFFIX))
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{ExitCode, USAGE, execute, run};
+    use super::{ExitCode, USAGE, execute, poll_completed_files, run};
+    use lunsaran_taytay::{SourceId, adapter::filesystem::FilesystemAdapter};
     use std::{
         fs,
         time::{SystemTime, UNIX_EPOCH},
@@ -237,6 +263,8 @@ mod tests {
                 .as_nanos()
         ));
         fs::create_dir_all(&root).unwrap();
+        fs::create_dir_all(root.join("input")).unwrap();
+        fs::write(root.join("input/pending.jpg.part"), b"incomplete").unwrap();
         let config_path = root.join("config.toml");
         fs::write(
             &config_path,
@@ -265,8 +293,69 @@ mod tests {
         assert!(root.join("spool/ledger.jsonl").is_file());
         assert_eq!(fs::read_dir(root.join("spool")).unwrap().count(), 2);
         assert!(root.join("input/fixture.jpg").is_file());
+        assert!(root.join("input/pending.jpg.part").is_file());
         assert!(root.join("archive").is_dir());
 
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn atomic_rename_and_repeated_stability_emit_only_the_completed_file() {
+        let root = std::env::temp_dir().join(format!(
+            "usb-camera-taytay-rename-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let partial = root.join("capture.jpg.part");
+        let complete = root.join("capture.jpg");
+        fs::write(&partial, b"complete image bytes").unwrap();
+        let mut adapter = FilesystemAdapter::new(SourceId::new("camera-1"), &root);
+        let mut waits = 0;
+
+        let artifacts = poll_completed_files(&mut adapter, || {
+            waits += 1;
+            if waits == 1 {
+                fs::rename(&partial, &complete).unwrap();
+            }
+        })
+        .unwrap();
+
+        assert_eq!(waits, 2);
+        assert_eq!(artifacts.len(), 1);
+        assert_eq!(artifacts[0].path, complete.to_string_lossy());
+        assert!(complete.is_file());
+        assert!(!partial.exists());
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn a_file_changed_between_observations_is_emitted_after_it_stabilizes() {
+        let root = std::env::temp_dir().join(format!(
+            "usb-camera-taytay-stable-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let input = root.join("capture.jpg");
+        fs::write(&input, b"partial").unwrap();
+        let mut adapter = FilesystemAdapter::new(SourceId::new("camera-1"), &root);
+        let mut waits = 0;
+
+        let artifacts = poll_completed_files(&mut adapter, || {
+            waits += 1;
+            if waits == 1 {
+                fs::write(&input, b"completed image bytes").unwrap();
+            }
+        })
+        .unwrap();
+
+        assert_eq!(artifacts.len(), 1);
+        assert_eq!(artifacts[0].size, b"completed image bytes".len() as u64);
         fs::remove_dir_all(root).unwrap();
     }
 

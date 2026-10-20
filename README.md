@@ -41,11 +41,14 @@ cargo run -- fixture config.toml
 cargo run -- run-filesystem config.toml
 ```
 
-`fixture` atomically places a small JPEG in the input directory. `run-filesystem`
-scans twice with a one second interval, publishes files observed stable through
-Taytay's durable spool and ledger, and verifies each published checksum. It
-retains source files; archive cleanup is not part of this command. This slice
-does not start an uploader or require camera hardware or Lunsaran credentials.
+`fixture` atomically places a small JPEG in the input directory. External
+producers can write to a `.part` filename and atomically rename it to the final
+filename when complete; `.part` files are ignored. `run-filesystem` scans three
+times with one second intervals so files that appear during the scan can still
+receive two stable observations. It publishes stable files through Taytay's
+durable spool and ledger, and verifies each published checksum. It retains
+source files; archive cleanup is not part of this command. This slice does not
+start an uploader or require camera hardware or Lunsaran credentials.
 
 ## Baseline constraints
 

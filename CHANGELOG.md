@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-2-slice-2: atomic-rename and stable-file completion detection
+
 - phase-2-slice-1: configurable input, spool, and archive directories
 
 - phase-1-slice-2: local development environment

@@ -27,6 +27,7 @@ source_references:
 - project-docs/implementation/phases/phase-2.md
 - project-docs/implementation/phases/phase-3.md
 - project-docs/implementation/phases/phase-4.md
+- project-docs/implementation/roadmap.md
 - project-docs/implementation/slices/phase-1-slice-1.md
 - project-docs/implementation/slices/phase-1-slice-2.md
 - project-docs/implementation/slices/phase-2-slice-1.md
@@ -60,5 +61,6 @@ source_references:
 - project-docs/implementation/slices/phase-3-slice-1.md
 - project-docs/implementation/slices/phase-3-slice-2.md
 - project-docs/implementation/slices/phase-4-slice-1.md
+- project-docs/implementation/status.md
 - project-docs/index.md
 - project-docs/zensical/ASSET-PROVENANCE.md

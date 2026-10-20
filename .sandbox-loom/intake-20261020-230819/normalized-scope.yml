@@ -24,15 +24,161 @@ documentation:
     consumer:
       public: true
       template: consumer
+      content_markdown: |
+        # USB Camera Taytay
+
+        USB Camera Taytay is a local Linux reference application for moving
+        camera media to Lunsaran through Taytay's edge upload path.
+
+        ## Project scope
+
+        Work is staged in two MVPs. MVP1 accepts completed media files from an
+        existing camera or media tool and also supports synthetic fixtures for
+        camera-independent local use. MVP2 is planned to replace that external
+        file producer with a pure Rust capture loop using one configured V4L2
+        camera device. This is a local reference application, not a hosted
+        camera service or video management system.
+
+        ## Setup and operation
+
+        The scope requires a concise operator and developer guide, protected
+        local credential files, and safe diagnostics. Stable installation
+        steps, configuration fields, and CLI commands are not specified in
+        this brief; refer to the repository's current README and operator
+        documentation for available instructions. MVP1 synthetic fixtures are
+        intended to allow local testing without a camera or live Lunsaran
+        environment.
+
+        ## Media and credentials
+
+        The application is expected to publish only complete, stable media
+        files and upload them through Taytay. Keep device credentials in
+        protected local files. Do not put credentials, signed URLs, or media
+        payloads in logs, diagnostics, or acceptance evidence.
+
+        ## License and support
+
+        The repository includes the Apache License 2.0 in `LICENSE`. This
+        brief does not specify a support address or security-reporting contact.
     technical:
       public: true
       template: technical
+      content_markdown: |
+        # Technical overview
+
+        USB Camera Taytay is a Rust CLI reference application for Linux. Its
+        upload boundary is the published Taytay integration and
+        `lunsaran-entregar` client.
+
+        ```text
+        USB camera or external media producer
+                ↓
+        MVP1 completed-file observer / MVP2 pure Rust V4L2 capture
+                ↓
+        Taytay Artifact, durable spool, and ledger
+                ↓
+        Entregar upload integration
+                ↓
+        Lunsaran authorization and upload session
+                ↓
+        Brutus TUS data plane
+        ```
+
+        ## MVP boundaries
+
+        MVP1 observes completed files from an external producer or synthetic
+        fixtures. It must suppress incomplete files, preserve stable artifact
+        identity and metadata, publish atomically with checksums, and rely on
+        Taytay for durable ledger state, bounded retries, resume, cancellation,
+        and upload scheduling. Restart and repeated execution must not lose or
+        duplicate logical jobs.
+
+        MVP2 reads from one configured `/dev/video*` device in a pure Rust
+        capture loop. It negotiates one verified mode, manages V4L2 streaming
+        buffers safely, writes bounded timestamped segments, emits only
+        complete readable artifacts, and applies backpressure. It reuses the
+        same Taytay artifact and upload boundary as MVP1; application-specific
+        HTTP or TUS upload code is out of scope.
+
+        ## Reliability and security
+
+        The durable ledger is authoritative for local job state; the remote
+        TUS offset is authoritative for resumable transfer. Retries are
+        bounded and classified. Credentials belong in protected local files
+        and must not appear in logs, metadata, filenames, diagnostics,
+        fixtures, or evidence. Keep the application unprivileged and its
+        writable spool narrowly scoped.
+
+        ## Validation
+
+        Default acceptance uses synthetic fixtures and deterministic mock
+        tests without camera hardware or production credentials. MVP1 evidence
+        covers stability detection, duplicates, restart recovery, checksums,
+        quota, retry/resume, pause/resume, cancellation, redaction, a real
+        camera-produced file segment, and a local Lunsaran end-to-end upload
+        when the test environment is provisioned. MVP2 adds V4L2 capability
+        and format evidence, buffer lifecycle, malformed input, shutdown,
+        disconnect/reconnect, checksums, and a hardware matrix entry.
     stakeholder:
       public: true
       template: arc42-detailed
+      content_markdown: |
+        # Project overview
+
+        USB Camera Taytay is a local reference application demonstrating how
+        Linux camera media can reach Lunsaran through the Taytay edge bridge.
+        It is also a reference application for the private Sandbox Loom
+        workflow. The project does not build or replace Lunsaran, Brutus, or
+        Sandbox Loom.
+
+        ## Intended outcomes
+
+        The project separates camera/file ingestion from durable upload in
+        two MVPs:
+
+        - **MVP1:** ingest completed media files from an external producer or
+          synthetic fixtures, then publish and upload them through Taytay.
+        - **MVP2:** replace the external producer with a pure Rust V4L2 capture
+          loop while retaining the same artifact and upload boundary.
+
+        MVP1 acceptance includes deterministic local tests and mock upload,
+        recovery across restart, safe diagnostics, a real camera-to-file
+        demonstration, and successful upload validation against a locally
+        running Lunsaran platform when provisioned. MVP2 acceptance adds
+        camera-mode, buffer, segment, disconnect/reconnect, and hardware
+        evidence.
+
+        ## Ownership and boundaries
+
+        USB Camera Taytay owns local capture, buffering, and application
+        orchestration. Taytay owns durable publication, checksums, ledger,
+        retries, resume, cancellation, and transfer orchestration. Lunsaran
+        owns identity, project authorization, and upload sessions. Brutus owns
+        TUS transfer and provider execution. Sandbox Loom governs its separate
+        intake, policy, harness, evidence, review, and approval workflow.
+
+        ## Constraints and risks
+
+        The MVPs target Linux and one configured device. Synthetic fixtures
+        must keep ordinary MVP1 tests independent of cameras and live services.
+        Hardware format compatibility, camera disconnects, spool pressure,
+        local/remote state divergence, and credential leakage are identified
+        risks. The scope does not promise lossless capture under arbitrary
+        hardware, disk, or network overload, and excludes hosted service,
+        analytics, audio, and multi-camera operation.
+
+        Credentials, signed URLs, raw media, and device-specific secrets must
+        not be copied into public documentation or evidence. Sandbox Loom
+        remains separate from application authority; access to hardware,
+        credentials, network, publication, and commits is external and must be
+        explicitly configured and approved.
   publication:
     targets:
     - github-pages
+    public_audiences:
+    - consumer
+    - technical
+    - stakeholder
 execution: {}
 mvp:
 - id: mvp-001
@@ -788,8 +934,8 @@ proposals:
     no credentials or model are specified here.
 provenance:
 - stored_path: source-materials/project-brief.yml
-  sha256: 6808333e6654e79add2295e4e4e3e94ad79c3b45d0586170b556ff620511dd4c
-  bytes: 33942
-  source_sha256: fc20650ec708b3cd6f836b4ccfb5aa422a0cdb97eae20fefd39736a89ba773e7
-  source_bytes: 33936
+  sha256: 775a002303040b5adf12e857fdd929d78fa52c1c2c329846701947d48cb5eac6
+  bytes: 40879
+  source_sha256: 476e1bda7576f7e5680beb728f3cc1d05f4ac863edb66c9e9d1736da64586cfe
+  source_bytes: 40873
   format: yml

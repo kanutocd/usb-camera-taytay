@@ -4,12 +4,12 @@
     {
       "source": "/home/ken/Documents/mi-proyekto/usb-camera-taytay/specifications/project-brief.yml",
       "stored_path": "source-materials/project-brief.yml",
-      "sha256": "6808333e6654e79add2295e4e4e3e94ad79c3b45d0586170b556ff620511dd4c",
-      "bytes": 33942,
-      "source_sha256": "fc20650ec708b3cd6f836b4ccfb5aa422a0cdb97eae20fefd39736a89ba773e7",
-      "source_bytes": 33936,
+      "sha256": "775a002303040b5adf12e857fdd929d78fa52c1c2c329846701947d48cb5eac6",
+      "bytes": 40879,
+      "source_sha256": "476e1bda7576f7e5680beb728f3cc1d05f4ac863edb66c9e9d1736da64586cfe",
+      "source_bytes": 40873,
       "format": "yml",
-      "imported_at": "2026-10-20T15:08:20.508580Z"
+      "imported_at": "2026-10-20T16:24:49.934241Z"
     }
   ]
 }

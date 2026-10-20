@@ -3,14 +3,14 @@
 This guide describes the intended path from project scoping to governed autonomous development for "USB Camera Taytay".
 
 It assumes the private Sandbox Loom repository is available locally at
-`~/path/to/sandbox-loom`
-`~/path/to/usb-camera-taytay`.
+`$MY_PROJECTS_HOME/sandbox-loom`
+`$MY_PROJECTS_HOME/usb-camera-taytay`.
 
 ## 1. Prepare the project
 
 ```bash
-cd ~/path/to/usb-camera-taytay
-export SANDBOX_LOOM_REPO="$HOME/path/to/sandbox-loom"
+cd $MY_PROJECTS_HOME/usb-camera-taytay
+export SANDBOX_LOOM_REPO="$HOME$MY_PROJECTS_HOME/sandbox-loom"
 export SANDBOX_LOOM="$SANDBOX_LOOM_REPO/bin/sandbox-loom"
 ```
 
@@ -136,7 +136,9 @@ artifacts during this intake task.
 Read project-requirements/project-scope-statement.md and convert it into
 specifications/project-brief.yml.
 
-Use the Sandbox Loom project-brief JSON Schema as the structural authority.
+Use the Sandbox Loom project-brief JSON Schema in
+`$MY_PROJECTS_HOME/sandbox-loom/specifications/intake/v0.1/project-brief.schema.json`
+as the structural authority.
 Preserve stakeholder language for objectives, actors, MVP1/MVP2 outcomes,
 milestones, features, assumptions, exclusions, and open questions. Separate
 confirmed decisions from proposals. Do not invent answers for unresolved
@@ -150,7 +152,7 @@ Include the Rust CLI, Linux filesystem/V4L2, Taytay crate, security, QA,
 hardware-acceptance, documentation, and deployment constraints that are
 explicitly present in the scope statement. Preserve the boundary between
 MVP1's external file producer and MVP2's pure Rust V4L2 capture loop.
-Preserve the private Sandbox Loom / agent-platform relationship without
+Preserve the private Sandbox Loom / sandbox-loom relationship without
 copying credentials or private policy details into the brief. Do not
 implement application code or generate the runtime harness yet.
 
@@ -167,24 +169,10 @@ The prompt is intentionally Codex-specific. If another provider is used,
 adapt only the provider invocation and skill-discovery wording; retain the two
 skill paths, the schema rules, and the project-boundary instructions.
 
-The agent should create the brief, not merely summarize the scope statement.
-The expected output is the actual file:
-
-```text
-specifications/project-brief.yml
-```
-
-Use the project-scope statement as the source for a stakeholder-readable brief. A coding agent can use the generated intake skill to preserve facts, distinguish proposals from decisions, and keep unresolved decisions explicit.
-
-```bash
-mkdir -p specifications
-
-# Have the selected coding agent create this file from:
-# project-requirements/project-scope-statement.md
-${EDITOR:-vi} specifications/project-brief.yml
-```
-
-The brief should contain the approved MVP, milestones, features, stakeholders, ownership, constraints, quality expectations, local services, security/tenancy expectations, and `open_questions`. Do not silently convert an unresolved decision into a final architecture choice.
+The coding agent must create `specifications/project-brief.yml` from the scope
+statement; do not substitute a hand-written minimal draft or a summary. Use the
+prompt above as the single source of instructions. Afterward, inspect the diff
+and confirm the brief represents the source before moving to section 5.
 
 An unresolved question may look like this:
 
@@ -202,20 +190,24 @@ open_questions:
 The suggestion helps stakeholders review a concrete option; it does not
 resolve the question and must not be treated as an approval or an ADR.
 
-For guided authoring, Sandbox Loom can create a documented starting point. This
-project is a Rust binary, not a frontend or PWA, so use the `rust-binary`
-template:
+If you need a fresh scaffold before agent authoring, create it at a temporary
+path first so it cannot overwrite the brief:
 
 ```bash
 "$SANDBOX_LOOM" intake init \
   --guided \
   --template rust-binary \
-  --output specifications/project-brief.yml
+  --output /tmp/usb-camera-project-brief-starter.yml
 ```
+
+Merge useful scaffold structure into the source-grounded brief; do not replace
+the brief with the starter.
 
 ## 5. Resolve and validate intake
 
-Review blocking questions with the project owner and technical stakeholders. Answer them in the brief or with the intake answer command:
+Review each question with its named owner. Apply an answer only after that
+owner has decided; a suggestion is not an answer. Use the question ID shown
+by `intake review` (the example below is illustrative):
 
 ```bash
 "$SANDBOX_LOOM" intake review specifications/project-brief.yml --json
@@ -258,25 +250,27 @@ Stop and report the diff and both results. Do not run intake import, normalize,
 harness generate, or harness docs.
 ```
 
-The audit must finish with `status: ready_for_normalization`, no blocking
-questions, and no missing ownership before the brief enters the import step.
+Proceed only when `intake validate` passes and `intake review` reports
+`ready_for_normalization`, no blocking questions, and no missing required
+ownership. If a required role is genuinely unassigned, stop and ask the
+project owner rather than fabricating a name. Non-blocking questions may
+remain open only when their owner and deferral are explicit and accepted.
 
 Then run the authoritative intake pipeline:
 
 ```bash
-rm -rf .sandbox-loom/intake
+INTAKE_DIR=".sandbox-loom/intake-$(date +%Y%m%d-%H%M%S)"
 
 "$SANDBOX_LOOM" intake validate specifications/project-brief.yml
 "$SANDBOX_LOOM" intake import specifications/project-brief.yml \
-  --output .sandbox-loom/intake
-"$SANDBOX_LOOM" intake normalize .sandbox-loom/intake \
-  --output .sandbox-loom/intake/normalized-scope.yml
+  --output "$INTAKE_DIR"
+"$SANDBOX_LOOM" intake normalize "$INTAKE_DIR" \
+  --output "$INTAKE_DIR/normalized-scope.yml"
 ```
 
-Do not proceed to harness generation while blocking questions remain unresolved
-or normalization reports a drift. Non-blocking questions may remain open only
-when the brief records an owner, status, and answer suggestion and the project
-owner explicitly accepts the deferral.
+Review the normalized scope and provenance before using that exact
+`normalized-scope.yml` in section 6. Keep earlier imports for comparison;
+do not delete them as a routine regeneration step.
 
 ## 6. Generate and approve the harness
 
@@ -284,22 +278,62 @@ Generate the runtime manifest, workflow, implementation plan, harness documentat
 
 ```bash
 "$SANDBOX_LOOM" harness generate . \
-  --scope .sandbox-loom/intake/normalized-scope.yml \
+  --scope "$INTAKE_DIR/normalized-scope.yml" \
   --template rust-binary
 
 "$SANDBOX_LOOM" harness docs . \
-  --scope .sandbox-loom/intake/normalized-scope.yml
+  --scope "$INTAKE_DIR/normalized-scope.yml"
 
 "$SANDBOX_LOOM" harness review .
-"$SANDBOX_LOOM" harness approve . \
-  --reviewer "Project owner" \
-  --rationale "Approved USB Camera Taytay scope, tenancy model, local environment, quality gates, and bounded execution policy."
 ```
 
 The `--template` option is optional when the normalized scope contains enough
 signals for inference. For this project, `rust-binary` is the explicit fallback
 because the reference application is a Rust CLI. Omitting the option is useful
 when validating that intake inference selects the same project shape.
+
+Read the complete review output and inspect the generated diff before
+approving. Resolve review errors, missing ownership, or scope drift first.
+Proposed architecture decisions are separate from harness approval; approve
+them individually with `harness approve-decision` only when the authorized
+decision owner accepts them. Then record harness approval:
+
+```bash
+"$SANDBOX_LOOM" harness approve . \
+  --reviewer "Project owner" \
+  --rationale "Approved USB Camera Taytay scope, quality gates, and execution policy."
+```
+
+Do not regenerate approved artifacts casually. If regeneration is necessary,
+review the diff and run `harness review` again before approval.
+
+### Generate GitHub Actions workflows
+
+After the harness and quality gates have been reviewed, compose CI and
+documentation workflows from the project's current normalized scope and
+`.sandbox-loom/quality-gates.yml`:
+
+```bash
+"$SANDBOX_LOOM" repo workflows generate .
+```
+
+Sandbox Loom infers GitHub from the selected local Git remote and reports that
+as a proposal; it does not create or modify remote repository settings. If
+there is no remote or its host cannot be identified, generation stops. Select
+the provider explicitly when needed:
+
+```bash
+"$SANDBOX_LOOM" repo workflows generate . --provider github
+"$SANDBOX_LOOM" repo workflows generate . --provider github --remote upstream
+```
+
+The command generates `.github/workflows/ci.yml` from the declared toolchain
+and quality-gate `argv` commands, and `.github/workflows/docs.yml` for strict
+Zensical validation. The docs workflow deploys to GitHub Pages only when
+`github-pages` is an approved documentation publication target. Review both
+files before committing them. Existing customized workflows are preserved;
+generation stops on a differing file unless replacement is explicitly
+requested with `--force`.
 
 Review the generated files before approval, especially:
 
@@ -317,11 +351,11 @@ generated Zensical `docs_dir` is `project-docs`; internal harness, ledger, and
 stakeholder-only material must not be published to a consumer or technical
 build.
 
-## 7. Run deterministic local development
+## 7. Run local development and bounded slices
 
-Start with the provider-free path. It proves the harness, quality gates,
-approvals, evidence, and commit handling without depending on external model
-credentials or camera hardware.
+Start with the local-runtime path. It uses the configured coding-agent CLI,
+so provider credentials or connectivity may still be required; local runtime
+does not mean provider-free. This path does not require USB camera hardware.
 
 ```bash
 "$SANDBOX_LOOM" project check .
@@ -343,11 +377,19 @@ filesystem and V4L2 delivery slices:
   --json-summary
 ```
 
-The runtime must stop on a failed gate, an approval boundary, a missing
-verified commit, an unavailable provider, or an unavailable hardware device.
-A later invocation should resume from persisted implementation status rather
-than requiring manual edits. Hardware access and live Lunsaran acceptance are
-optional capabilities; they are never implied by this guide.
+The runtime reports the active slice and evidence location. If it is
+interrupted or fails, inspect the final summary, checkpoints, and
+`implementation-status.yml`; fix the underlying blocker and invoke the same
+command again. The next invocation should resume from persisted status. Do not
+manually reset a slice to pending or mark work complete. Hardware access and
+live Lunsaran acceptance are optional capabilities; they are never implied by
+this guide.
+
+After a slice reports completion, verify that its code changes were committed
+with a descriptive subject, its coherent change is recorded in `CHANGELOG.md`,
+and the implementation status projection marks that slice completed. If any
+of those disagree with the run summary or checkpoint evidence, stop and
+investigate before starting the next slice.
 
 Preview and verify the generated documentation independently of a development
 run:
@@ -355,23 +397,32 @@ run:
 ```bash
 "$SANDBOX_LOOM" docs preview . --audience consumer --check
 "$SANDBOX_LOOM" docs preview . --audience technical --check
-zensical build --strict
+
+# One-time setup, using the version pinned/declared by this project:
+python3 -m venv .venv-zensical
+source .venv-zensical/bin/activate
+python -m pip install zensical
+
+# Run for each build (activate the project environment first):
+source .venv-zensical/bin/activate && zensical build --clean --strict
 
 # Optional interactive preview after the checks pass:
 "$SANDBOX_LOOM" docs preview . --audience consumer
 ```
 
-The preview command builds from `project-docs/`; `--check` performs the build
-without starting the preview server. The project-local Zensical installation
-and its pinned dependencies are part of bootstrap, so use the repository's
-documented toolchain rather than an unrelated global executable.
+`--check` performs a preview build without starting the server. Use the
+project-local virtual environment, not a global Zensical installation. If the
+project pins a Zensical version, install that exact version instead of the
+unversioned example above. Do not recreate the virtual environment on every
+build.
 
 ## 8. Optional provider integration
 
-If Hermes, Codex, OpenCode, or another provider is used, it should consume the
-generated intake skill plus the project-owned USB Camera Taytay skill. Keep
-provider credentials outside the project brief, workflow, root filesystem, and
-evidence.
+Provider integration is optional. The selected agent should follow the
+generated intake skill during scoping and the project-owned USB Camera Taytay
+skill during implementation. Keep provider credentials outside the project
+brief, workflow, root filesystem, and evidence. Do not place secrets in saved
+shell commands or committed files.
 
 Verify the selected provider independently before attempting provider-backed
 Sandbox Loom execution. For Hermes, for example:
@@ -380,7 +431,9 @@ Sandbox Loom execution. For Hermes, for example:
 hermes chat -q "Reply with exactly: Hermes is ready" --format stream-json
 ```
 
-Then run the Sandbox Loom provider acceptance only after the deterministic path works:
+Run provider acceptance only after the local-runtime workflow is understood
+and the provider/model are configured and authenticated. Replace the example
+values with a provider and model supported by the installed Hermes setup:
 
 ```bash
 SANDBOX_LOOM_RUN_LIVE_HERMES=1 \
@@ -397,8 +450,9 @@ provider chat is not evidence that the full Sandbox Loom workflow succeeded.
 
 ## 9. MVP and quality-gate acceptance
 
-MVP1 is the primary provider-free and hardware-independent demonstration.
-Validate stable-file detection, duplicate handling, Taytay publication,
+MVP1 is the primary hardware-independent demonstration (the harness still uses
+the configured coding-agent provider). Validate stable-file detection,
+duplicate handling, Taytay publication,
 checksum propagation, retry/resume, restart recovery, quota behavior,
 pause/resume, cleanup, and redaction.
 
@@ -408,7 +462,10 @@ disconnect/reconnect behavior, backpressure, and artifact checksums. Record
 the Linux version, camera model, negotiated mode, and test result without
 capturing credentials or customer media in evidence.
 
-At minimum, the quality harness should cover:
+Use the commands and thresholds in the approved
+`.sandbox-loom/quality-gates.yml` as the authoritative automated checks.
+Confirm the run summary and evidence files show each required gate passing.
+The acceptance coverage should include:
 
 - Rust formatting, compilation, linting, and documentation warnings;
 - unit and integration tests;
@@ -422,17 +479,17 @@ At minimum, the quality harness should cover:
 
 ## 10. Publish the reference application and documentation
 
-The Rust CLI reference application and consumer documentation can be released
-from the approved scope and committed harness artifacts. Zensical documentation
-may be deployed to GitHub Pages. Each release should retain the brief revision,
-implementation status, quality-gate results, and Sandbox Loom evidence
-reference. Do not publish captured media, credentials, raw hardware logs, or
-private harness material.
+Publish only after the approved release checks pass and the publication
+audience/redaction rules have been reviewed. Use the deployment target actually
+configured for this project (do not assume GitHub Pages is enabled). Retain
+the brief revision, implementation status, quality-gate results, and Sandbox
+Loom evidence reference with the release. Never publish captured media,
+credentials, raw hardware logs, or private harness material.
 
 Live Lunsaran/Brutus and provider integrations remain optional acceptance
-layers. The provider-free MVP1 workflow is the primary portfolio demonstration
-because it is deterministic and can be run by another person without access to
-your credentials or camera hardware.
+layers. The primary portfolio demonstration should use deterministic fixtures
+and mock services where possible, and must not require access to private
+credentials or camera hardware.
 
 ## Current readiness checklist
 

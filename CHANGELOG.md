@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-2-slice-19: one-command local setup with no production credentials
+
 - phase-2-slice-18: reuse MVP1's Taytay Artifact publication, durable spool, and
 
 - phase-2-slice-17: hardware acceptance evidence and troubleshooting guide

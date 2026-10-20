@@ -19,8 +19,10 @@ using the `rust-binary` template.
 
 ## Development
 
-Install Rust with Cargo, then run `bin/setup-dev` to install the pinned
-documentation tools and project-local coverage tool. Run
+Install Rust with Cargo and Python 3, then run `bin/setup-dev` once to install
+the pinned documentation tools in `.venv-zensical` and the project-local
+coverage tool in `.tools/cargo`. The script checks its required commands before
+installing dependencies. Run
 `scripts/quality.sh` for Rust formatting, build, tests, and linting; run
 `scripts/acceptance-mock.sh` for the camera-free CLI smoke check. MVP1
 development and mock acceptance require no camera, production credentials, or

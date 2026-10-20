@@ -274,15 +274,12 @@ do not delete them as a routine regeneration step.
 
 ## 6. Generate and approve the harness
 
-Generate the runtime manifest, workflow, implementation plan, harness documentation, and project-facing documentation from the normalized scope:
+Generate the runtime manifest, workflow, implementation plan, and other harness artifacts from the normalized scope. Review them before generating the documentation projections:
 
 ```bash
 "$SANDBOX_LOOM" harness generate . \
   --scope "$INTAKE_DIR/normalized-scope.yml" \
   --template rust-binary
-
-"$SANDBOX_LOOM" harness docs . \
-  --scope "$INTAKE_DIR/normalized-scope.yml"
 
 "$SANDBOX_LOOM" harness review .
 ```
@@ -360,9 +357,10 @@ individual decision approvals:
 ```
 
 If the harness was already approved before a decision was recorded, this
-harness approval is still required again. After approval, refresh the generated
-documentation so its projections and manifests reflect the final approved
-decision set, then inspect the diff:
+harness approval is still required again. Only after harness approval, generate
+the documentation projections so their claims and manifests reflect the final
+approved decision set. Then inspect the documentation diff and run applicable
+documentation and strict-build checks:
 
 ```bash
 "$SANDBOX_LOOM" harness docs . \

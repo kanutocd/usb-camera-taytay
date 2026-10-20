@@ -243,11 +243,23 @@ fn capture_v4l2_segment(config: &Config) -> Result<String, String> {
         v4l2::Capture::open(device, width, height, fourcc)
             .map_err(|_| "could not initialize V4L2 capture; verify device and mode".to_owned())?,
     );
+    let spool = open_spool(config)?;
     let mut reconnects = 0;
-    write_v4l2_frames(&config.input_dir, frame_count, max_bytes, || {
-        next_v4l2_frame(&mut capture, &mut reconnects, device, width, height, fourcc)
-            .map_err(|_| "could not read a complete V4L2 frame".to_owned())
-    })
+    write_v4l2_frames(
+        &config.input_dir,
+        frame_count,
+        max_bytes,
+        config.spool_quota_bytes,
+        || {
+            spool
+                .bytes_used()
+                .map_err(|_| "could not inspect durable spool usage".to_owned())
+        },
+        || {
+            next_v4l2_frame(&mut capture, &mut reconnects, device, width, height, fourcc)
+                .map_err(|_| "could not read a complete V4L2 frame".to_owned())
+        },
+    )
 }
 
 #[cfg(target_os = "linux")]
@@ -307,15 +319,28 @@ fn write_v4l2_frames(
     directory: &Path,
     frame_count: usize,
     max_bytes: u64,
+    spool_quota_bytes: u64,
+    mut spool_bytes_used: impl FnMut() -> Result<u64, String>,
     mut next_frame: impl FnMut() -> Result<Option<Vec<u8>>, String>,
 ) -> Result<String, String> {
     let mut total_bytes = 0_u64;
     let mut written = 0;
+    let mut stopped_for_spool_quota = false;
     for _ in 0..frame_count {
+        if available_capture_bytes(directory, spool_quota_bytes, &mut spool_bytes_used)? == 0 {
+            stopped_for_spool_quota = true;
+            break;
+        }
         let Some(frame) = next_frame()? else {
             break;
         };
         let frame_size = u64::try_from(frame.len()).map_err(|_| "invalid V4L2 frame size")?;
+        let available =
+            available_capture_bytes(directory, spool_quota_bytes, &mut spool_bytes_used)?;
+        if frame_size > available {
+            stopped_for_spool_quota = true;
+            break;
+        }
         total_bytes = total_bytes
             .checked_add(frame_size)
             .filter(|size| *size <= max_bytes)
@@ -324,9 +349,47 @@ fn write_v4l2_frames(
         write_jpeg_frame(directory, &frame, &captured_at)?;
         written += 1;
     }
+    let quota_note = if stopped_for_spool_quota {
+        "; stopped at spool quota"
+    } else {
+        ""
+    };
     Ok(format!(
-        "captured {written} timestamped V4L2 JPEG frames ({total_bytes} bytes)"
+        "captured {written} timestamped V4L2 JPEG frames ({total_bytes} bytes){quota_note}"
     ))
+}
+
+fn available_capture_bytes(
+    directory: &Path,
+    spool_quota_bytes: u64,
+    spool_bytes_used: &mut impl FnMut() -> Result<u64, String>,
+) -> Result<u64, String> {
+    Ok(spool_quota_bytes
+        .saturating_sub(spool_bytes_used()?)
+        .saturating_sub(pending_capture_bytes(directory)?))
+}
+
+fn pending_capture_bytes(directory: &Path) -> Result<u64, String> {
+    let mut entries =
+        fs::read_dir(directory).map_err(|_| "could not inspect input directory".to_owned())?;
+    entries.try_fold(0_u64, |total, entry| {
+        let entry = entry.map_err(|_| "could not inspect input directory".to_owned())?;
+        let is_jpeg = entry.path().extension().is_some_and(|extension| {
+            extension.eq_ignore_ascii_case("jpg") || extension.eq_ignore_ascii_case("jpeg")
+        });
+        if !is_jpeg {
+            return Ok(total);
+        }
+        let metadata = entry
+            .metadata()
+            .map_err(|_| "could not inspect input directory".to_owned())?;
+        if !metadata.is_file() {
+            return Ok(total);
+        }
+        total
+            .checked_add(metadata.len())
+            .ok_or_else(|| "input capture size is out of range".to_owned())
+    })
 }
 
 #[cfg(not(target_os = "linux"))]
@@ -836,22 +899,38 @@ mod tests {
         ));
         fs::create_dir_all(&root).unwrap();
         let mut count = 0;
-        let result = write_v4l2_frames(&root, 2, 10, || {
-            count += 1;
-            Ok(Some(vec![0xff, 0xd8, 0x01, 0xff, 0xd9]))
-        })
+        let result = write_v4l2_frames(
+            &root,
+            2,
+            10,
+            1024,
+            || Ok(0),
+            || {
+                count += 1;
+                Ok(Some(vec![0xff, 0xd8, 0x01, 0xff, 0xd9]))
+            },
+        )
         .unwrap();
         assert!(result.contains("captured 2 timestamped V4L2 JPEG frames (10 bytes)"));
         assert_eq!(count, 2);
         assert_eq!(fs::read_dir(&root).unwrap().count(), 4);
 
-        let result =
-            write_v4l2_frames(&root, 2, 9, || Ok(Some(vec![0xff, 0xd8, 0x01, 0xff, 0xd9])));
+        let result = write_v4l2_frames(
+            &root,
+            2,
+            9,
+            1024,
+            || Ok(0),
+            || Ok(Some(vec![0xff, 0xd8, 0x01, 0xff, 0xd9])),
+        );
         assert!(result.unwrap_err().contains("size limit"));
-        let result = write_v4l2_frames(&root, 1, 10, || Err("frame failure".into()));
+        let result =
+            write_v4l2_frames(&root, 1, 10, 1024, || Ok(0), || Err("frame failure".into()));
         assert_eq!(result.unwrap_err(), "frame failure");
+        let result = write_v4l2_frames(&root, 1, 10, 1024, || Ok(0), || Ok(Some(vec![0, 1, 2, 3])));
+        assert!(result.unwrap_err().contains("incomplete JPEG frame"));
 
-        let result = write_v4l2_frames(&root, 2, 10, || Ok(None)).unwrap();
+        let result = write_v4l2_frames(&root, 2, 10, 1024, || Ok(0), || Ok(None)).unwrap();
         assert!(result.contains("captured 0 timestamped V4L2 JPEG frames (0 bytes)"));
         fs::remove_dir_all(root).unwrap();
     }
@@ -867,10 +946,146 @@ mod tests {
         ));
         fs::create_dir_all(&root).unwrap();
         let mut frames = [Some(vec![0xff, 0xd8, 0x01, 0xff, 0xd9]), None].into_iter();
-        let result = write_v4l2_frames(&root, 30, 1024, || Ok(frames.next().unwrap())).unwrap();
+        let result = write_v4l2_frames(
+            &root,
+            30,
+            1024,
+            1024,
+            || Ok(0),
+            || Ok(frames.next().unwrap()),
+        )
+        .unwrap();
 
         assert!(result.contains("captured 1 timestamped V4L2 JPEG frames (5 bytes)"));
         assert_eq!(fs::read_dir(&root).unwrap().count(), 2);
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn stops_before_spool_quota_would_be_exceeded_and_keeps_existing_frames() {
+        let root = std::env::temp_dir().join(format!(
+            "usb-camera-taytay-v4l2-quota-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        fs::write(root.join("earlier.jpg"), [0xff, 0xd8, 0x01, 0xff, 0xd9]).unwrap();
+        let mut calls = 0;
+        let frame = vec![0xff, 0xd8, 0x02, 0xff, 0xd9];
+        let result = write_v4l2_frames(
+            &root,
+            30,
+            1024,
+            15,
+            || Ok(5),
+            || {
+                calls += 1;
+                Ok(Some(frame.clone()))
+            },
+        )
+        .unwrap();
+
+        assert!(result.ends_with("; stopped at spool quota"));
+        assert!(result.starts_with("captured 1 timestamped V4L2 JPEG frames (5 bytes)"));
+        assert_eq!(calls, 1);
+        assert_eq!(super::pending_capture_bytes(&root).unwrap(), 10);
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn does_not_dequeue_a_frame_when_spool_quota_is_already_full() {
+        let root = std::env::temp_dir().join(format!(
+            "usb-camera-taytay-v4l2-full-quota-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let mut calls = 0;
+        let result = write_v4l2_frames(
+            &root,
+            30,
+            1024,
+            5,
+            || Ok(5),
+            || {
+                calls += 1;
+                Ok(Some(vec![0xff, 0xd8, 0x01, 0xff, 0xd9]))
+            },
+        )
+        .unwrap();
+
+        assert!(result.ends_with("; stopped at spool quota"));
+        assert!(result.starts_with("captured 0 timestamped V4L2 JPEG frames (0 bytes)"));
+        assert_eq!(calls, 0);
+        assert_eq!(fs::read_dir(&root).unwrap().count(), 0);
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn drops_dequeued_frame_if_spool_quota_fills_during_capture() {
+        let root = std::env::temp_dir().join(format!(
+            "usb-camera-taytay-v4l2-quota-race-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let mut usage = [0, 5].into_iter();
+        let mut frame_reads = 0;
+        let result = write_v4l2_frames(
+            &root,
+            1,
+            1024,
+            5,
+            || Ok(usage.next().unwrap()),
+            || {
+                frame_reads += 1;
+                Ok(Some(vec![0xff, 0xd8, 0x01, 0xff, 0xd9]))
+            },
+        )
+        .unwrap();
+
+        assert!(result.ends_with("; stopped at spool quota"));
+        assert!(result.starts_with("captured 0 timestamped V4L2 JPEG frames (0 bytes)"));
+        assert_eq!(frame_reads, 1);
+        assert_eq!(fs::read_dir(&root).unwrap().count(), 0);
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn counts_pending_jpegs_and_fails_closed_when_spool_usage_is_unavailable() {
+        let root = std::env::temp_dir().join(format!(
+            "usb-camera-taytay-v4l2-pending-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        fs::write(root.join("one.jpg"), [1, 2, 3, 4, 5]).unwrap();
+        fs::write(root.join("two.JPEG"), [6, 7, 8]).unwrap();
+        fs::write(root.join("ignored.jpg.part"), [9, 10]).unwrap();
+        fs::create_dir(root.join("ignored.jpg")).unwrap();
+        assert_eq!(super::pending_capture_bytes(&root).unwrap(), 8);
+        assert_eq!(
+            super::pending_capture_bytes(&root.join("missing")).unwrap_err(),
+            "could not inspect input directory"
+        );
+
+        let result = write_v4l2_frames(
+            &root,
+            1,
+            1024,
+            1024,
+            || Err("spool usage unavailable".into()),
+            || Ok(Some(vec![0xff, 0xd8, 0x01, 0xff, 0xd9])),
+        );
+        assert_eq!(result.unwrap_err(), "spool usage unavailable");
         fs::remove_dir_all(root).unwrap();
     }
 
@@ -886,6 +1101,15 @@ mod tests {
         fs::create_dir_all(&root).unwrap();
         let captured_at = "2026-10-21T00:00:00Z";
         assert!(write_jpeg_frame(&root, &[0, 1, 2, 3], captured_at).is_err());
+        assert!(write_jpeg_frame(&root, &[0xff, 0xd8, 0x01, 0xff, 0xd9], "invalid").is_err());
+        assert!(
+            write_jpeg_frame(
+                &root.join("missing-directory"),
+                &[0xff, 0xd8, 0x01, 0xff, 0xd9],
+                captured_at,
+            )
+            .is_err()
+        );
         assert_eq!(fs::read_dir(&root).unwrap().count(), 0);
 
         write_jpeg_frame(&root, &[0xff, 0xd8, 0x01, 0xff, 0xd9], captured_at).unwrap();
@@ -950,6 +1174,7 @@ mod tests {
         assert!(!valid_utc_timestamp("2023-02-29T23:59:59Z"));
         assert!(!valid_utc_timestamp("2024-01-01T24:00:00Z"));
         assert!(!valid_utc_timestamp("2024-01-01T00:00:00+00:00"));
+        assert!(!valid_utc_timestamp("2024-13-01T00:00:00Z"));
     }
 
     #[test]
@@ -988,6 +1213,13 @@ mod tests {
         assert_eq!(
             artifact.metadata["filename"],
             "front-door_20241021T123456Z.jpg"
+        );
+
+        fs::write(root.join("front-door_20241021T123456Z.json"), r#"{}"#).unwrap();
+        enrich_capture_metadata(&mut artifact).unwrap();
+        assert_eq!(
+            artifact.captured_at.as_deref(),
+            Some("2024-10-21T12:34:56Z")
         );
 
         fs::write(

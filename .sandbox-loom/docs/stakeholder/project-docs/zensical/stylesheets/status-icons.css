@@ -1,0 +1,43 @@
+/* Replace implementation-status text with the matching Lucide icon. */
+td[data-status] {
+  position: relative;
+  width: 3rem;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 0;
+  white-space: nowrap;
+}
+
+td[data-status]::after {
+  content: attr(data-status);
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+td[data-status] > svg.lucide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  stroke-width: 2;
+}
+
+td[data-status="completed"] > svg.lucide {
+  color: var(--md-typeset-a-color);
+}
+
+td[data-status="in_progress"] > svg.lucide {
+  color: var(--md-accent-fg-color);
+}
+
+td[data-status="pending"] > svg.lucide {
+  color: var(--md-default-fg-color--light);
+}

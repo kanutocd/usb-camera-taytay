@@ -74,7 +74,10 @@ synced and atomically renamed from `.part` paths, so the existing filesystem
 ingestion command can publish them through Taytay. Configure
 `v4l2_segment_frames` (default 30, maximum 300) and
 `v4l2_segment_max_bytes` (default 64 MiB) to bound each run. Only `MJPG` is
-currently written; other capture formats are rejected.
+currently written; other capture formats are rejected. Capture also checks
+Taytay spool usage and pending JPEGs in the input directory before admitting
+each frame. It stops at the configured spool quota, leaving completed frames
+available for `run-filesystem` to publish through Taytay.
 
 ```sh
 cargo run -- run-v4l2 config.toml
@@ -86,7 +89,7 @@ stop capture after the current frame is returned; completed JPEGs remain
 published and incomplete frames are discarded. Mappings and streaming state are
 released on shutdown and frame errors. Camera-independent tests cover frame
 validation, disconnect classification, JPEG completeness, timestamp sidecars,
-and atomic file publication.
+atomic file publication, and stopping capture when spool capacity is exhausted.
 
 `status` reads artifact IDs and lifecycle states from the durable ledger.
 `pause` and `resume` persist state changes through Taytay's ledger; resume makes

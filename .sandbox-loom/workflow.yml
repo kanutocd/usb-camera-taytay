@@ -1,0 +1,387 @@
+---
+version: '0.1'
+workflow: usb-camera-taytay-workflow
+profile: safe-development
+limits:
+  max_tasks: 6
+  max_repairs: 2
+tasks:
+- id: inspect_scope
+  action: coding_agent.cli.request
+  with:
+    operation: inspect
+    prompt: Read and acknowledge every supplied harness and project document before
+      implementation. Summarize the governing constraints, distinguish approved ADRs
+      from proposed ADRs, identify unresolved issues, and list the applicable quality
+      gates. Do not modify files during inspection. Read .sandbox-loom/implementation-status.yml
+      as the shared progress ledger; do not modify it during inspection.
+    context_files:
+    - README.md
+    - project-docs/harness/AGENTS.md
+    - project-docs/harness/ARCHITECTURE.md
+    - project-docs/harness/REQUIREMENTS.md
+    - project-docs/harness/IMPLEMENTATION.md
+    - project-docs/harness/QUALITY_GATES.md
+    - project-docs/implementation/README.md
+    - project-docs/implementation/roadmap.md
+    - project-docs/backlog/README.md
+    - project-docs/adrs/README.md
+    - project-docs/adrs/ARCHITECTURE_DECISIONS.md
+    - ".sandbox-loom/project.yml"
+    - ".sandbox-loom/workflow.yml"
+    - ".sandbox-loom/implementation-plan.yml"
+    - ".sandbox-loom/implementation-status.yml"
+    - ".sandbox-loom/requirements.yml"
+    - ".sandbox-loom/quality-gates.yml"
+    - ".sandbox-loom/intake/decisions.yml"
+    - zensical.toml
+    - project-docs/index.md
+    - project-docs/implementation/status.md
+    - project-docs/zensical/ASSET-PROVENANCE.md
+    - project-docs/implementation/phases/phase-1.md
+    - project-docs/implementation/slices/phase-1-slice-1.md
+    - project-docs/implementation/slices/phase-1-slice-2.md
+    - project-docs/implementation/phases/phase-2.md
+    - project-docs/implementation/slices/phase-2-slice-1.md
+    - project-docs/implementation/slices/phase-2-slice-2.md
+    - project-docs/implementation/slices/phase-2-slice-3.md
+    - project-docs/implementation/slices/phase-2-slice-4.md
+    - project-docs/implementation/slices/phase-2-slice-5.md
+    - project-docs/implementation/slices/phase-2-slice-6.md
+    - project-docs/implementation/slices/phase-2-slice-7.md
+    - project-docs/implementation/slices/phase-2-slice-8.md
+    - project-docs/implementation/slices/phase-2-slice-9.md
+    - project-docs/implementation/slices/phase-2-slice-10.md
+    - project-docs/implementation/slices/phase-2-slice-11.md
+    - project-docs/implementation/slices/phase-2-slice-12.md
+    - project-docs/implementation/slices/phase-2-slice-13.md
+    - project-docs/implementation/slices/phase-2-slice-14.md
+    - project-docs/implementation/slices/phase-2-slice-15.md
+    - project-docs/implementation/slices/phase-2-slice-16.md
+    - project-docs/implementation/slices/phase-2-slice-17.md
+    - project-docs/implementation/slices/phase-2-slice-18.md
+    - project-docs/implementation/slices/phase-2-slice-19.md
+    - project-docs/implementation/slices/phase-2-slice-20.md
+    - project-docs/implementation/slices/phase-2-slice-21.md
+    - project-docs/implementation/slices/phase-2-slice-22.md
+    - project-docs/implementation/slices/phase-2-slice-23.md
+    - project-docs/implementation/slices/phase-2-slice-24.md
+    - project-docs/implementation/slices/phase-2-slice-25.md
+    - project-docs/implementation/slices/phase-2-slice-26.md
+    - project-docs/implementation/slices/phase-2-slice-27.md
+    - project-docs/implementation/slices/phase-2-slice-28.md
+    - project-docs/implementation/phases/phase-3.md
+    - project-docs/implementation/slices/phase-3-slice-1.md
+    - project-docs/implementation/slices/phase-3-slice-2.md
+    - project-docs/implementation/phases/phase-4.md
+    - project-docs/implementation/slices/phase-4-slice-1.md
+    - project-docs/adrs/ADR-001-tenant-isolation.md
+    - project-docs/adrs/ADR-002-local-development-services.md
+    - project-docs/adrs/ADR-003-quality-gates-and-evidence.md
+- id: bootstrap_scope
+  action: coding_agent.cli.request
+  after:
+  - inspect_scope
+  required_paths:
+  - ".gitignore"
+  - bin/ci
+  - bin/zensical
+  - requirements-zensical.txt
+  - ".venv-zensical/bin/activate"
+  - ".venv-zensical/bin/zensical"
+  - zensical.toml
+  - project-docs/index.md
+  - project-docs/implementation/status.md
+  - project-docs/zensical/stylesheets/mermaid-panzoom.css
+  - project-docs/zensical/stylesheets/status-icons.css
+  - project-docs/zensical/stylesheets/layout.css
+  - project-docs/zensical/javascripts/mermaid.mjs
+  - project-docs/zensical/javascripts/mermaid-panzoom.js
+  - project-docs/zensical/javascripts/status-icons.js
+  - project-docs/zensical/javascripts/tablesort.js
+  - Cargo.toml
+  with:
+    operation: bootstrap
+    prompt: 'Bootstrap the declared project before functional implementation. Create
+      the template-appropriate project manifest, minimal compilable project entrypoint,
+      and project-owned bin/ci command runner. Install every declared project-local
+      development dependency with the declared package manager; never rely on a globally
+      installed quality tool. Implement every configured quality gate using the declared
+      language and tools; do not create a placeholder that bypasses checks. Documentation
+      is part of bootstrap: create project-docs/ as the Zensical docs_dir, create
+      the required Zensical configuration and project-docs/index.md plus project-docs/implementation/status.md,
+      create a pinned requirements-zensical.txt, create .venv-zensical, activate it
+      with `source .venv-zensical/bin/activate`, and install the requirements with
+      `python -m pip install --requirement requirements-zensical.txt`. Create an executable
+      bin/zensical wrapper that sources `.venv-zensical/bin/activate` before invoking
+      the activated `.venv-zensical/bin/zensical`; make bin/ci delegate its Zensical
+      gate to that wrapper. Verify with `source .venv-zensical/bin/activate && zensical
+      build --clean --strict` before leaving bootstrap. Vendor or provision the generated
+      project-docs/zensical assets. Ensure node_modules, build output, coverage, virtualenvs,
+      and other local caches are ignored. For a single frontend application, do not
+      create pnpm-workspace.yaml unless the normalized scope explicitly declares a
+      workspace or monorepo. Do not scaffold the declared component files in this
+      task; leave those files to their dedicated implementation slice. Run the narrowest
+      bootstrap checks and leave the required project files in the repository. Do
+      not mark an implementation slice complete for bootstrap work; the runtime records
+      task progress in .sandbox-loom/implementation-status.yml. Before every patch,
+      reread the current target file and nearby context. If a patch does not apply,
+      stop, reread the current file, and construct a new patch from its actual contents;
+      never retry the same stale patch or loop on a patch mismatch.'
+    context_files:
+    - README.md
+    - project-docs/harness/AGENTS.md
+    - project-docs/harness/ARCHITECTURE.md
+    - project-docs/harness/REQUIREMENTS.md
+    - project-docs/harness/IMPLEMENTATION.md
+    - project-docs/harness/QUALITY_GATES.md
+    - project-docs/implementation/README.md
+    - project-docs/implementation/roadmap.md
+    - project-docs/backlog/README.md
+    - project-docs/adrs/README.md
+    - project-docs/adrs/ARCHITECTURE_DECISIONS.md
+    - ".sandbox-loom/project.yml"
+    - ".sandbox-loom/workflow.yml"
+    - ".sandbox-loom/implementation-plan.yml"
+    - ".sandbox-loom/implementation-status.yml"
+    - ".sandbox-loom/requirements.yml"
+    - ".sandbox-loom/quality-gates.yml"
+    - ".sandbox-loom/intake/decisions.yml"
+    - zensical.toml
+    - project-docs/index.md
+    - project-docs/implementation/status.md
+    - project-docs/zensical/ASSET-PROVENANCE.md
+    - project-docs/implementation/phases/phase-1.md
+    - project-docs/implementation/slices/phase-1-slice-1.md
+    - project-docs/implementation/slices/phase-1-slice-2.md
+    - project-docs/implementation/phases/phase-2.md
+    - project-docs/implementation/slices/phase-2-slice-1.md
+    - project-docs/implementation/slices/phase-2-slice-2.md
+    - project-docs/implementation/slices/phase-2-slice-3.md
+    - project-docs/implementation/slices/phase-2-slice-4.md
+    - project-docs/implementation/slices/phase-2-slice-5.md
+    - project-docs/implementation/slices/phase-2-slice-6.md
+    - project-docs/implementation/slices/phase-2-slice-7.md
+    - project-docs/implementation/slices/phase-2-slice-8.md
+    - project-docs/implementation/slices/phase-2-slice-9.md
+    - project-docs/implementation/slices/phase-2-slice-10.md
+    - project-docs/implementation/slices/phase-2-slice-11.md
+    - project-docs/implementation/slices/phase-2-slice-12.md
+    - project-docs/implementation/slices/phase-2-slice-13.md
+    - project-docs/implementation/slices/phase-2-slice-14.md
+    - project-docs/implementation/slices/phase-2-slice-15.md
+    - project-docs/implementation/slices/phase-2-slice-16.md
+    - project-docs/implementation/slices/phase-2-slice-17.md
+    - project-docs/implementation/slices/phase-2-slice-18.md
+    - project-docs/implementation/slices/phase-2-slice-19.md
+    - project-docs/implementation/slices/phase-2-slice-20.md
+    - project-docs/implementation/slices/phase-2-slice-21.md
+    - project-docs/implementation/slices/phase-2-slice-22.md
+    - project-docs/implementation/slices/phase-2-slice-23.md
+    - project-docs/implementation/slices/phase-2-slice-24.md
+    - project-docs/implementation/slices/phase-2-slice-25.md
+    - project-docs/implementation/slices/phase-2-slice-26.md
+    - project-docs/implementation/slices/phase-2-slice-27.md
+    - project-docs/implementation/slices/phase-2-slice-28.md
+    - project-docs/implementation/phases/phase-3.md
+    - project-docs/implementation/slices/phase-3-slice-1.md
+    - project-docs/implementation/slices/phase-3-slice-2.md
+    - project-docs/implementation/phases/phase-4.md
+    - project-docs/implementation/slices/phase-4-slice-1.md
+    - project-docs/adrs/ADR-001-tenant-isolation.md
+    - project-docs/adrs/ADR-002-local-development-services.md
+    - project-docs/adrs/ADR-003-quality-gates-and-evidence.md
+- id: implement_scope
+  action: coding_agent.cli.request
+  after:
+  - bootstrap_scope
+  with:
+    operation: implement
+    prompt: Before changing files, select the next incomplete slice from .sandbox-loom/implementation-plan.yml
+      and reconcile it with its parent phase, roadmap, requirements, quality gates,
+      and applicable ADRs. Treat the executable YAML plan as authoritative over Markdown
+      projections. Treat only approved ADRs as binding; proposed ADRs require review
+      and must not be silently adopted. If artifacts disagree or are stale, report
+      the drift and resolve it through the appropriate plan or documentation update
+      before implementation. Implement only the selected bounded slice, update affected
+      specifications or ADRs when a public or architectural boundary changes, run
+      the slice's listed quality gates, and inspect the final diff. Leave the verified
+      change ready for Sandbox Loom's approved runtime commit task. Sandbox Loom passes
+      the runtime-selected phase and slice and marks it in_progress before this task
+      starts; do not choose a different slice or edit .sandbox-loom/implementation-status.yml.
+      If resuming, inspect the current worktree and prior run evidence, preserve valid
+      existing work, and continue the same incomplete slice without repeating completed
+      tasks. Do not create the final Git commit yourself; Sandbox Loom commits after
+      verification and approval, then records the verified commit and completed status.
+      Before every patch, reread the current target file and nearby context. If a
+      patch does not apply, stop, reread the current file, and construct a new patch
+      from its actual contents; never retry the same stale patch or loop on a patch
+      mismatch.
+    context_files:
+    - README.md
+    - project-docs/harness/AGENTS.md
+    - project-docs/harness/ARCHITECTURE.md
+    - project-docs/harness/REQUIREMENTS.md
+    - project-docs/harness/IMPLEMENTATION.md
+    - project-docs/harness/QUALITY_GATES.md
+    - project-docs/implementation/README.md
+    - project-docs/implementation/roadmap.md
+    - project-docs/backlog/README.md
+    - project-docs/adrs/README.md
+    - project-docs/adrs/ARCHITECTURE_DECISIONS.md
+    - ".sandbox-loom/project.yml"
+    - ".sandbox-loom/workflow.yml"
+    - ".sandbox-loom/implementation-plan.yml"
+    - ".sandbox-loom/implementation-status.yml"
+    - ".sandbox-loom/requirements.yml"
+    - ".sandbox-loom/quality-gates.yml"
+    - ".sandbox-loom/intake/decisions.yml"
+    - zensical.toml
+    - project-docs/index.md
+    - project-docs/implementation/status.md
+    - project-docs/zensical/ASSET-PROVENANCE.md
+    - project-docs/implementation/phases/phase-1.md
+    - project-docs/implementation/slices/phase-1-slice-1.md
+    - project-docs/implementation/slices/phase-1-slice-2.md
+    - project-docs/implementation/phases/phase-2.md
+    - project-docs/implementation/slices/phase-2-slice-1.md
+    - project-docs/implementation/slices/phase-2-slice-2.md
+    - project-docs/implementation/slices/phase-2-slice-3.md
+    - project-docs/implementation/slices/phase-2-slice-4.md
+    - project-docs/implementation/slices/phase-2-slice-5.md
+    - project-docs/implementation/slices/phase-2-slice-6.md
+    - project-docs/implementation/slices/phase-2-slice-7.md
+    - project-docs/implementation/slices/phase-2-slice-8.md
+    - project-docs/implementation/slices/phase-2-slice-9.md
+    - project-docs/implementation/slices/phase-2-slice-10.md
+    - project-docs/implementation/slices/phase-2-slice-11.md
+    - project-docs/implementation/slices/phase-2-slice-12.md
+    - project-docs/implementation/slices/phase-2-slice-13.md
+    - project-docs/implementation/slices/phase-2-slice-14.md
+    - project-docs/implementation/slices/phase-2-slice-15.md
+    - project-docs/implementation/slices/phase-2-slice-16.md
+    - project-docs/implementation/slices/phase-2-slice-17.md
+    - project-docs/implementation/slices/phase-2-slice-18.md
+    - project-docs/implementation/slices/phase-2-slice-19.md
+    - project-docs/implementation/slices/phase-2-slice-20.md
+    - project-docs/implementation/slices/phase-2-slice-21.md
+    - project-docs/implementation/slices/phase-2-slice-22.md
+    - project-docs/implementation/slices/phase-2-slice-23.md
+    - project-docs/implementation/slices/phase-2-slice-24.md
+    - project-docs/implementation/slices/phase-2-slice-25.md
+    - project-docs/implementation/slices/phase-2-slice-26.md
+    - project-docs/implementation/slices/phase-2-slice-27.md
+    - project-docs/implementation/slices/phase-2-slice-28.md
+    - project-docs/implementation/phases/phase-3.md
+    - project-docs/implementation/slices/phase-3-slice-1.md
+    - project-docs/implementation/slices/phase-3-slice-2.md
+    - project-docs/implementation/phases/phase-4.md
+    - project-docs/implementation/slices/phase-4-slice-1.md
+    - project-docs/adrs/ADR-001-tenant-isolation.md
+    - project-docs/adrs/ADR-002-local-development-services.md
+    - project-docs/adrs/ADR-003-quality-gates-and-evidence.md
+- id: verify
+  action: verify
+  after:
+  - implement_scope
+  checks:
+  - fmt
+  - clippy
+  - unit_tests
+  - code_coverage
+  - documentation_links
+  - documentation_navigation
+  - documentation_redaction
+  - mermaid_validation
+  - zensical_build
+  repair:
+    action: coding_agent.cli.request
+    required_paths:
+    - bin/ci
+    with:
+      operation: repair
+      prompt: Inspect the persisted quality-gate evidence and repair the failed verification.
+        If a configured gate cannot start because the project is not bootstrapped,
+        create the declared project structure and the project-owned bin/ci command
+        runner before retrying the gates. The runner must implement every configured
+        gate with the project's declared language and tools; do not weaken, remove,
+        or bypass a quality gate. Implement only this bounded repair, run the affected
+        gates, and leave the repository ready for the workflow's verification retry.
+        Before every patch, reread the current target file and nearby context. If
+        a patch does not apply, stop, reread the current file, and construct a new
+        patch from its actual contents; never retry the same stale patch or loop on
+        a patch mismatch.
+      context_files:
+      - README.md
+      - project-docs/harness/AGENTS.md
+      - project-docs/harness/ARCHITECTURE.md
+      - project-docs/harness/REQUIREMENTS.md
+      - project-docs/harness/IMPLEMENTATION.md
+      - project-docs/harness/QUALITY_GATES.md
+      - project-docs/implementation/README.md
+      - project-docs/implementation/roadmap.md
+      - project-docs/backlog/README.md
+      - project-docs/adrs/README.md
+      - project-docs/adrs/ARCHITECTURE_DECISIONS.md
+      - ".sandbox-loom/project.yml"
+      - ".sandbox-loom/workflow.yml"
+      - ".sandbox-loom/implementation-plan.yml"
+      - ".sandbox-loom/implementation-status.yml"
+      - ".sandbox-loom/requirements.yml"
+      - ".sandbox-loom/quality-gates.yml"
+      - ".sandbox-loom/intake/decisions.yml"
+      - zensical.toml
+      - project-docs/index.md
+      - project-docs/implementation/status.md
+      - project-docs/zensical/ASSET-PROVENANCE.md
+      - project-docs/implementation/phases/phase-1.md
+      - project-docs/implementation/slices/phase-1-slice-1.md
+      - project-docs/implementation/slices/phase-1-slice-2.md
+      - project-docs/implementation/phases/phase-2.md
+      - project-docs/implementation/slices/phase-2-slice-1.md
+      - project-docs/implementation/slices/phase-2-slice-2.md
+      - project-docs/implementation/slices/phase-2-slice-3.md
+      - project-docs/implementation/slices/phase-2-slice-4.md
+      - project-docs/implementation/slices/phase-2-slice-5.md
+      - project-docs/implementation/slices/phase-2-slice-6.md
+      - project-docs/implementation/slices/phase-2-slice-7.md
+      - project-docs/implementation/slices/phase-2-slice-8.md
+      - project-docs/implementation/slices/phase-2-slice-9.md
+      - project-docs/implementation/slices/phase-2-slice-10.md
+      - project-docs/implementation/slices/phase-2-slice-11.md
+      - project-docs/implementation/slices/phase-2-slice-12.md
+      - project-docs/implementation/slices/phase-2-slice-13.md
+      - project-docs/implementation/slices/phase-2-slice-14.md
+      - project-docs/implementation/slices/phase-2-slice-15.md
+      - project-docs/implementation/slices/phase-2-slice-16.md
+      - project-docs/implementation/slices/phase-2-slice-17.md
+      - project-docs/implementation/slices/phase-2-slice-18.md
+      - project-docs/implementation/slices/phase-2-slice-19.md
+      - project-docs/implementation/slices/phase-2-slice-20.md
+      - project-docs/implementation/slices/phase-2-slice-21.md
+      - project-docs/implementation/slices/phase-2-slice-22.md
+      - project-docs/implementation/slices/phase-2-slice-23.md
+      - project-docs/implementation/slices/phase-2-slice-24.md
+      - project-docs/implementation/slices/phase-2-slice-25.md
+      - project-docs/implementation/slices/phase-2-slice-26.md
+      - project-docs/implementation/slices/phase-2-slice-27.md
+      - project-docs/implementation/slices/phase-2-slice-28.md
+      - project-docs/implementation/phases/phase-3.md
+      - project-docs/implementation/slices/phase-3-slice-1.md
+      - project-docs/implementation/slices/phase-3-slice-2.md
+      - project-docs/implementation/phases/phase-4.md
+      - project-docs/implementation/slices/phase-4-slice-1.md
+      - project-docs/adrs/ADR-001-tenant-isolation.md
+      - project-docs/adrs/ADR-002-local-development-services.md
+      - project-docs/adrs/ADR-003-quality-gates-and-evidence.md
+- id: commit
+  action: gateway.git.commit
+  after:
+  - verify
+  approval: true
+  with:
+    message: ''
+- id: checkpoint
+  action: checkpoint
+  after:
+  - commit

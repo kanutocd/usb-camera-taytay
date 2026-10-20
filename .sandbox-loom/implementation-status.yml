@@ -1,0 +1,129 @@
+# Shared implementation progress ledger.
+# Sandbox Loom marks the runtime-selected slice in_progress before implementation.
+# The runtime records completion and commit metadata only after verification and approval.
+# Sandbox Loom owns runtime task/run records under runtime; preserve that section.
+# Valid lifecycle values are pending, in_progress, completed, and blocked.
+---
+version: '0.1'
+project: usb-camera-taytay
+plan: ".sandbox-loom/implementation-plan.yml"
+status: proposed
+phases:
+- id: phase-1
+  title: Project bootstrap and local development
+  status: pending
+  slices:
+  - id: phase-1-slice-1
+    title: Initialize the repository and project structure
+    status: pending
+  - id: phase-1-slice-2
+    title: Local development environment
+    status: pending
+- id: phase-2
+  title: Functional requirements
+  status: pending
+  slices:
+  - id: phase-2-slice-1
+    title: Implement MVP1-FS-001
+    status: pending
+  - id: phase-2-slice-2
+    title: Implement MVP1-FS-002
+    status: pending
+  - id: phase-2-slice-3
+    title: Implement MVP1-FS-003
+    status: pending
+  - id: phase-2-slice-4
+    title: Implement MVP1-FS-004
+    status: pending
+  - id: phase-2-slice-5
+    title: Implement MVP1-FS-005
+    status: pending
+  - id: phase-2-slice-6
+    title: Implement MVP1-FS-006
+    status: pending
+  - id: phase-2-slice-7
+    title: Implement MVP1-FS-007
+    status: pending
+  - id: phase-2-slice-8
+    title: Implement MVP1-FS-008
+    status: pending
+  - id: phase-2-slice-9
+    title: Implement MVP1-FS-009
+    status: pending
+  - id: phase-2-slice-10
+    title: Implement MVP1-FS-010
+    status: pending
+  - id: phase-2-slice-11
+    title: Implement MVP2-V4L2-001
+    status: pending
+  - id: phase-2-slice-12
+    title: Implement MVP2-V4L2-002
+    status: pending
+  - id: phase-2-slice-13
+    title: Implement MVP2-V4L2-003
+    status: pending
+  - id: phase-2-slice-14
+    title: Implement MVP2-V4L2-004
+    status: pending
+  - id: phase-2-slice-15
+    title: Implement MVP2-V4L2-005
+    status: pending
+  - id: phase-2-slice-16
+    title: Implement MVP2-V4L2-006
+    status: pending
+  - id: phase-2-slice-17
+    title: Implement MVP2-V4L2-007
+    status: pending
+  - id: phase-2-slice-18
+    title: Implement MVP2-V4L2-008
+    status: pending
+  - id: phase-2-slice-19
+    title: Implement DEV-001
+    status: pending
+  - id: phase-2-slice-20
+    title: Implement DEV-002
+    status: pending
+  - id: phase-2-slice-21
+    title: Implement DEV-003
+    status: pending
+  - id: phase-2-slice-22
+    title: Implement DEV-004
+    status: pending
+  - id: phase-2-slice-23
+    title: Implement DEV-005
+    status: pending
+  - id: phase-2-slice-24
+    title: Implement DEV-006
+    status: pending
+  - id: phase-2-slice-25
+    title: Implement LOOM-001
+    status: pending
+  - id: phase-2-slice-26
+    title: Implement LOOM-002
+    status: pending
+  - id: phase-2-slice-27
+    title: Implement LOOM-003
+    status: pending
+  - id: phase-2-slice-28
+    title: Implement LOOM-004
+    status: pending
+- id: phase-3
+  title: Non-functional requirements and acceptance
+  status: pending
+  slices:
+  - id: phase-3-slice-1
+    title: Harden tenancy.model
+    status: pending
+  - id: phase-3-slice-2
+    title: Harden operations.recovery
+    status: pending
+- id: phase-4
+  title: Technical documentation
+  status: pending
+  slices:
+  - id: phase-4-slice-1
+    title: Publish technical documentation
+    status: pending
+runtime:
+  status: idle
+  runs: {}

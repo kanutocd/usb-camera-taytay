@@ -1,1 +1,17 @@
 /.ignoreme/
+
+# Sandbox Loom baseline repository hygiene
+node_modules/
+dist/
+build/
+coverage/
+.cache/
+.tmp/
+.venv/
+.venv-zensical/
+site/
+*.log
+.env
+.env.*
+!.env.example
+target/

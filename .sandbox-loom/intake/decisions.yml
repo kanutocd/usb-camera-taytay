@@ -1,0 +1,31 @@
+---
+version: '0.1'
+status: pending
+project: usb-camera-taytay
+template: rust-binary
+open_questions: []
+decisions:
+- id: tenant-isolation
+  title: Tenant isolation
+  status: proposed
+  source: tenancy/isolation
+  proposal: Enforce tenant boundaries in application authorization and the persistence
+    layer.
+  rationale: Cross-tenant access must fail closed even if one enforcement layer is
+    bypassed or misconfigured.
+- id: local-development-services
+  title: Local development services
+  status: proposed
+  source: development_environment/services
+  proposal: Use the declared local orchestration and dependency services as the reproducible
+    development boundary.
+  rationale: Health checks and disposable local dependencies make setup and verification
+    repeatable without production credentials.
+- id: quality-gates-and-evidence
+  title: Quality gates and evidence
+  status: proposed
+  source: quality_expectations/qa
+  proposal: Treat the declared quality gates, coverage thresholds, contract tests,
+    and E2E expectations as required acceptance evidence.
+  rationale: Autonomous changes must be reviewable through deterministic, recorded
+    verification results.

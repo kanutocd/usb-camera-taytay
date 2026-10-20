@@ -1,0 +1,6 @@
+---
+version: '0.1'
+status: proposed
+profile: safe-development
+project: usb-camera-taytay
+capabilities: []

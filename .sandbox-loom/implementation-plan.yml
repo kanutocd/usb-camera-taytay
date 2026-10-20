@@ -1,0 +1,931 @@
+# This plan is derived from normalized-scope.yml. Review it before approval.
+# Every slice should pass its quality gates and finish with one coherent Git commit.
+# Credentials, secrets, and policy grants do not belong in this file.
+---
+version: '0.1'
+project: usb-camera-taytay
+status: proposed
+source_scope: ".sandbox-loom/intake-20261020-230819/normalized-scope.yml"
+requirements_artifact: ".sandbox-loom/requirements.yml"
+objective: Provide a small, reproducible Linux Rust CLI reference application that
+  captures or receives local USB-camera media and delivers durable, checksum-bound,
+  resumable uploads to Lunsaran through Taytay, while keeping filesystem ingestion
+  and pure Rust V4L2 capture as deliberately staged MVPs.
+constraints:
+  application: One Linux reference application; one configured MVP1 input directory;
+    one configured MVP2 V4L2 device.
+  cli: Rust CLI; command names and behavior should be consumer-oriented and documented
+    before being treated as stable.
+  mvp_boundary: MVP1 consumes completed files from an external producer or fixtures;
+    MVP2 replaces that producer with a pure Rust V4L2 capture loop.
+  artifact_contract: Filesystem and V4L2 source boundaries produce the same Taytay
+    Artifact contract; only complete, stable, readable artifacts are emitted.
+  durability: Publication is atomic and checksum-bound before upload; the durable
+    ledger is authoritative for local job state; the remote TUS offset is authoritative
+    for resumable transfer.
+  retry: Retries are bounded and classified; permanent authorization or protocol failures
+    are not hidden as transport retries.
+  upload_boundary: Use published lunsaran-taytay and lunsaran-entregar integrations
+    and Taytay ArtifactUploader; no application-specific HTTP or TUS upload path.
+  local_tests: Synthetic fixtures and camera-independent tests are required; camera
+    hardware is not required for ordinary unit and mock acceptance.
+  hardware: MVP2 targets one configured /dev/video* device and initially supports
+    one verified pixel format, resolution, and frame interval.
+  operations: Keep the application unprivileged and use a narrowly scoped writable
+    spool; bound memory, segment size, spool, and capture-to-upload pressure.
+  deployment: Local reference application and integration example; no hosted control
+    plane or production deployment scope is defined.
+quality_gates:
+- fmt
+- clippy
+- unit_tests
+- code_coverage
+- documentation_links
+- documentation_navigation
+- documentation_redaction
+- mermaid_validation
+- zensical_build
+assumptions:
+- Reference machine runs Linux and exposes a USB camera through V4L2.
+- MVP1 may use an external producer such as FFmpeg or GStreamer, but remains valid
+  with synthetic files.
+- Taytay and the published Entregar crates remain the upload integration boundary.
+- A Lunsaran organization, project, and scoped device credential can be provisioned
+  for live acceptance; they are not required for ordinary local tests.
+- Private Sandbox Loom / sandbox-loom remains available to review and execute the
+  project's approved harness workflow.
+- Available USB camera has at least one capture mode verifiable with standard V4L2
+  inspection tools.
+- Reference app is single-device and single-process for both MVPs.
+out_of_scope:
+- Build or change Lunsaran, Brutus, or their authorization model.
+- Build or change Sandbox Loom itself.
+- Hosted control plane, user management, billing, or tenant administration.
+- Mobile, Android, iOS, PWA, or browser camera clients.
+- Cloud storage-provider credentials or direct object-storage uploads.
+- Video analytics, object detection, facial recognition, or event inference.
+- Audio capture, multi-camera synchronization, PTZ control, or camera fleet management.
+- Supporting every V4L2 pixel format and codec in the first hardware MVP.
+- Guarantee of lossless capture under arbitrary hardware, disk, or network overload.
+- Production-grade video analytics.
+open_questions: []
+phases:
+- id: phase-1
+  title: Project bootstrap and local development
+  objective: Bootstrap the repository structure, local environment, and baseline quality
+    gates.
+  slices:
+  - id: phase-1-slice-1
+    title: Initialize the repository and project structure
+    objective: Create or initialize the repository, establish the declared top-level
+      layout, and add the minimum project README and contributor guidance.
+    source: objective
+    acceptance_criteria:
+    - The repository has the declared project layout
+    - The project has repeatable developer entry points
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: initialize the repository and project structure
+  - id: phase-1-slice-2
+    title: Local development environment
+    objective: Implement and verify the declared development environment requirements.
+    source: development_environment
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: local development environment
+- id: phase-2
+  title: Functional requirements
+  objective: Implement each approved functional requirement as an independently reviewable
+    vertical slice.
+  slices:
+  - id: phase-2-slice-1
+    title: Implement MVP1-FS-001
+    objective: Configurable input, spool, and archive directories.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: configurable input, spool, and archive directories
+    requirement_id: MVP1-FS-001
+    source_feature: MVP1-FS-001
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-002
+    - milestone-004
+  - id: phase-2-slice-2
+    title: Implement MVP1-FS-002
+    objective: Atomic-rename and stable-file completion detection.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: atomic-rename and stable-file completion detection
+    requirement_id: MVP1-FS-002
+    source_feature: MVP1-FS-002
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-002
+    - milestone-004
+  - id: phase-2-slice-3
+    title: Implement MVP1-FS-003
+    objective: Deterministic artifact-ID derivation and duplicate handling.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: deterministic artifact-ID derivation and duplicate handling
+    requirement_id: MVP1-FS-003
+    source_feature: MVP1-FS-003
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-002
+  - id: phase-2-slice-4
+    title: Implement MVP1-FS-004
+    objective: Media-type and capture-time detection from filename or sidecar.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: media-type and capture-time detection from filename or sidecar
+    requirement_id: MVP1-FS-004
+    source_feature: MVP1-FS-004
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-002
+    - milestone-004
+  - id: phase-2-slice-5
+    title: Implement MVP1-FS-005
+    objective: Taytay spool publication and checksum verification.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: taytay spool publication and checksum verification
+    requirement_id: MVP1-FS-005
+    source_feature: MVP1-FS-005
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-002
+    - milestone-004
+  - id: phase-2-slice-6
+    title: Implement MVP1-FS-006
+    objective: Bounded observation and upload scheduling.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: bounded observation and upload scheduling
+    requirement_id: MVP1-FS-006
+    source_feature: MVP1-FS-006
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-002
+  - id: phase-2-slice-7
+    title: Implement MVP1-FS-007
+    objective: Completed-file cleanup only after durable upload completion.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: completed-file cleanup only after durable upload completion
+    requirement_id: MVP1-FS-007
+    source_feature: MVP1-FS-007
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-002
+  - id: phase-2-slice-8
+    title: Implement MVP1-FS-008
+    objective: Status, pause, resume, and redacted failure diagnostics.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: status, pause, resume, and redacted failure diagnostics
+    requirement_id: MVP1-FS-008
+    source_feature: MVP1-FS-008
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-002
+    - milestone-003
+  - id: phase-2-slice-9
+    title: Implement MVP1-FS-009
+    objective: Synthetic fixture producer for camera-independent acceptance.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: synthetic fixture producer for camera-independent acceptance
+    requirement_id: MVP1-FS-009
+    source_feature: MVP1-FS-009
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-002
+    - milestone-003
+  - id: phase-2-slice-10
+    title: Implement MVP1-FS-010
+    objective: Taytay durable-ledger recovery, bounded retry/resume, and repeated-execution
+      deduplication.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: taytay durable-ledger recovery, bounded retry/resume, and
+    requirement_id: MVP1-FS-010
+    source_feature: MVP1-FS-010
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-002
+    - milestone-003
+  - id: phase-2-slice-11
+    title: Implement MVP2-V4L2-001
+    objective: Configured device discovery and capability inspection.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: configured device discovery and capability inspection
+    requirement_id: MVP2-V4L2-001
+    source_feature: MVP2-V4L2-001
+    mvp_ids:
+    - mvp-002
+    milestone_ids:
+    - milestone-005
+  - id: phase-2-slice-12
+    title: Implement MVP2-V4L2-002
+    objective: Format, resolution, and frame-interval negotiation.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: format, resolution, and frame-interval negotiation
+    requirement_id: MVP2-V4L2-002
+    source_feature: MVP2-V4L2-002
+    mvp_ids:
+    - mvp-002
+    milestone_ids:
+    - milestone-005
+  - id: phase-2-slice-13
+    title: Implement MVP2-V4L2-003
+    objective: Memory-mapped or explicitly approved V4L2 buffer lifecycle.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: memory-mapped or explicitly approved V4L2 buffer lifecycle
+    requirement_id: MVP2-V4L2-003
+    source_feature: MVP2-V4L2-003
+    mvp_ids:
+    - mvp-002
+    milestone_ids:
+    - milestone-006
+  - id: phase-2-slice-14
+    title: Implement MVP2-V4L2-004
+    objective: Frame timestamping and bounded segment writing that emits only complete,
+      readable artifacts.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: frame timestamping and bounded segment writing that emits only
+    requirement_id: MVP2-V4L2-004
+    source_feature: MVP2-V4L2-004
+    mvp_ids:
+    - mvp-002
+    milestone_ids:
+    - milestone-006
+    - milestone-007
+  - id: phase-2-slice-15
+    title: Implement MVP2-V4L2-005
+    objective: Safe malformed-frame handling, capture-loop shutdown, and device disconnect/reconnect
+      behavior.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: safe malformed-frame handling, capture-loop shutdown, and device
+    requirement_id: MVP2-V4L2-005
+    source_feature: MVP2-V4L2-005
+    mvp_ids:
+    - mvp-002
+    milestone_ids:
+    - milestone-006
+    - milestone-007
+  - id: phase-2-slice-16
+    title: Implement MVP2-V4L2-006
+    objective: Capture-to-spool backpressure.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: capture-to-spool backpressure
+    requirement_id: MVP2-V4L2-006
+    source_feature: MVP2-V4L2-006
+    mvp_ids:
+    - mvp-002
+    milestone_ids:
+    - milestone-006
+  - id: phase-2-slice-17
+    title: Implement MVP2-V4L2-007
+    objective: Hardware acceptance evidence and troubleshooting guide.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: hardware acceptance evidence and troubleshooting guide
+    requirement_id: MVP2-V4L2-007
+    source_feature: MVP2-V4L2-007
+    mvp_ids:
+    - mvp-002
+    milestone_ids:
+    - milestone-007
+  - id: phase-2-slice-18
+    title: Implement MVP2-V4L2-008
+    objective: Reuse MVP1's Taytay Artifact publication, durable spool, and upload
+      boundary without application-specific upload logic.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: reuse MVP1's Taytay Artifact publication, durable spool, and
+    requirement_id: MVP2-V4L2-008
+    source_feature: MVP2-V4L2-008
+    mvp_ids:
+    - mvp-002
+    milestone_ids:
+    - milestone-006
+    - milestone-007
+  - id: phase-2-slice-19
+    title: Implement DEV-001
+    objective: One-command local setup with no production credentials.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: one-command local setup with no production credentials
+    requirement_id: DEV-001
+    source_feature: DEV-001
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-003
+  - id: phase-2-slice-20
+    title: Implement DEV-002
+    objective: Configuration example and protected-token instructions.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: configuration example and protected-token instructions
+    requirement_id: DEV-002
+    source_feature: DEV-002
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-003
+  - id: phase-2-slice-21
+    title: Implement DEV-003
+    objective: Deterministic mock acceptance against the published client.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: deterministic mock acceptance against the published client
+    requirement_id: DEV-003
+    source_feature: DEV-003
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-003
+  - id: phase-2-slice-22
+    title: Implement DEV-004
+    objective: Documentation build and local-link drift checks.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: documentation build and local-link drift checks
+    requirement_id: DEV-004
+    source_feature: DEV-004
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-003
+  - id: phase-2-slice-23
+    title: Implement DEV-005
+    objective: Rust formatting, check, test, clippy, and coverage guidance.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: rust formatting, check, test, clippy, and coverage guidance
+    requirement_id: DEV-005
+    source_feature: DEV-005
+    mvp_ids:
+    - mvp-001
+    milestone_ids:
+    - milestone-003
+  - id: phase-2-slice-24
+    title: Implement DEV-006
+    objective: Release and compatibility notes for the Taytay crate version.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: release and compatibility notes for the Taytay crate version
+    requirement_id: DEV-006
+    source_feature: DEV-006
+    mvp_ids:
+    - mvp-001
+  - id: phase-2-slice-25
+    title: Implement LOOM-001
+    objective: Sandbox Loom intake and normalized-scope traceability.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: sandbox Loom intake and normalized-scope traceability
+    requirement_id: LOOM-001
+    source_feature: LOOM-001
+    milestone_ids:
+    - milestone-008
+  - id: phase-2-slice-26
+    title: Implement LOOM-002
+    objective: Reviewed project-specific harness and bounded execution plan.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: reviewed project-specific harness and bounded execution plan
+    requirement_id: LOOM-002
+    source_feature: LOOM-002
+    milestone_ids:
+    - milestone-008
+  - id: phase-2-slice-27
+    title: Implement LOOM-003
+    objective: Quality-gate and evidence correlation for each implementation slice.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: quality-gate and evidence correlation for each implementation
+    requirement_id: LOOM-003
+    source_feature: LOOM-003
+    milestone_ids:
+    - milestone-008
+  - id: phase-2-slice-28
+    title: Implement LOOM-004
+    objective: Explicit approval before consequential repository or release operations.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: feat
+      summary: explicit approval before consequential repository or release
+    requirement_id: LOOM-004
+    source_feature: LOOM-004
+    milestone_ids:
+    - milestone-008
+- id: phase-3
+  title: Non-functional requirements and acceptance
+  objective: Satisfy quality, security, compliance, performance, and operational expectations.
+  slices:
+  - id: phase-3-slice-1
+    title: Harden tenancy.model
+    objective: Lunsaran organization and project authorization; acceptance uses a
+      provisioned test project and scoped device credential when available.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: fix
+      summary: lunsaran organization and project authorization; acceptance uses a
+    requirement_id: tenancy.model
+  - id: phase-3-slice-2
+    title: Harden operations.recovery
+    objective: Preserve durable jobs across restart; handle temporary network failure
+      and repeated execution; hardware reconnect behavior is covered for MVP2.
+    source: requirements
+    acceptance_criteria: []
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: fix
+      summary: preserve durable jobs across restart; handle temporary network
+    requirement_id: operations.recovery
+- id: phase-4
+  title: Technical documentation
+  objective: Make the approved project behavior understandable and verifiable by consumers,
+    operators, and decision makers.
+  slices:
+  - id: phase-4-slice-1
+    title: Publish technical documentation
+    objective: Produce and verify the project’s consumer-facing technical documentation
+      with Zensical.
+    source: documentation
+    acceptance_criteria:
+    - Document the approved architecture, implementation plan, operations, and usage
+      guidance
+    - "`source .venv-zensical/bin/activate && zensical build --clean --strict` passes"
+    quality_gates:
+    - fmt
+    - clippy
+    - unit_tests
+    - code_coverage
+    - documentation_links
+    - documentation_navigation
+    - documentation_redaction
+    - mermaid_validation
+    - zensical_build
+    commit_required: true
+    commit:
+      type: docs
+      summary: technical documentation
+    verification_commands:
+    - source .venv-zensical/bin/activate && zensical build --clean --strict
+
+# -----------------------------------------------------------------------------
+# FUTURE PHASE BOILERPLATE
+# Uncomment and adapt this definition when adding the next approved phase.
+# Keep phase IDs and slice IDs unique and preserve traceability to the scope.
+# A phase groups related slices; a slice is the smallest independently
+# reviewable change. Every slice must define its objective, source, acceptance
+# criteria, quality gates, and commit boundary before autonomous execution.
+#
+#   - id: phase-N
+#     title: Replace with the next phase title
+#     objective: State the measurable outcome of this phase
+#     slices:
+#       - id: phase-N-slice-1
+#         title: Replace with a bounded slice title
+#         objective: Describe one independently reviewable change
+#         source: requirements.functional[0]
+#         requirement_id: requirement.example
+#         acceptance_criteria:
+#           - State an observable behavior that proves completion
+#         quality_gates:
+#           - lint
+#           - unit_tests
+#         commit_required: true
+#
+# Do not place credentials, secrets, policy grants, or unreviewed authority
+# changes in the implementation plan. Resolve open questions in
+# .sandbox-loom/intake/decisions.yml before approving the harness.

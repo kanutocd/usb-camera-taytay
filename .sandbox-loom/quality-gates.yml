@@ -1,0 +1,61 @@
+---
+version: '0.1'
+project: usb-camera-taytay
+repository: "."
+gates:
+  fmt:
+    argv:
+    - bin/ci
+    - fmt
+    scope: repository
+  clippy:
+    argv:
+    - bin/ci
+    - clippy
+    scope: repository
+  unit_tests:
+    argv:
+    - bin/ci
+    - unit_tests
+    scope: repository
+  code_coverage:
+    argv:
+    - bin/ci
+    - code_coverage
+    scope: repository
+  documentation_links:
+    argv:
+    - bin/ci
+    - documentation_links
+    scope: repository
+  documentation_navigation:
+    argv:
+    - bin/ci
+    - documentation_navigation
+    scope: repository
+  documentation_redaction:
+    argv:
+    - bin/ci
+    - documentation_redaction
+    scope: repository
+  mermaid_validation:
+    argv:
+    - bin/ci
+    - mermaid_validation
+    scope: repository
+  zensical_build:
+    argv:
+    - bash
+    - "-lc"
+    - source .venv-zensical/bin/activate && zensical build --clean --strict
+    scope: repository
+required_evidence:
+- fmt
+- clippy
+- unit_tests
+- code_coverage
+- documentation_links
+- documentation_navigation
+- documentation_redaction
+- mermaid_validation
+- zensical_build

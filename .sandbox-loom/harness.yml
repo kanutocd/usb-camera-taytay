@@ -1,0 +1,7 @@
+---
+version: '0.1'
+status: proposed
+requires_review: true
+project: usb-camera-taytay
+template: rust-binary
+source_scope: ".sandbox-loom/intake-20261020-230819/normalized-scope.yml"

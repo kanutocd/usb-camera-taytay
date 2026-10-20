@@ -39,7 +39,7 @@ phases:
   slices:
   - id: phase-2-slice-1
     title: Implement MVP1-FS-001
-    status: in_progress
+    status: completed
     resume:
       previous_run_id: project-usb-camera-taytay-6a427a3bf47d1eb4
       interrupted_at: '2026-10-20T18:03:03Z'
@@ -54,6 +54,8 @@ phases:
     interruption_reason: failed
     run_id: project-usb-camera-taytay-f8111cd58b345220
     started_at: '2026-10-20T18:03:04Z'
+    completed_at: '2026-10-20T18:05:56Z'
+    commit_sha: 88b6387
   - id: phase-2-slice-2
     title: Implement MVP1-FS-002
     status: pending
@@ -153,7 +155,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: running
+  status: completed
   runs:
     project-usb-camera-taytay-fc3ab93e2ae65ace:
       status: failed
@@ -305,7 +307,7 @@ runtime:
           '
         error_class: ProjectHarness::Error
     project-usb-camera-taytay-f8111cd58b345220:
-      status: running
+      status: completed
       pid: 1044766
       started_at: '2026-10-20T18:03:04Z'
       tasks:
@@ -334,13 +336,25 @@ runtime:
           attempts: 1
           repairs: 0
         commit:
-          status: running
+          status: completed
           action: gateway.git.commit
           updated_at: '2026-10-20T18:05:55Z'
+          attempts: 1
+          repairs: 0
+        checkpoint:
+          status: completed
+          action: checkpoint
+          updated_at: '2026-10-20T18:05:55Z'
+          attempts: 1
+          repairs: 0
       evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+      finished_at: '2026-10-20T18:05:56Z'
+      result_task_ids:
+      - inspect_scope
+      - bootstrap_scope
+      - implement_scope
+      - verify
+      - commit
+      - checkpoint
   last_run_id: project-usb-camera-taytay-f8111cd58b345220
-  active_slice:
-    phase_id: phase-2
-    slice_id: phase-2-slice-1
-    run_id: project-usb-camera-taytay-f8111cd58b345220
-updated_at: '2026-10-20T18:05:55Z'
+updated_at: '2026-10-20T18:05:56Z'

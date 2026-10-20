@@ -78,7 +78,9 @@ phases:
     commit_sha: 10156b6
   - id: phase-2-slice-5
     title: Implement MVP1-FS-005
-    status: pending
+    status: in_progress
+    run_id: project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-1
+    started_at: '2026-10-20T19:03:10Z'
   - id: phase-2-slice-6
     title: Implement MVP1-FS-006
     status: pending
@@ -166,7 +168,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: completed
+  status: running
   runs:
     project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1:
       status: completed
@@ -514,5 +516,43 @@ runtime:
       - verify
       - commit
       - checkpoint
-  last_run_id: project-usb-camera-taytay-e1cdc85be678b3c9
-updated_at: '2026-10-20T18:56:22Z'
+    project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-1:
+      status: running
+      pid: 1168037
+      started_at: '2026-10-20T19:03:10Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T19:03:40Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T19:04:27Z'
+          attempts: 1
+          repairs: 0
+        implement_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T19:06:11Z'
+          attempts: 1
+          repairs: 0
+        verify:
+          status: completed
+          action: verify
+          updated_at: '2026-10-20T19:06:32Z'
+          attempts: 1
+          repairs: 0
+        commit:
+          status: running
+          action: gateway.git.commit
+          updated_at: '2026-10-20T19:06:32Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+  last_run_id: project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-1
+  active_slice:
+    phase_id: phase-2
+    slice_id: phase-2-slice-5
+    run_id: project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-1
+updated_at: '2026-10-20T19:06:32Z'

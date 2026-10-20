@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-2-slice-5: taytay spool publication and checksum verification
+
 - phase-2-slice-4: media-type and capture-time detection from filename or sidecar
 
 - phase-2-slice-3: deterministic artifact-ID derivation and duplicate handling

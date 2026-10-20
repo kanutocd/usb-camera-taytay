@@ -3,6 +3,7 @@ use lunsaran_taytay::{
     adapter::filesystem::FilesystemAdapter, spool::Spool,
 };
 use serde::Deserialize;
+use sha2::{Digest, Sha256};
 use std::{
     env, fs,
     io::Read,
@@ -169,6 +170,9 @@ fn ingest_stable_files(config: &Config) -> Result<String, String> {
         if bytes.len() as u64 > MAX_ARTIFACT_BYTES {
             return Err("input exceeds the 64 MiB MVP1 artifact limit".into());
         }
+        if !matches_observed_checksum(artifact.checksum_sha256.as_deref(), &bytes) {
+            return Err("stable input changed after checksum observation".into());
+        }
         if let Some(existing) = spool.ledger().get(&artifact.id) {
             if existing.artifact.checksum_sha256 != artifact.checksum_sha256 {
                 return Err("artifact ID conflicts with a different durable checksum".into());
@@ -197,6 +201,14 @@ fn ingest_stable_files(config: &Config) -> Result<String, String> {
     Ok(format!(
         "published {published} stable artifact(s); skipped {duplicates} verified duplicate(s); source files retained"
     ))
+}
+
+fn matches_observed_checksum(expected: Option<&str>, bytes: &[u8]) -> bool {
+    let Some(expected) = expected else {
+        return false;
+    };
+    let actual = Sha256::digest(bytes);
+    expected.eq_ignore_ascii_case(&format!("{actual:x}"))
 }
 
 fn poll_completed_files(
@@ -321,6 +333,7 @@ mod tests {
         poll_completed_files, run, supported_media_type, valid_utc_timestamp,
     };
     use lunsaran_taytay::{Artifact, ArtifactId, SourceId, adapter::filesystem::FilesystemAdapter};
+    use sha2::{Digest, Sha256};
     use std::{
         fs,
         time::{SystemTime, UNIX_EPOCH},
@@ -487,6 +500,22 @@ mod tests {
         assert_eq!(fs::read_dir(root.join("spool")).unwrap().count(), 2);
 
         fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn rejects_input_bytes_that_differ_from_the_observed_checksum() {
+        let observed = Sha256::digest(b"observed bytes");
+        let expected = format!("{observed:x}");
+
+        assert!(super::matches_observed_checksum(
+            Some(&expected),
+            b"observed bytes"
+        ));
+        assert!(!super::matches_observed_checksum(
+            Some(&expected),
+            b"changed bytes"
+        ));
+        assert!(!super::matches_observed_checksum(None, b"observed bytes"));
     }
 
     #[test]

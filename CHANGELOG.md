@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-4-slice-1: technical documentation
+
 - phase-3-slice-2: preserve durable jobs across restart; handle temporary network
 
 - phase-3-slice-1: lunsaran organization and project authorization; acceptance uses a

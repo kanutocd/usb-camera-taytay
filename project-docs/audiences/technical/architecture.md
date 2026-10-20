@@ -35,19 +35,62 @@ deployment: Local reference application and integration example; no hosted contr
 
 ## Components
 
-- USB Camera Taytay CLI, including a Linux V4L2 streaming boundary that negotiates
-  one configured mode and owns the mapped driver buffers for the capture lifetime
-- Taytay spool and ledger
-- Entregar uploader
-- Lunsaran
-- Brutus
-- Sandbox Loom
+```mermaid
+flowchart LR
+  Files[Completed files or fixtures] --> Observer[Filesystem observer]
+  Camera[Configured V4L2 camera] --> Capture[MJPEG capture]
+  Capture -->|atomic JPEG files| Input[Configured input directory]
+  Input --> Observer
+  Observer -->|Taytay Artifact| Spool[Taytay spool and durable ledger]
+  Spool -. approved uploader boundary .-> Entregar[Entregar ArtifactUploader]
+  Entregar -. remote transfer .-> Lunsaran[Lunsaran]
+```
 
-The current `run-v4l2` command copies each driver's reported frame bytes and
-returns its buffer before writing. For `MJPG`, it validates the JPEG markers and
-writes timestamped JPEG frames with capture-time sidecars through `.part` files
-and atomic rename into the configured MVP1 input directory. Frame count and
-aggregate bytes per invocation are bounded. This reuses MVP1 filesystem
-publication in a subsequent `run-filesystem` invocation; capture mappings and
-streaming are released by RAII cleanup. Additional lifecycle and backpressure
-behavior is covered by later MVP2 slices.
+The solid paths are the local workflows implemented by this CLI. The dotted
+path is the approved architecture boundary for remote transfer; the current
+commands do not start it. No application-specific HTTP or TUS upload path is
+implemented. Brutus is part of the provisioned platform context for optional
+live acceptance, not a local service required by fixture or mock checks.
+
+## Source and publication lifecycle
+
+MVP1 observes completed JPEG and MP4 files in one configured input directory.
+It requires stable observations, derives artifact IDs from content, publishes
+through Taytay's spool and ledger, and verifies the checksum. Duplicate content
+is skipped when the full checksum matches the ledger; a checksum conflict for
+an existing ID is an error. A later run archives the source and optional
+sidecar only when the ledger reports `Completed` or `Retained`.
+
+MVP2 opens one configured V4L2 device and negotiates the configured mode. It
+maps four buffers, copies dequeued frame bytes, and returns each buffer to the
+driver. The current writer accepts MJPEG only, validates JPEG completeness,
+and writes timestamped JPEGs with capture-time JSON sidecars using synced
+`.part` files and atomic rename. Frame count and total bytes are bounded per
+invocation. Before admitting a frame it checks spool usage and pending JPEGs
+in the input directory. The completed JPEGs are published only by a subsequent
+`run-filesystem` invocation. Shutdown and frame errors release streaming state
+and mappings.
+
+## Operational invariants
+
+- Run as an unprivileged user with write access only to the configured input,
+  spool, and archive locations and device access required for V4L2.
+- Bound individual input size, durable spool quota, capture segment frame
+  count, segment bytes, and capture-to-spool pressure.
+- Treat the Taytay ledger as authoritative for local lifecycle state. Pause
+  and resume persist there; the current CLI does not perform remote transfer.
+- Keep credentials, signed URLs, filesystem paths from diagnostics, and media
+  payloads out of logs and acceptance evidence.
+- Use deterministic fixtures and camera-independent tests for ordinary local
+  verification. Physical capture and reconnect claims require recorded hardware
+  evidence.
+
+## Delivery stages
+
+The executable plan separates filesystem ingestion, V4L2 capture, operational
+acceptance, and consumer documentation into reviewable slices. MVP1's file
+ingestion and MVP2's local MJPEG capture path are implemented. The recorded
+hardware attempt could not open `/dev/video0` because the operator lacked
+`video` group access; a successful capture and end-to-end upload are therefore
+not claimed. See the [User Guide](../consumer/index.md) for current commands
+and the [Integration Guide](index.md) for the artifact boundary.

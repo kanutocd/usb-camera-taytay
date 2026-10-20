@@ -3,7 +3,7 @@ name = "usb-camera-taytay"
 version = "0.1.0"
 edition = "2024"
 description = "Linux USB camera ingestion reference CLI"
-license = "MIT"
+license = "Apache-2.0"
 
 [dependencies]
 libc = "0.2"

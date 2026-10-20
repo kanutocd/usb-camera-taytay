@@ -1,197 +1,87 @@
-# usb-camera-taytay
+# USB Camera Taytay
 
-Provide a small, reproducible Linux Rust CLI reference application that captures or receives local USB-camera media and delivers durable, checksum-bound, resumable uploads to Lunsaran through Taytay, while keeping filesystem ingestion and pure Rust V4L2 capture as deliberately staged MVPs.
+[![CI](https://github.com/kanutocd/usb-camera-taytay/actions/workflows/ci.yml/badge.svg)](https://github.com/kanutocd/usb-camera-taytay/actions/workflows/ci.yml)
+[![Documentation](https://github.com/kanutocd/usb-camera-taytay/actions/workflows/docs.yml/badge.svg)](https://github.com/kanutocd/usb-camera-taytay/actions/workflows/docs.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-2563eb)](https://kanutocd.github.io/usb-camera-taytay/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Rust](https://img.shields.io/badge/rust-stable-orange.svg?logo=rust)](https://www.rust-lang.org/)
 
-This project is being developed under an approved Sandbox Loom harness
-using the `rust-binary` template.
+USB Camera Taytay is a Linux Rust CLI reference application for publishing
+local camera media to Taytay's durable artifact spool. It demonstrates two
+staged input paths: MVP1 ingests completed files, and MVP2 captures MJPEG from
+a configured V4L2 camera and feeds the resulting JPEG files through the same
+filesystem ingestion path.
 
-## Project guidance
+The CLI writes artifacts to Taytay; a separately provisioned Taytay uploader
+handles transfer to Lunsaran. This application does not start that uploader
+or implement its own HTTP or TUS upload path. The repository also serves as a
+public reference application for the private Sandbox Loom project.
 
-- [Generated harness documentation](project-docs/harness/README.md)
-- [Architecture](project-docs/harness/ARCHITECTURE.md)
-- [Requirements](project-docs/harness/REQUIREMENTS.md)
-- [Intake traceability](project-requirements/traceability.md)
-- [Architecture decisions](project-docs/adrs/README.md)
-- [Implementation plan](project-docs/implementation/README.md)
-- [Backlog](project-docs/backlog/README.md)
-- [Changelog](CHANGELOG.md)
-- [Quality gates](project-docs/harness/QUALITY_GATES.md)
-- [Executable harness configuration](.sandbox-loom/)
+## Documentation
 
-## Development
+- [User Guide](project-docs/audiences/consumer/index.md) — configure the CLI,
+  ingest files, capture from V4L2, and inspect artifact status.
+- [Reference App Guide](project-docs/audiences/technical/index.md) — understand
+  the application structure, Taytay integration boundary, and acceptance
+  approach.
+- [Project Team](project-docs/audiences/stakeholder/index.md) — project scope
+  and brief, Arc42 architecture, delivery plan, and Sandbox Loom guide.
+- [Project Scope Statement](project-requirements/project-scope-statement.md)
 
-Install Rust with Cargo and Python 3, then run `bin/setup-dev` once to install
-the pinned documentation tools in `.venv-zensical` and the project-local
-coverage tool in `.tools/cargo`. The script checks its required commands before
-installing dependencies. The Rust checks can be run individually:
+## Quick start
 
-```sh
-cargo fmt --all -- --check
-cargo check --workspace --all-targets --all-features
-cargo test --workspace --all-features
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-bin/ci declared_cargo_llvm_cov
-```
-
-The coverage gate uses the project-local `cargo-llvm-cov` installed by
-`bin/setup-dev` and requires at least 90% line coverage. Run
-`scripts/quality.sh` to execute formatting, check, tests, and Clippy together;
-run `scripts/acceptance-mock.sh` for the camera-free CLI smoke check. MVP1
-development and mock acceptance require no camera, production credentials, or
-local Lunsaran/Brutus services. A provisioned local platform may be used for
-optional end-to-end acceptance. The full gate commands, including documentation
-checks, are listed in [Quality gates](project-docs/harness/QUALITY_GATES.md).
-
-## MVP1 filesystem ingestion
-
-Copy [config.example.toml](config.example.toml) and set the input, spool, and
-archive directories to paths writable by the current user. The CLI creates
-these directories when they do not exist. `spool_quota_bytes` bounds durable
-spool usage; individual input artifacts are limited to 64 MiB.
-
-The current filesystem and V4L2 commands do not read device tokens or connect
-to Lunsaran; local fixture, capture, and spool checks need no credentials. For
-an optional authenticated acceptance client supplied by a provisioned local
-environment, keep its device token in a separate owner-only file outside the
-repository. Create a private directory and empty file, then enter the token
-using a local editor:
+On Linux with Rust and Cargo installed, copy `config.example.toml` to a local
+configuration file and adjust the input, spool, and archive paths. These
+commands create deterministic sample inputs, ingest completed files, and show
+their local Taytay ledger state; they do not need a camera, credentials, or a
+running Lunsaran platform.
 
 ```sh
-install -d -m 700 "$HOME/.config/usb-camera-taytay"
-umask 077
-touch "$HOME/.config/usb-camera-taytay/device-token"
-chmod 600 "$HOME/.config/usb-camera-taytay/device-token"
-${EDITOR:-vi} "$HOME/.config/usb-camera-taytay/device-token"
-stat -c '%a %U' "$HOME/.config/usb-camera-taytay/device-token"
-```
-
-Do not put tokens in `config.toml`, command arguments, shell history, logs, or
-acceptance evidence. Use a test project and narrowly scoped credential for live
-acceptance, and rotate or revoke that credential afterward. The current CLI
-does not consume such a token file.
-
-```sh
+cp config.example.toml config.toml
 cargo run -- check-config config.toml
 cargo run -- fixture config.toml
 cargo run -- run-filesystem config.toml
 cargo run -- status config.toml
-cargo run -- pause ARTIFACT_ID config.toml
-cargo run -- resume ARTIFACT_ID config.toml
 ```
 
-`fixture` atomically places deterministic JPEG and MP4 fixtures in the input
-directory. The MP4 is a minimal synthetic container sample for ingestion and
-media-type acceptance; it is not a camera recording. External producers can
-write to a `.part` filename and atomically rename it to the final
-filename when complete; `.part` files are ignored. `run-filesystem` scans three
-times with one second intervals so files that appear during the scan can still
-receive two stable observations. It publishes stable files through Taytay's
-durable spool and ledger, and verifies each published checksum. Artifact IDs
-are content-derived; a file already represented in the ledger with the same
-full checksum is skipped as a verified duplicate on later runs. A conflicting
-checksum for an existing ID is reported as an error. Once the Taytay ledger
-reports an artifact as `Completed` or `Retained`, a later run moves its
-checksum-verified source file and optional JSON sidecar from input to the
-configured archive directory. Pending, failed, paused, and uploading artifacts
-remain in input. The archive keeps the source copy. This command does not start
-an uploader or require camera hardware or Lunsaran credentials.
+Keep credentials out of `config.toml`. The current CLI does not consume a
+device-token file. For optional live transfer, configure credentials in the
+separate Taytay uploader process using the provisioned environment's guidance.
 
-## MVP2 V4L2 MJPEG segments
+## MVP boundaries
 
-On Linux, `run-v4l2` opens the configured device, requests the configured
-capture mode, maps four driver-owned buffers, queues them for streaming, copies
-each dequeued frame, and returns that buffer to the driver. Set
-`v4l2_device`, `v4l2_width`, `v4l2_height`, and the four-character
-`v4l2_pixel_format` in the config after inspecting the device's capabilities.
-This increment writes complete MJPEG frames as timestamped JPEG files into the
-configured input directory, with matching capture-time sidecars. Files are
-synced and atomically renamed from `.part` paths, so the existing filesystem
-ingestion command can publish them through Taytay. Configure
-`v4l2_segment_frames` (default 30, maximum 300) and
-`v4l2_segment_max_bytes` (default 64 MiB) to bound each run. Only `MJPG` is
-currently written; other capture formats are rejected. Capture also checks
-Taytay spool usage and pending JPEGs in the input directory before admitting
-each frame. It stops at the configured spool quota, leaving completed frames
-available for `run-filesystem` to publish through Taytay.
+- **MVP1 — filesystem ingestion:** observe stable, completed JPEG and MP4 files
+  in one input directory, then publish checksum-verified artifacts through
+  Taytay's spool and ledger. Synthetic fixtures support camera-free checks.
+- **MVP2 — V4L2 capture:** capture MJPEG from one configured Linux camera and
+  write bounded, complete JPEG files and timestamp sidecars. A subsequent
+  `run-filesystem` command publishes them through the MVP1 path.
+
+For MVP2, inspect the device's supported modes with
+`v4l2-ctl --all --list-formats-ext`, configure the V4L2 fields in
+`config.toml`, then run:
 
 ```sh
 cargo run -- run-v4l2 config.toml
+cargo run -- run-filesystem config.toml
 ```
 
-The command allows up to three reconnect cycles, with up to three open attempts
-per cycle using the configured device and capture mode. `Ctrl-C` and `SIGTERM`
-stop capture after the current frame is returned; completed JPEGs remain
-published and incomplete frames are discarded. Mappings and streaming state are
-released on shutdown and frame errors. Camera-independent tests cover frame
-validation, disconnect classification, JPEG completeness, timestamp sidecars,
-atomic file publication, and stopping capture when spool capacity is exhausted.
+Capture requires permission to access the camera device. Physical camera
+capture and live Lunsaran transfer require separate hardware and platform
+acceptance; fixture or mock success does not verify either. See the User Guide
+for camera setup, artifact lifecycle, and troubleshooting details.
 
-### Hardware acceptance matrix
+## Development checks
 
-| Linux host | Camera | Reported mode | Segment settings | Capture and delivery result |
-| --- | --- | --- | --- | --- |
-| Linux Mint 22.3, kernel 7.0.0-28-generic, x86_64 | A4ech FHD 1080P PC Camera (`/dev/video0`) | FFmpeg reports MJPEG at 1920x1080, 1280x720, 1024x768, 800x600, 640x480, and 320x240; frame interval not verified | Attempted 640x480 MJPEG, one frame, 64 MiB maximum | Capture could not initialize; the current user is not in the `video` group that owns the device. No artifact, checksum, reconnect result, or Taytay publication was verified. |
+Run `bin/setup-dev` once to install the pinned documentation tools and local
+coverage tool. The main checks are:
 
-Before recording a successful hardware run, inspect the configured device with
-`v4l2-ctl --all --list-formats-ext`, choose a reported mode and frame interval,
-and ensure the operator can open the device. Then run `run-v4l2`, record the
-Linux version, camera model, negotiated mode, segment settings, and SHA-256 of
-each completed JPEG. Run `run-filesystem` and confirm the artifact appears in
-the Taytay ledger before marking delivery verified. Keep captured media and
-credentials out of committed evidence.
-
-If capture reports that it could not initialize, check `ls -l /dev/video*`
-and the current user's device permissions, then confirm no other process has
-exclusive access to the camera. On systems that restrict the node to the
-`video` group, arrange access through the host's normal device policy and start
-a new login session before retrying. If the requested mode is rejected, use a
-format, resolution, and frame interval reported by the device. Record reconnect
-as unverified until a physical disconnect and reconnect has been observed.
-
-`status` reads artifact IDs and lifecycle states from the durable ledger.
-`pause` and `resume` persist state changes through Taytay's ledger; resume makes
-the artifact eligible for a later uploader run. Command errors omit underlying
-paths, credentials, and provider diagnostics.
-
-MVP1 accepts `.jpg`/`.jpeg` images as `image/jpeg` and `.mp4` videos as
-`video/mp4`; other file types are ignored. To attach a capture time, either
-name a file with a UTC timestamp suffix such as
-`front-door_20241021T123456Z.mp4`, or add a same-stem JSON sidecar such as
-`front-door.mp4` with `front-door.json` containing
-`{"captured_at":"2024-10-21T12:34:56Z"}`. The sidecar value takes precedence
-over the filename suffix. Timestamps must use `YYYY-MM-DDTHH:MM:SSZ`; invalid
-sidecars fail the scan rather than silently publishing incorrect metadata.
-
-## Baseline constraints
-
-The generated harness applies these baseline constraints where applicable:
-
-```yaml
----
-application: One Linux reference application; one configured MVP1 input directory;
-  one configured MVP2 V4L2 device.
-cli: Rust CLI; command names and behavior should be consumer-oriented and documented
-  before being treated as stable.
-mvp_boundary: MVP1 consumes completed files from an external producer or fixtures;
-  MVP2 replaces that producer with a pure Rust V4L2 capture loop.
-artifact_contract: Filesystem and V4L2 source boundaries produce the same Taytay Artifact
-  contract; only complete, stable, readable artifacts are emitted.
-durability: Publication is atomic and checksum-bound before upload; the durable ledger
-  is authoritative for local job state; the remote TUS offset is authoritative for
-  resumable transfer.
-retry: Retries are bounded and classified; permanent authorization or protocol failures
-  are not hidden as transport retries.
-upload_boundary: Use published lunsaran-taytay and lunsaran-entregar integrations
-  and Taytay ArtifactUploader; no application-specific HTTP or TUS upload path.
-local_tests: Synthetic fixtures and camera-independent tests are required; camera
-  hardware is not required for ordinary unit and mock acceptance.
-hardware: MVP2 targets one configured /dev/video* device and initially supports one
-  verified pixel format, resolution, and frame interval.
-operations: Keep the application unprivileged and use a narrowly scoped writable spool;
-  bound memory, segment size, spool, and capture-to-upload pressure.
-deployment: Local reference application and integration example; no hosted control
-  plane or production deployment scope is defined.
+```sh
+scripts/quality.sh
+scripts/acceptance-mock.sh
+bin/ci declared_cargo_llvm_cov
 ```
 
-The generated documents are review artifacts. The harness and policy
-configuration remain subject to explicit review and approval.
+The mock acceptance uses no camera or live credentials. See the
+[quality gates](project-docs/harness/QUALITY_GATES.md) for the full CI command
+set.

@@ -16,6 +16,9 @@ Loom project. Its documentation shows the project scope, architecture, and
 delivery workflow. It does not publish credentials, captured media, or raw
 private evidence.
 
+For the repository overview and development quick start, see the
+[root README](https://github.com/kanutocd/usb-camera-taytay#readme).
+
 ## Choose a guide
 
 - [User Guide](audiences/consumer/index.md) — configure the CLI, ingest files,

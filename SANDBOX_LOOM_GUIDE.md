@@ -103,17 +103,35 @@ For Codex, first generate the project-local Codex artifact:
 Then start Codex in the project root. `$sandbox-loom-intake` may be used in
 the prompt only when that skill has been installed and discovered by the
 Codex environment. It is not a shell command and must not be typed as
-`$sandbox-loom-intake` in the terminal. The path-based form is unambiguous:
+`$sandbox-loom-intake` in the terminal. The path-based form is unambiguous.
+This project also has a project-owned Codex skill at
+`.codex/skills/usb-camera-taytay/SKILL.md` (the project skill is under
+`.codex/skills/`, not directly under `.codex/`):
 
 ```text
 Read .codex/skills/sandbox-loom-intake/SKILL.md and follow it exactly.
+Read .codex/skills/usb-camera-taytay/SKILL.md and use it as the project
+domain, architecture, security, MVP, and validation context.
 ```
 
-For Codex, OpenCode, or another coding agent, use this prompt:
+Use this Codex-specific prompt from the USB Camera Taytay project root:
 
 ```text
-Read and follow the project intake skill at
-.codex/skills/sandbox-loom-intake/SKILL.md exactly.
+You are Codex working in the USB Camera Taytay project root.
+
+First read and follow these two project artifacts:
+
+1. .codex/skills/sandbox-loom-intake/SKILL.md — the Sandbox Loom intake
+   procedure and project-brief schema rules.
+2. .codex/skills/usb-camera-taytay/SKILL.md — the USB Camera Taytay Rust CLI
+   domain, MVP1/MVP2 boundaries, Taytay integration, security rules, and
+   validation expectations.
+
+Treat the Sandbox Loom intake skill as the authority for the intake workflow
+and schema. Treat the USB Camera Taytay skill as the authority for project
+context, subject to repository instructions and Sandbox Loom policy. Do not
+invent decisions, grant capabilities, implement code, or generate harness
+artifacts during this intake task.
 
 Read project-requirements/project-scope-statement.md and convert it into
 specifications/project-brief.yml.
@@ -132,18 +150,22 @@ Include the Rust CLI, Linux filesystem/V4L2, Taytay crate, security, QA,
 hardware-acceptance, documentation, and deployment constraints that are
 explicitly present in the scope statement. Preserve the boundary between
 MVP1's external file producer and MVP2's pure Rust V4L2 capture loop.
-Do not implement application code or generate the runtime harness yet.
+Preserve the private Sandbox Loom / agent-platform relationship without
+copying credentials or private policy details into the brief. Do not
+implement application code or generate the runtime harness yet.
 
 After writing specifications/project-brief.yml, report:
 - the source facts captured;
 - assumptions and proposals;
 - unresolved open questions and their owners;
-- any information that could not be represented in the schema.
+- any information that could not be represented in the schema; and
+- whether the brief preserves the Rust CLI shape, MVP1/MVP2 boundary, Taytay
+  upload boundary, and Sandbox Loom authority boundary.
 ```
 
-If the generated skill is installed for a provider, use its provider-specific
-path instead, such as `.opencode/skills/sandbox-loom-intake/SKILL.md` or
-`.hermes/skills/sandbox-loom-intake/SKILL.md`.
+The prompt is intentionally Codex-specific. If another provider is used,
+adapt only the provider invocation and skill-discovery wording; retain the two
+skill paths, the schema rules, and the project-boundary instructions.
 
 The agent should create the brief, not merely summarize the scope statement.
 The expected output is the actual file:

@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-2-slice-11: configured device discovery and capability inspection
+
 - phase-2-slice-10: taytay durable-ledger recovery, bounded retry/resume, and
 
 - phase-2-slice-9: synthetic fixture producer for camera-independent acceptance

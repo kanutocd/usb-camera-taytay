@@ -293,7 +293,9 @@ phases:
     commit_sha: 505b40b
   - id: phase-3-slice-2
     title: Harden operations.recovery
-    status: pending
+    status: in_progress
+    run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-13
+    started_at: '2026-10-20T21:09:19Z'
 - id: phase-4
   title: Technical documentation
   status: pending
@@ -302,7 +304,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: completed
+  status: running
   runs:
     project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1:
       status: completed
@@ -1989,5 +1991,43 @@ runtime:
       - verify
       - commit
       - checkpoint
-  last_run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-12
-updated_at: '2026-10-20T21:09:15Z'
+    project-usb-camera-taytay-bounded-1473a0277735d05c-slice-13:
+      status: running
+      pid: 1367252
+      started_at: '2026-10-20T21:09:19Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T21:09:43Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T21:10:37Z'
+          attempts: 1
+          repairs: 0
+        implement_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T21:13:29Z'
+          attempts: 1
+          repairs: 0
+        verify:
+          status: completed
+          action: verify
+          updated_at: '2026-10-20T21:14:03Z'
+          attempts: 1
+          repairs: 0
+        commit:
+          status: running
+          action: gateway.git.commit
+          updated_at: '2026-10-20T21:14:03Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+  last_run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-13
+  active_slice:
+    phase_id: phase-3
+    slice_id: phase-3-slice-2
+    run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-13
+updated_at: '2026-10-20T21:14:03Z'

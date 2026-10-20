@@ -35,7 +35,7 @@ fn runtime_config(root: &std::path::Path, base_url: &str) -> Config {
 }
 
 #[tokio::test]
-async fn published_client_uploads_fixture_and_recovers_remote_offset_after_retry() {
+async fn published_client_recovers_remote_offset_and_deduplicates_after_restart() {
     let server = MockServer::start_with_behavior(MockBehavior {
         advance_offset_then_fail_once: true,
         ..MockBehavior::default()
@@ -85,6 +85,12 @@ async fn published_client_uploads_fixture_and_recovers_remote_offset_after_retry
     assert_eq!(recovered.state, ArtifactState::Completed);
     assert_eq!(recovered.offset, bytes.len() as u64);
     assert_eq!(recovered.attempts, 1);
+
+    let session_requests = server.session_requests().await;
+    let repeated = runtime::run(&config).await.unwrap();
+    assert_eq!(repeated.completed, 0);
+    assert_eq!(repeated.failed, 0);
+    assert_eq!(server.session_requests().await, session_requests);
 
     server.shutdown();
     fs::remove_dir_all(root).unwrap();

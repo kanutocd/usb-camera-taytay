@@ -4,9 +4,9 @@
 > The YAML ledger remains authoritative. This page is safe to publish through Zensical.
 
 - Overall status: `in_progress`
-- Runtime status: `completed`
-- Last run: `project-usb-camera-taytay-bounded-1473a0277735d05c-slice-12`
-- Last run result: `completed`
+- Runtime status: `running`
+- Last run: `project-usb-camera-taytay-bounded-1473a0277735d05c-slice-13`
+- Last run result: `running`
 
 ## Phases and slices
 
@@ -43,7 +43,7 @@
 |  |  | phase-2-slice-27 Implement LOOM-003 | completed | 01f333f | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-10 |
 |  |  | phase-2-slice-28 Implement LOOM-004 | completed | 69229c0 | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-11 |
 | phase-3 Non-functional requirements and acceptance | in_progress | phase-3-slice-1 Harden tenancy.model | completed | 505b40b | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-12 |
-|  |  | phase-3-slice-2 Harden operations.recovery | pending | — | — |
+|  |  | phase-3-slice-2 Harden operations.recovery | in_progress | — | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-13 |
 | phase-4 Technical documentation | pending | phase-4-slice-1 Publish technical documentation | pending | — | — |
 
 Refresh cadence: Sandbox Loom rewrites this projection after runtime task events and after each verified slice commit.

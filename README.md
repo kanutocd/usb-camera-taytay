@@ -53,6 +53,15 @@ checksum for an existing ID is reported as an error. It retains source files;
 archive cleanup is not part of this command. This slice does not start an
 uploader or require camera hardware or Lunsaran credentials.
 
+MVP1 accepts `.jpg`/`.jpeg` images as `image/jpeg` and `.mp4` videos as
+`video/mp4`; other file types are ignored. To attach a capture time, either
+name a file with a UTC timestamp suffix such as
+`front-door_20241021T123456Z.mp4`, or add a same-stem JSON sidecar such as
+`front-door.mp4` with `front-door.json` containing
+`{"captured_at":"2024-10-21T12:34:56Z"}`. The sidecar value takes precedence
+over the filename suffix. Timestamps must use `YYYY-MM-DDTHH:MM:SSZ`; invalid
+sidecars fail the scan rather than silently publishing incorrect metadata.
+
 ## Baseline constraints
 
 The generated harness applies these baseline constraints where applicable:

@@ -59,7 +59,7 @@ phases:
     commit_sha: 2515db5
   - id: phase-2-slice-4
     title: Implement MVP1-FS-004
-    status: pending
+    status: in_progress
     resume:
       previous_run_id: project-usb-camera-taytay-bounded-3ba4431918e6c886-slice-2
       interrupted_at: '2026-10-20T18:52:15Z'
@@ -72,6 +72,8 @@ phases:
     interrupted_at: '2026-10-20T18:52:15Z'
     interrupted_run_id: project-usb-camera-taytay-bounded-3ba4431918e6c886-slice-2
     interruption_reason: failed
+    run_id: project-usb-camera-taytay-e1cdc85be678b3c9
+    started_at: '2026-10-20T18:52:16Z'
   - id: phase-2-slice-5
     title: Implement MVP1-FS-005
     status: pending
@@ -162,7 +164,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: failed
+  status: running
   runs:
     project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1:
       status: completed
@@ -460,9 +462,43 @@ runtime:
 
           '
         error_class: ProjectHarness::Error
-  last_run_id: project-usb-camera-taytay-bounded-3ba4431918e6c886-slice-2
+    project-usb-camera-taytay-e1cdc85be678b3c9:
+      status: running
+      pid: 1148773
+      started_at: '2026-10-20T18:52:16Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T18:52:48Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T18:53:35Z'
+          attempts: 1
+          repairs: 0
+        implement_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T18:55:58Z'
+          attempts: 1
+          repairs: 0
+        verify:
+          status: completed
+          action: verify
+          updated_at: '2026-10-20T18:56:20Z'
+          attempts: 1
+          repairs: 0
+        commit:
+          status: running
+          action: gateway.git.commit
+          updated_at: '2026-10-20T18:56:20Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+  last_run_id: project-usb-camera-taytay-e1cdc85be678b3c9
   active_slice:
     phase_id: phase-2
     slice_id: phase-2-slice-4
-    run_id: project-usb-camera-taytay-bounded-3ba4431918e6c886-slice-2
-updated_at: '2026-10-20T18:51:53Z'
+    run_id: project-usb-camera-taytay-e1cdc85be678b3c9
+updated_at: '2026-10-20T18:56:20Z'

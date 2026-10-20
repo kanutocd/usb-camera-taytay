@@ -18,6 +18,11 @@ const MAX_ARTIFACT_BYTES: u64 = 64 * 1024 * 1024;
 const PARTIAL_FILE_SUFFIX: &str = ".part";
 
 #[derive(Debug, Deserialize)]
+struct CaptureSidecar {
+    captured_at: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
 struct Config {
     input_dir: PathBuf,
     spool_dir: PathBuf,
@@ -141,10 +146,14 @@ fn write_fixture(config: &Config) -> Result<String, String> {
 fn ingest_stable_files(config: &Config) -> Result<String, String> {
     let mut adapter =
         FilesystemAdapter::new(SourceId::new(config.source_id.clone()), &config.input_dir);
-    let artifacts = poll_completed_files(&mut adapter, || {
+    let mut artifacts = poll_completed_files(&mut adapter, || {
         thread::sleep(Duration::from_millis(1100));
     })
     .map_err(|_| "filesystem scan failed".to_owned())?;
+    artifacts.retain(|artifact| supported_media_type(&artifact.media_type));
+    for artifact in &mut artifacts {
+        enrich_capture_metadata(artifact)?;
+    }
     let spool = Spool::open(&config.spool_dir, config.spool_quota_bytes)
         .map_err(|_| "could not open durable spool".to_owned())?;
     let mut published = 0;
@@ -216,10 +225,102 @@ fn is_partial_file(path: &str) -> bool {
         .is_some_and(|name| name.to_ascii_lowercase().ends_with(PARTIAL_FILE_SUFFIX))
 }
 
+fn supported_media_type(media_type: &str) -> bool {
+    matches!(media_type, "image/jpeg" | "video/mp4")
+}
+
+fn enrich_capture_metadata(artifact: &mut Artifact) -> Result<(), String> {
+    let path = Path::new(&artifact.path);
+    let filename = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .ok_or_else(|| "input filename is not valid UTF-8".to_owned())?;
+    let sidecar_path = path.with_extension("json");
+    let captured_at = if sidecar_path.exists() {
+        let bytes =
+            fs::read(&sidecar_path).map_err(|_| "could not read capture sidecar".to_owned())?;
+        let sidecar: CaptureSidecar = serde_json::from_slice(&bytes)
+            .map_err(|_| "capture sidecar must be valid JSON".to_owned())?;
+        match sidecar.captured_at {
+            Some(value) if valid_utc_timestamp(&value) => Some(value),
+            Some(_) => {
+                return Err("capture sidecar captured_at must use YYYY-MM-DDTHH:MM:SSZ".into());
+            }
+            None => filename_capture_time(filename),
+        }
+    } else {
+        filename_capture_time(filename)
+    };
+    artifact.captured_at = captured_at;
+    artifact.metadata = serde_json::json!({"filename": filename});
+    Ok(())
+}
+
+fn filename_capture_time(filename: &str) -> Option<String> {
+    let stem = Path::new(filename).file_stem()?.to_str()?;
+    let suffix = stem.rsplit_once('_')?.1;
+    let bytes = suffix.as_bytes();
+    if bytes.len() != 16
+        || !bytes[..8].iter().all(u8::is_ascii_digit)
+        || bytes[8] != b'T'
+        || !bytes[9..15].iter().all(u8::is_ascii_digit)
+        || bytes[15] != b'Z'
+    {
+        return None;
+    }
+    let timestamp = format!(
+        "{}-{}-{}T{}:{}:{}Z",
+        &suffix[0..4],
+        &suffix[4..6],
+        &suffix[6..8],
+        &suffix[9..11],
+        &suffix[11..13],
+        &suffix[13..15]
+    );
+    valid_utc_timestamp(&timestamp).then_some(timestamp)
+}
+
+fn valid_utc_timestamp(value: &str) -> bool {
+    let bytes = value.as_bytes();
+    if bytes.len() != 20
+        || bytes[4] != b'-'
+        || bytes[7] != b'-'
+        || bytes[10] != b'T'
+        || bytes[13] != b':'
+        || bytes[16] != b':'
+        || bytes[19] != b'Z'
+    {
+        return false;
+    }
+    let number = |start: usize, end: usize| value[start..end].parse::<u32>().ok();
+    let (Some(year), Some(month), Some(day), Some(hour), Some(minute), Some(second)) = (
+        number(0, 4),
+        number(5, 7),
+        number(8, 10),
+        number(11, 13),
+        number(14, 16),
+        number(17, 19),
+    ) else {
+        return false;
+    };
+    let leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+    let days = match month {
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        4 | 6 | 9 | 11 => 30,
+        2 if leap => 29,
+        2 => 28,
+        _ => return false,
+    };
+    (1..=days).contains(&day) && hour < 24 && minute < 60 && second < 60
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{ExitCode, USAGE, execute, poll_completed_files, run};
-    use lunsaran_taytay::{SourceId, adapter::filesystem::FilesystemAdapter};
+    use super::{
+        ExitCode, USAGE, enrich_capture_metadata, execute, filename_capture_time,
+        poll_completed_files, run, supported_media_type, valid_utc_timestamp,
+    };
+    use lunsaran_taytay::{Artifact, ArtifactId, SourceId, adapter::filesystem::FilesystemAdapter};
     use std::{
         fs,
         time::{SystemTime, UNIX_EPOCH},
@@ -231,6 +332,79 @@ mod tests {
         assert!(USAGE.contains("--help"));
         assert!(USAGE.contains("--version"));
         assert!(USAGE.contains("run-filesystem"));
+    }
+
+    #[test]
+    fn recognizes_the_supported_reference_media_types() {
+        assert!(supported_media_type("image/jpeg"));
+        assert!(supported_media_type("video/mp4"));
+        assert!(!supported_media_type("application/octet-stream"));
+        assert!(!supported_media_type("image/png"));
+    }
+
+    #[test]
+    fn extracts_only_valid_utc_capture_times_from_filename_suffixes() {
+        assert_eq!(
+            filename_capture_time("front-door_20241021T123456Z.mp4").as_deref(),
+            Some("2024-10-21T12:34:56Z")
+        );
+        assert_eq!(filename_capture_time("snapshot.jpg"), None);
+        assert_eq!(filename_capture_time("camera_20240230T123456Z.jpg"), None);
+    }
+
+    #[test]
+    fn validates_utc_capture_time_calendar_and_clock_fields() {
+        assert!(valid_utc_timestamp("2024-02-29T23:59:59Z"));
+        assert!(!valid_utc_timestamp("2023-02-29T23:59:59Z"));
+        assert!(!valid_utc_timestamp("2024-01-01T24:00:00Z"));
+        assert!(!valid_utc_timestamp("2024-01-01T00:00:00+00:00"));
+    }
+
+    #[test]
+    fn sidecar_capture_time_overrides_filename_and_invalid_values_are_rejected() {
+        let root = std::env::temp_dir().join(format!(
+            "usb-camera-taytay-sidecar-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let path = root.join("front-door_20241021T123456Z.jpg");
+        fs::write(&path, b"image bytes").unwrap();
+        let mut artifact = Artifact {
+            id: ArtifactId::new("id"),
+            source: SourceId::new("camera-1"),
+            path: path.to_string_lossy().into_owned(),
+            media_type: "image/jpeg".into(),
+            captured_at: None,
+            metadata: serde_json::json!({}),
+            size: 11,
+            checksum_sha256: None,
+        };
+
+        fs::write(
+            root.join("front-door_20241021T123456Z.json"),
+            r#"{"captured_at":"2024-10-22T01:02:03Z"}"#,
+        )
+        .unwrap();
+        enrich_capture_metadata(&mut artifact).unwrap();
+        assert_eq!(
+            artifact.captured_at.as_deref(),
+            Some("2024-10-22T01:02:03Z")
+        );
+        assert_eq!(
+            artifact.metadata["filename"],
+            "front-door_20241021T123456Z.jpg"
+        );
+
+        fs::write(
+            root.join("front-door_20241021T123456Z.json"),
+            r#"{"captured_at":"not-a-timestamp"}"#,
+        )
+        .unwrap();
+        assert!(enrich_capture_metadata(&mut artifact).is_err());
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]

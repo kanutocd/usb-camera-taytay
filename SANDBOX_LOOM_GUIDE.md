@@ -296,12 +296,78 @@ Read the complete review output and inspect the generated diff before
 approving. Resolve review errors, missing ownership, or scope drift first.
 Proposed architecture decisions are separate from harness approval; approve
 them individually with `harness approve-decision` only when the authorized
-decision owner accepts them. Then record harness approval:
+decision owner accepts them.
+
+#### Approve proposed decisions individually
+
+`harness review` reports decisions from
+`.sandbox-loom/intake/decisions.yml`. A `status: proposed` entry is an inferred
+recommendation, not an accepted project decision. Read its proposal and
+rationale, compare them with the approved brief, and ask the named decision
+owner to accept, reject, or revise it. Do not approve every proposal just to
+make the review pass.
+
+Approve one decision at a time, using its exact `id` from the review output or
+`decisions.yml`:
+
+```bash
+"$SANDBOX_LOOM" harness approve-decision . \
+  --id tenant-isolation \
+  --reviewer "Authorized technical or security decision owner" \
+  --rationale "Accepted: enforce tenant boundaries in application authorization and persistence so either layer fails closed independently."
+
+"$SANDBOX_LOOM" harness approve-decision . \
+  --id local-development-services \
+  --reviewer "Authorized technical decision owner" \
+  --rationale "Accepted: use the declared local services as the reproducible development boundary; live acceptance remains conditional on provisioned services."
+
+"$SANDBOX_LOOM" harness approve-decision . \
+  --id quality-gates-and-evidence \
+  --reviewer "Authorized QA decision owner" \
+  --rationale "Accepted: require the declared deterministic quality gates and preserve their evidence for slice acceptance."
+```
+
+These IDs are examples from the current USB Camera Taytay harness; always use
+the IDs and exact proposals generated for the current project. Replace the
+reviewer descriptions with the accountable person's name. The reviewer must
+have authority for that decision: use the project ownership assignments for
+architecture/security, local platform services, and QA respectively. The
+rationale should record why the proposal was accepted, including any limits or
+conditions; it should not merely say “approved.”
+
+Each command changes only that decision from `proposed` to `approved`, records
+the reviewer and rationale in `decisions.yml`, and invalidates any existing
+harness approval by returning `.sandbox-loom/harness.yml` to `status: proposed`
+and `requires_review: true`. An already-approved decision cannot be approved a
+second time. If a proposal is wrong or not accepted, do not run this command:
+resolve the source brief/scope and regenerate the affected harness artifacts,
+then review the new proposal instead.
+
+After recording all decisions that owners accepted, review the complete
+harness again and confirm the decision states and artifact hashes:
+
+```bash
+"$SANDBOX_LOOM" harness review .
+```
+
+Only then record harness-level approval. This is a separate approval from the
+individual decision approvals:
 
 ```bash
 "$SANDBOX_LOOM" harness approve . \
   --reviewer "Project owner" \
   --rationale "Approved USB Camera Taytay scope, quality gates, and execution policy."
+```
+
+If the harness was already approved before a decision was recorded, this
+harness approval is still required again. After approval, refresh the generated
+documentation so its projections and manifests reflect the final approved
+decision set, then inspect the diff:
+
+```bash
+"$SANDBOX_LOOM" harness docs . \
+  --scope "$INTAKE_DIR/normalized-scope.yml" \
+  --force
 ```
 
 Do not regenerate approved artifacts casually. If regeneration is necessary,

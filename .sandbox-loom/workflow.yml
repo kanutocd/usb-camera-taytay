@@ -285,10 +285,13 @@ tasks:
   after:
   - implement_scope
   checks:
-  - fmt
-  - clippy
-  - unit_tests
-  - code_coverage
+  - declared_cargo_fmt
+  - declared_cargo_check
+  - declared_cargo_test
+  - declared_cargo_llvm_cov
+  - declared_cargo_clippy
+  - declared_quality
+  - declared_acceptance_mock
   - documentation_links
   - documentation_navigation
   - documentation_redaction

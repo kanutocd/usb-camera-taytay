@@ -3,25 +3,56 @@ version: '0.1'
 project: usb-camera-taytay
 repository: "."
 gates:
-  fmt:
+  declared_cargo_fmt:
     argv:
-    - bin/ci
+    - cargo
     - fmt
+    - "--all"
+    - "--"
+    - "--check"
     scope: repository
-  clippy:
+  declared_cargo_check:
     argv:
-    - bin/ci
+    - cargo
+    - check
+    - "--workspace"
+    - "--all-targets"
+    - "--all-features"
+    scope: repository
+  declared_cargo_test:
+    argv:
+    - cargo
+    - test
+    - "--workspace"
+    - "--all-features"
+    scope: repository
+  declared_cargo_llvm_cov:
+    argv:
+    - cargo
+    - llvm-cov
+    - "--workspace"
+    - "--all-features"
+    - "--fail-under-lines"
+    - '90'
+    scope: repository
+  declared_cargo_clippy:
+    argv:
+    - cargo
     - clippy
+    - "--workspace"
+    - "--all-targets"
+    - "--all-features"
+    - "--"
+    - "-D"
+    - warnings
     scope: repository
-  unit_tests:
+  declared_quality:
     argv:
-    - bin/ci
-    - unit_tests
+    - scripts/quality.sh
     scope: repository
-  code_coverage:
+  declared_acceptance_mock:
     argv:
-    - bin/ci
-    - code_coverage
+    - scripts/acceptance-mock.sh
     scope: repository
   documentation_links:
     argv:
@@ -50,10 +81,13 @@ gates:
     - source .venv-zensical/bin/activate && zensical build --clean --strict
     scope: repository
 required_evidence:
-- fmt
-- clippy
-- unit_tests
-- code_coverage
+- declared_cargo_fmt
+- declared_cargo_check
+- declared_cargo_test
+- declared_cargo_llvm_cov
+- declared_cargo_clippy
+- declared_quality
+- declared_acceptance_mock
 - documentation_links
 - documentation_navigation
 - documentation_redaction

@@ -36,10 +36,13 @@ constraints:
   deployment: Local reference application and integration example; no hosted control
     plane or production deployment scope is defined.
 quality_gates:
-- fmt
-- clippy
-- unit_tests
-- code_coverage
+- declared_cargo_fmt
+- declared_cargo_check
+- declared_cargo_test
+- declared_cargo_llvm_cov
+- declared_cargo_clippy
+- declared_quality
+- declared_acceptance_mock
 - documentation_links
 - documentation_navigation
 - documentation_redaction
@@ -84,10 +87,13 @@ phases:
     - The repository has the declared project layout
     - The project has repeatable developer entry points
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -101,12 +107,17 @@ phases:
     title: Local development environment
     objective: Implement and verify the declared development environment requirements.
     source: development_environment
-    acceptance_criteria: []
+    acceptance_criteria:
+    - 'Automated tests or reproducible verification evidence demonstrate: Implement
+      and verify the declared development environment requirements.'
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -125,12 +136,19 @@ phases:
     title: Implement MVP1-FS-001
     objective: Configurable input, spool, and archive directories.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including
+      stable artifact publication, checksum verification, and durable-ledger integration.
+    - Run and record a real USB-camera-to-file-segment demonstration using an external
+      producer.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -151,12 +169,19 @@ phases:
     title: Implement MVP1-FS-002
     objective: Atomic-rename and stable-file completion detection.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including
+      stable artifact publication, checksum verification, and durable-ledger integration.
+    - Run and record a real USB-camera-to-file-segment demonstration using an external
+      producer.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -177,12 +202,17 @@ phases:
     title: Implement MVP1-FS-003
     objective: Deterministic artifact-ID derivation and duplicate handling.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including
+      stable artifact publication, checksum verification, and durable-ledger integration.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -202,12 +232,19 @@ phases:
     title: Implement MVP1-FS-004
     objective: Media-type and capture-time detection from filename or sidecar.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including
+      stable artifact publication, checksum verification, and durable-ledger integration.
+    - Run and record a real USB-camera-to-file-segment demonstration using an external
+      producer.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -228,12 +265,19 @@ phases:
     title: Implement MVP1-FS-005
     objective: Taytay spool publication and checksum verification.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including
+      stable artifact publication, checksum verification, and durable-ledger integration.
+    - Run and record a real USB-camera-to-file-segment demonstration using an external
+      producer.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -254,12 +298,17 @@ phases:
     title: Implement MVP1-FS-006
     objective: Bounded observation and upload scheduling.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including
+      stable artifact publication, checksum verification, and durable-ledger integration.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -279,12 +328,17 @@ phases:
     title: Implement MVP1-FS-007
     objective: Completed-file cleanup only after durable upload completion.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including
+      stable artifact publication, checksum verification, and durable-ledger integration.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -304,12 +358,25 @@ phases:
     title: Implement MVP1-FS-008
     objective: Status, pause, resume, and redacted failure diagnostics.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including
+      stable artifact publication, checksum verification, and durable-ledger integration.
+    - Demonstrate deterministic fixture and mock acceptance, including incomplete-file
+      suppression, duplicate-observation handling, checksum and quota behavior, pause/resume,
+      retry and resume across restart, cancellation, and credential/media redaction.
+      Document reproducible local setup and operation without production credentials.
+      When a local Lunsaran/Brutus environment is provisioned, verify service readiness
+      and a successful end-to-end upload using a test project and scoped device credential;
+      retain only redacted readiness and result evidence, with no credentials, signed
+      URLs, or media.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -330,12 +397,25 @@ phases:
     title: Implement MVP1-FS-009
     objective: Synthetic fixture producer for camera-independent acceptance.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including
+      stable artifact publication, checksum verification, and durable-ledger integration.
+    - Demonstrate deterministic fixture and mock acceptance, including incomplete-file
+      suppression, duplicate-observation handling, checksum and quota behavior, pause/resume,
+      retry and resume across restart, cancellation, and credential/media redaction.
+      Document reproducible local setup and operation without production credentials.
+      When a local Lunsaran/Brutus environment is provisioned, verify service readiness
+      and a successful end-to-end upload using a test project and scoped device credential;
+      retain only redacted readiness and result evidence, with no credentials, signed
+      URLs, or media.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -357,12 +437,25 @@ phases:
     objective: Taytay durable-ledger recovery, bounded retry/resume, and repeated-execution
       deduplication.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including
+      stable artifact publication, checksum verification, and durable-ledger integration.
+    - Demonstrate deterministic fixture and mock acceptance, including incomplete-file
+      suppression, duplicate-observation handling, checksum and quota behavior, pause/resume,
+      retry and resume across restart, cancellation, and credential/media redaction.
+      Document reproducible local setup and operation without production credentials.
+      When a local Lunsaran/Brutus environment is provisioned, verify service readiness
+      and a successful end-to-end upload using a test project and scoped device credential;
+      retain only redacted readiness and result evidence, with no credentials, signed
+      URLs, or media.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -383,12 +476,18 @@ phases:
     title: Implement MVP2-V4L2-001
     objective: Configured device discovery and capability inspection.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Inspect available camera capabilities and record the Linux version, camera model,
+      and one supported pixel format, resolution, and frame interval selected for
+      MVP2.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -408,12 +507,18 @@ phases:
     title: Implement MVP2-V4L2-002
     objective: Format, resolution, and frame-interval negotiation.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Inspect available camera capabilities and record the Linux version, camera model,
+      and one supported pixel format, resolution, and frame interval selected for
+      MVP2.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -433,12 +538,21 @@ phases:
     title: Implement MVP2-V4L2-003
     objective: Memory-mapped or explicitly approved V4L2 buffer lifecycle.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Implement pure Rust capture for the selected V4L2 mode, configure and safely
+      return streaming buffers, and write bounded timestamped segments that are complete
+      and readable before publication. Handle malformed frames, shutdown, disconnect,
+      and reconnect without corrupting completed artifacts. Apply backpressure at
+      the spool boundary and publish through the same Taytay Artifact, spool, and
+      upload path used by MVP1, without application-specific upload logic.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -459,12 +573,26 @@ phases:
     objective: Frame timestamping and bounded segment writing that emits only complete,
       readable artifacts.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Implement pure Rust capture for the selected V4L2 mode, configure and safely
+      return streaming buffers, and write bounded timestamped segments that are complete
+      and readable before publication. Handle malformed frames, shutdown, disconnect,
+      and reconnect without corrupting completed artifacts. Apply backpressure at
+      the spool boundary and publish through the same Taytay Artifact, spool, and
+      upload path used by MVP1, without application-specific upload logic.
+    - Record a hardware capture run with Linux version, camera model, negotiated mode,
+      segment settings, artifact checksums, and disconnect/reconnect results. Verify
+      that the captured artifact uses MVP1's Taytay durable upload path, maintain
+      a hardware matrix entry for the available camera, and document troubleshooting
+      guidance.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -486,12 +614,26 @@ phases:
     objective: Safe malformed-frame handling, capture-loop shutdown, and device disconnect/reconnect
       behavior.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Implement pure Rust capture for the selected V4L2 mode, configure and safely
+      return streaming buffers, and write bounded timestamped segments that are complete
+      and readable before publication. Handle malformed frames, shutdown, disconnect,
+      and reconnect without corrupting completed artifacts. Apply backpressure at
+      the spool boundary and publish through the same Taytay Artifact, spool, and
+      upload path used by MVP1, without application-specific upload logic.
+    - Record a hardware capture run with Linux version, camera model, negotiated mode,
+      segment settings, artifact checksums, and disconnect/reconnect results. Verify
+      that the captured artifact uses MVP1's Taytay durable upload path, maintain
+      a hardware matrix entry for the available camera, and document troubleshooting
+      guidance.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -512,12 +654,21 @@ phases:
     title: Implement MVP2-V4L2-006
     objective: Capture-to-spool backpressure.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Implement pure Rust capture for the selected V4L2 mode, configure and safely
+      return streaming buffers, and write bounded timestamped segments that are complete
+      and readable before publication. Handle malformed frames, shutdown, disconnect,
+      and reconnect without corrupting completed artifacts. Apply backpressure at
+      the spool boundary and publish through the same Taytay Artifact, spool, and
+      upload path used by MVP1, without application-specific upload logic.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -537,12 +688,20 @@ phases:
     title: Implement MVP2-V4L2-007
     objective: Hardware acceptance evidence and troubleshooting guide.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Record a hardware capture run with Linux version, camera model, negotiated mode,
+      segment settings, artifact checksums, and disconnect/reconnect results. Verify
+      that the captured artifact uses MVP1's Taytay durable upload path, maintain
+      a hardware matrix entry for the available camera, and document troubleshooting
+      guidance.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -563,12 +722,26 @@ phases:
     objective: Reuse MVP1's Taytay Artifact publication, durable spool, and upload
       boundary without application-specific upload logic.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Implement pure Rust capture for the selected V4L2 mode, configure and safely
+      return streaming buffers, and write bounded timestamped segments that are complete
+      and readable before publication. Handle malformed frames, shutdown, disconnect,
+      and reconnect without corrupting completed artifacts. Apply backpressure at
+      the spool boundary and publish through the same Taytay Artifact, spool, and
+      upload path used by MVP1, without application-specific upload logic.
+    - Record a hardware capture run with Linux version, camera model, negotiated mode,
+      segment settings, artifact checksums, and disconnect/reconnect results. Verify
+      that the captured artifact uses MVP1's Taytay durable upload path, maintain
+      a hardware matrix entry for the available camera, and document troubleshooting
+      guidance.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -589,12 +762,23 @@ phases:
     title: Implement DEV-001
     objective: One-command local setup with no production credentials.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Demonstrate deterministic fixture and mock acceptance, including incomplete-file
+      suppression, duplicate-observation handling, checksum and quota behavior, pause/resume,
+      retry and resume across restart, cancellation, and credential/media redaction.
+      Document reproducible local setup and operation without production credentials.
+      When a local Lunsaran/Brutus environment is provisioned, verify service readiness
+      and a successful end-to-end upload using a test project and scoped device credential;
+      retain only redacted readiness and result evidence, with no credentials, signed
+      URLs, or media.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -614,12 +798,23 @@ phases:
     title: Implement DEV-002
     objective: Configuration example and protected-token instructions.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Demonstrate deterministic fixture and mock acceptance, including incomplete-file
+      suppression, duplicate-observation handling, checksum and quota behavior, pause/resume,
+      retry and resume across restart, cancellation, and credential/media redaction.
+      Document reproducible local setup and operation without production credentials.
+      When a local Lunsaran/Brutus environment is provisioned, verify service readiness
+      and a successful end-to-end upload using a test project and scoped device credential;
+      retain only redacted readiness and result evidence, with no credentials, signed
+      URLs, or media.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -639,12 +834,23 @@ phases:
     title: Implement DEV-003
     objective: Deterministic mock acceptance against the published client.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Demonstrate deterministic fixture and mock acceptance, including incomplete-file
+      suppression, duplicate-observation handling, checksum and quota behavior, pause/resume,
+      retry and resume across restart, cancellation, and credential/media redaction.
+      Document reproducible local setup and operation without production credentials.
+      When a local Lunsaran/Brutus environment is provisioned, verify service readiness
+      and a successful end-to-end upload using a test project and scoped device credential;
+      retain only redacted readiness and result evidence, with no credentials, signed
+      URLs, or media.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -664,12 +870,23 @@ phases:
     title: Implement DEV-004
     objective: Documentation build and local-link drift checks.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Demonstrate deterministic fixture and mock acceptance, including incomplete-file
+      suppression, duplicate-observation handling, checksum and quota behavior, pause/resume,
+      retry and resume across restart, cancellation, and credential/media redaction.
+      Document reproducible local setup and operation without production credentials.
+      When a local Lunsaran/Brutus environment is provisioned, verify service readiness
+      and a successful end-to-end upload using a test project and scoped device credential;
+      retain only redacted readiness and result evidence, with no credentials, signed
+      URLs, or media.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -689,12 +906,23 @@ phases:
     title: Implement DEV-005
     objective: Rust formatting, check, test, clippy, and coverage guidance.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Demonstrate deterministic fixture and mock acceptance, including incomplete-file
+      suppression, duplicate-observation handling, checksum and quota behavior, pause/resume,
+      retry and resume across restart, cancellation, and credential/media redaction.
+      Document reproducible local setup and operation without production credentials.
+      When a local Lunsaran/Brutus environment is provisioned, verify service readiness
+      and a successful end-to-end upload using a test project and scoped device credential;
+      retain only redacted readiness and result evidence, with no credentials, signed
+      URLs, or media.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -714,12 +942,17 @@ phases:
     title: Implement DEV-006
     objective: Release and compatibility notes for the Taytay crate version.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - 'Automated tests or reproducible verification evidence demonstrate: Release
+      and compatibility notes for the Taytay crate version.'
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -737,12 +970,18 @@ phases:
     title: Implement LOOM-001
     objective: Sandbox Loom intake and normalized-scope traceability.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Release only after applicable quality gates and documentation checks pass, including
+      approved Sandbox Loom evidence and approval boundaries when that workflow is
+      used.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -760,12 +999,18 @@ phases:
     title: Implement LOOM-002
     objective: Reviewed project-specific harness and bounded execution plan.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Release only after applicable quality gates and documentation checks pass, including
+      approved Sandbox Loom evidence and approval boundaries when that workflow is
+      used.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -783,12 +1028,18 @@ phases:
     title: Implement LOOM-003
     objective: Quality-gate and evidence correlation for each implementation slice.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Release only after applicable quality gates and documentation checks pass, including
+      approved Sandbox Loom evidence and approval boundaries when that workflow is
+      used.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -806,12 +1057,18 @@ phases:
     title: Implement LOOM-004
     objective: Explicit approval before consequential repository or release operations.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - Release only after applicable quality gates and documentation checks pass, including
+      approved Sandbox Loom evidence and approval boundaries when that workflow is
+      used.
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -834,12 +1091,18 @@ phases:
     objective: Lunsaran organization and project authorization; acceptance uses a
       provisioned test project and scoped device credential when available.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - 'Automated tests or reproducible verification evidence demonstrate: Lunsaran
+      organization and project authorization; acceptance uses a provisioned test project
+      and scoped device credential when available.'
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -855,12 +1118,18 @@ phases:
     objective: Preserve durable jobs across restart; handle temporary network failure
       and repeated execution; hardware reconnect behavior is covered for MVP2.
     source: requirements
-    acceptance_criteria: []
+    acceptance_criteria:
+    - 'Automated tests or reproducible verification evidence demonstrate: Preserve
+      durable jobs across restart; handle temporary network failure and repeated execution;
+      hardware reconnect behavior is covered for MVP2.'
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction
@@ -886,10 +1155,13 @@ phases:
       guidance
     - "`source .venv-zensical/bin/activate && zensical build --clean --strict` passes"
     quality_gates:
-    - fmt
-    - clippy
-    - unit_tests
-    - code_coverage
+    - declared_cargo_fmt
+    - declared_cargo_check
+    - declared_cargo_test
+    - declared_cargo_llvm_cov
+    - declared_cargo_clippy
+    - declared_quality
+    - declared_acceptance_mock
     - documentation_links
     - documentation_navigation
     - documentation_redaction

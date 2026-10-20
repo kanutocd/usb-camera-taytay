@@ -6,6 +6,9 @@ template: arc42-detailed
 renderer: zensical
 source_directory: project-docs
 source_scope_sha256: 937ceafca80d9214dd79cc1f976c4fd8312d11b92064c7b6a2e4909bdcc16e56
+source_references:
+- project-requirements/project-scope-statement.md
+- specifications/project-brief.yml
 included_sources:
 - README.md
 - project-docs/audiences/stakeholder/arc42/01-introduction-and-goals.md
@@ -23,6 +26,9 @@ included_sources:
 - project-docs/audiences/stakeholder/architecture.md
 - project-docs/audiences/stakeholder/delivery.md
 - project-docs/audiences/stakeholder/index.md
+- project-docs/audiences/stakeholder/project-scope-statement.md
+- project-docs/audiences/stakeholder/project-brief.md
+- project-docs/audiences/stakeholder/sandbox-loom-guide.md
 - project-docs/implementation/phases/phase-1.md
 - project-docs/implementation/phases/phase-2.md
 - project-docs/implementation/phases/phase-3.md

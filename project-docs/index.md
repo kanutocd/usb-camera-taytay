@@ -1,17 +1,27 @@
-# usb-camera-taytay
+# USB Camera Taytay
 
-This site contains the public documentation projections for **usb-camera-taytay**.
+USB Camera Taytay is a Linux Rust CLI reference application for moving local
+camera media into Taytay's durable artifact spool. It demonstrates two staged
+input paths: MVP1 ingests completed JPEG and MP4 files, while MVP2 captures
+MJPEG frames from a configured V4L2 camera and sends the resulting JPEG files
+through the same ingestion path.
 
-## Documentation
+The CLI publishes artifacts to Taytay; a separate, provisioned Taytay uploader
+handles transfer to Lunsaran. This application does not start that uploader or
+implement its own HTTP or TUS upload path. Fixture and mock checks can be run
+locally without a camera or live Lunsaran credentials.
 
-- [Consumer documentation](audiences/consumer/index.md)
-- [Technical documentation](audiences/technical/index.md)
-- [Stakeholder documentation](audiences/stakeholder/index.md)
+This repository is also a public reference application for the private Sandbox
+Loom project. Its documentation shows the project scope, architecture, and
+delivery workflow. It does not publish credentials, captured media, or raw
+private evidence.
 
-Each projection is generated from the approved project scope. Public
-stakeholder documentation includes the approved implementation roadmap,
-phase and slice plans, and current status. Internal harness instructions,
-evidence, decision records, and audience projections not approved for
-publication are excluded.
+## Choose a guide
 
-Template: `rust-binary`
+- [User Guide](audiences/consumer/index.md) — configure the CLI, ingest files,
+  capture from V4L2, and inspect local artifact status.
+- [Reference App Guide](audiences/technical/index.md) — understand the source
+  adapters, Taytay integration boundary, and acceptance approach.
+- [Project Team](audiences/stakeholder/index.md) — read the scope statement,
+  project brief, Arc42 architecture, implementation roadmap, and Sandbox Loom
+  guide.

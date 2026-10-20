@@ -13,6 +13,9 @@ included_sources:
 - project-docs/index.md
 - project-docs/zensical/ASSET-PROVENANCE.md
 excluded_sources:
+- project-docs/audiences/stakeholder/project-scope-statement.md
+- project-docs/audiences/stakeholder/project-brief.md
+- project-docs/audiences/stakeholder/sandbox-loom-guide.md
 - project-docs/adrs/ADR-001-tenant-isolation.md
 - project-docs/adrs/ADR-002-local-development-services.md
 - project-docs/adrs/ADR-003-quality-gates-and-evidence.md

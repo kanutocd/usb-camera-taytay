@@ -93,4 +93,4 @@ ingestion and MVP2's local MJPEG capture path are implemented. The recorded
 hardware attempt could not open `/dev/video0` because the operator lacked
 `video` group access; a successful capture and end-to-end upload are therefore
 not claimed. See the [User Guide](../consumer/index.md) for current commands
-and the [Integration Guide](index.md) for the artifact boundary.
+and the [Reference App Guide](index.md) for the artifact boundary.

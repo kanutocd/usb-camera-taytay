@@ -11,7 +11,13 @@ from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "project-docs"
-EXCLUDED = ("harness/", "backlog/", "evidence/", "documentation/manifests/", "adrs/")
+EXCLUDED = (
+    "harness/",
+    "backlog/",
+    "evidence/",
+    "documentation/manifests/",
+    "adrs/",
+)
 LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)|<((?:\.\.?/|/)[^>]+)>")
 REFERENCE_DEFINITION = re.compile(r"^\s{0,3}\[[^\]]+\]:\s*<?(\S+?)>?(?:\s+['\"(].*)?$", re.MULTILINE)
 FENCE = re.compile(r"^```(\w+)\s*$")

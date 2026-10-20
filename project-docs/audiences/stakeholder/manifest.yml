@@ -16,6 +16,9 @@ files:
 - arc42/10-quality-requirements.md
 - arc42/11-risks-and-technical-debt.md
 - arc42/12-glossary.md
+- project-scope-statement.md
+- project-brief.md
+- sandbox-loom-guide.md
 - architecture.md
 - delivery.md
 - index.md
@@ -23,6 +26,8 @@ scope_sha256: 4c2245c825920f8cd6d6dafa955ee97f6413ac7ccee8dc6ed98b10e86225b50a
 diagrams: []
 source_references:
 - README.md
+- project-requirements/project-scope-statement.md
+- specifications/project-brief.yml
 - project-docs/implementation/phases/phase-1.md
 - project-docs/implementation/phases/phase-2.md
 - project-docs/implementation/phases/phase-3.md

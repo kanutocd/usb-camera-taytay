@@ -22,13 +22,24 @@ using the `rust-binary` template.
 Install Rust with Cargo and Python 3, then run `bin/setup-dev` once to install
 the pinned documentation tools in `.venv-zensical` and the project-local
 coverage tool in `.tools/cargo`. The script checks its required commands before
-installing dependencies. Run
-`scripts/quality.sh` for Rust formatting, build, tests, and linting; run
-`scripts/acceptance-mock.sh` for the camera-free CLI smoke check. MVP1
+installing dependencies. The Rust checks can be run individually:
+
+```sh
+cargo fmt --all -- --check
+cargo check --workspace --all-targets --all-features
+cargo test --workspace --all-features
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+bin/ci declared_cargo_llvm_cov
+```
+
+The coverage gate uses the project-local `cargo-llvm-cov` installed by
+`bin/setup-dev` and requires at least 90% line coverage. Run
+`scripts/quality.sh` to execute formatting, check, tests, and Clippy together;
+run `scripts/acceptance-mock.sh` for the camera-free CLI smoke check. MVP1
 development and mock acceptance require no camera, production credentials, or
 local Lunsaran/Brutus services. A provisioned local platform may be used for
-optional end-to-end acceptance. The individual commands and documentation
-gates are listed in [Quality gates](project-docs/harness/QUALITY_GATES.md).
+optional end-to-end acceptance. The full gate commands, including documentation
+checks, are listed in [Quality gates](project-docs/harness/QUALITY_GATES.md).
 
 ## MVP1 filesystem ingestion
 

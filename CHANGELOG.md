@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-2-slice-26: reviewed project-specific harness and bounded execution plan
+
 - phase-2-slice-25: sandbox Loom intake and normalized-scope traceability
 
 - phase-2-slice-24: release and compatibility notes for the Taytay crate version

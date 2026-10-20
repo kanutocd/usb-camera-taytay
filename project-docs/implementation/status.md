@@ -4,9 +4,9 @@
 > The YAML ledger remains authoritative. This page is safe to publish through Zensical.
 
 - Overall status: `in_progress`
-- Runtime status: `completed`
-- Last run: `project-usb-camera-taytay-bounded-1473a0277735d05c-slice-8`
-- Last run result: `completed`
+- Runtime status: `running`
+- Last run: `project-usb-camera-taytay-bounded-1473a0277735d05c-slice-9`
+- Last run result: `running`
 
 ## Phases and slices
 
@@ -39,7 +39,7 @@
 |  |  | phase-2-slice-23 Implement DEV-005 | completed | 6677f26 | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-6 |
 |  |  | phase-2-slice-24 Implement DEV-006 | completed | 22b94b2 | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-7 |
 |  |  | phase-2-slice-25 Implement LOOM-001 | completed | 62eb82e | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-8 |
-|  |  | phase-2-slice-26 Implement LOOM-002 | pending | — | — |
+|  |  | phase-2-slice-26 Implement LOOM-002 | in_progress | — | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-9 |
 |  |  | phase-2-slice-27 Implement LOOM-003 | pending | — | — |
 |  |  | phase-2-slice-28 Implement LOOM-004 | pending | — | — |
 | phase-3 Non-functional requirements and acceptance | pending | phase-3-slice-1 Harden tenancy.model | pending | — | — |

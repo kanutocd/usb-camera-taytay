@@ -45,16 +45,16 @@ def navigation() -> list[str]:
     config = tomllib.loads((ROOT / "zensical.toml").read_text(encoding="utf-8"))
     docs_dir = ROOT / config["project"].get("docs_dir", "docs")
     entries = config["project"].get("nav", [])
-    paths: list[str] = []
-    for entry in entries:
-        if isinstance(entry, str):
-            paths.append(entry)
-        elif isinstance(entry, dict):
-            for value in entry.values():
-                if isinstance(value, str):
-                    paths.append(value)
-                elif isinstance(value, list):
-                    paths.extend(item for item in value if isinstance(item, str))
+    def page_paths(value: object) -> list[str]:
+        if isinstance(value, str):
+            return [value]
+        if isinstance(value, dict):
+            return [path for child in value.values() for path in page_paths(child)]
+        if isinstance(value, list):
+            return [path for child in value for path in page_paths(child)]
+        return []
+
+    paths = page_paths(entries)
     if not entries:
         return ["zensical.toml: project.nav must contain at least one page"]
     return [f"zensical.toml: navigation target does not exist: {path}" for path in paths if not (docs_dir / path).is_file()]

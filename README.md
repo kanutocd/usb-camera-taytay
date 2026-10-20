@@ -19,11 +19,14 @@ using the `rust-binary` template.
 
 ## Development
 
-Run `bin/setup-dev` to install the pinned documentation tools and the
-project-local coverage tool. Run `scripts/quality.sh` for Rust formatting,
-build, tests, and linting; run `scripts/acceptance-mock.sh` for the camera-free
-CLI smoke check. The individual commands and documentation gates are listed in
-[Quality gates](project-docs/harness/QUALITY_GATES.md).
+Install Rust with Cargo, then run `bin/setup-dev` to install the pinned
+documentation tools and project-local coverage tool. Run
+`scripts/quality.sh` for Rust formatting, build, tests, and linting; run
+`scripts/acceptance-mock.sh` for the camera-free CLI smoke check. MVP1
+development and mock acceptance require no camera, production credentials, or
+local Lunsaran/Brutus services. A provisioned local platform may be used for
+optional end-to-end acceptance. The individual commands and documentation
+gates are listed in [Quality gates](project-docs/harness/QUALITY_GATES.md).
 
 ## MVP1 filesystem ingestion
 

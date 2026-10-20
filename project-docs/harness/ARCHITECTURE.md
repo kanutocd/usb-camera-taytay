@@ -39,6 +39,10 @@ deployment: Local reference application and integration example; no hosted contr
 
 ## Local development
 
-Orchestrator: `docker-compose`. Health checks: `required`.
+MVP1 development and camera-independent acceptance use Rust tooling and
+synthetic fixtures; no local Lunsaran or Brutus services are required. A
+provisioned local Lunsaran/Brutus environment may be used for optional
+end-to-end acceptance. No project-owned Compose stack or service health
+checks are defined by the approved scope.
 
 > Harness approval: approved. No unresolved open questions remain; recorded decisions are approved.

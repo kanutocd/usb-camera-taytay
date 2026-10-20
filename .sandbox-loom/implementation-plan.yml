@@ -5,7 +5,7 @@
 version: '0.1'
 project: usb-camera-taytay
 status: proposed
-source_scope: ".sandbox-loom/intake-20261020-230819/normalized-scope.yml"
+source_scope: ".sandbox-loom/intake-20261021-021359/normalized-scope.yml"
 requirements_artifact: ".sandbox-loom/requirements.yml"
 objective: Provide a small, reproducible Linux Rust CLI reference application that
   captures or receives local USB-camera media and delivers durable, checksum-bound,

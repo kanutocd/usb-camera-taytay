@@ -28,8 +28,12 @@ gates:
     scope: repository
   declared_cargo_llvm_cov:
     argv:
-    - bin/ci
-    - declared_cargo_llvm_cov
+    - cargo
+    - llvm-cov
+    - "--workspace"
+    - "--all-features"
+    - "--fail-under-lines"
+    - '90'
     scope: repository
   declared_cargo_clippy:
     argv:
@@ -72,8 +76,9 @@ gates:
     scope: repository
   zensical_build:
     argv:
-    - bin/ci
-    - zensical_build
+    - bash
+    - "-lc"
+    - source .venv-zensical/bin/activate && zensical build --clean --strict
     scope: repository
 required_evidence:
 - declared_cargo_fmt

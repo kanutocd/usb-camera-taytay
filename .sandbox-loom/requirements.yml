@@ -3,7 +3,7 @@
 version: '0.1'
 status: proposed
 project: usb-camera-taytay
-source_scope: ".sandbox-loom/intake-20261020-230819/normalized-scope.yml"
+source_scope: ".sandbox-loom/intake-20261021-021359/normalized-scope.yml"
 requirements:
   functional:
   - id: MVP1-FS-001

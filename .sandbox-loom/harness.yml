@@ -4,4 +4,4 @@ status: approved
 requires_review: false
 project: usb-camera-taytay
 template: rust-binary
-source_scope: ".sandbox-loom/intake-20261020-230819/normalized-scope.yml"
+source_scope: ".sandbox-loom/intake-20261021-021359/normalized-scope.yml"

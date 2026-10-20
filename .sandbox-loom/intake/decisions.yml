@@ -43,17 +43,20 @@ decisions:
   rationale: Approved USB Camera Taytay scope, quality gates, and execution policy.
   artifact_hashes:
     components.yml: 61b3f4696a590756f2eb2062c93f127b9c7ad4e5b00d491a52773b8fa89dfabe
-    harness.yml: efd01f75d2a3f60f5a0689caf0026d54de12532b1545bea8ad780e9768ffc37e
-    implementation-plan.yml: 2d38995ffa646b65483978de280d59cb60dae658c52a661dbd0f22c6dcc48378
+    harness.yml: 9345bb80fde692dc09788ae5327817670920bb11f7619e2b3165e0dcae52a44a
+    implementation-plan.yml: 152a50c56158406bf09eada04d94320517a57d9fb9a02264ace9f3e4e1e116c3
     implementation-status.yml: 454ffb8c960abeb28dff289b4087dfc5ac8f18591e47515dd58925d309ba1610
     intake-20261020-230819/normalized-scope.yml: 937ceafca80d9214dd79cc1f976c4fd8312d11b92064c7b6a2e4909bdcc16e56
     intake-20261020-230819/provenance.json: 6e9497a31b043126816bdf0e8b8f749e0439d0321a37a8b5d4676bcc0d79032d
     intake-20261020-230819/source-materials/project-brief.yml: 775a002303040b5adf12e857fdd929d78fa52c1c2c329846701947d48cb5eac6
+    intake-20261021-021359/normalized-scope.yml: 3a7ebf08641145d8f68ad94d25e11829cbf7b7855e19338d94760c65f1ce3232
+    intake-20261021-021359/provenance.json: c9f7bc488e03563c016d2ffb65f3e622ca4def12b4af7972c5d9c36b8efe7b0d
+    intake-20261021-021359/source-materials/project-brief.yml: a09fdfcf35f9555f60ec1a66de336c57039f6a5649d104211cc2f4e05f09f292
     intake/decisions.yml: 8304af23e2313d7f3907f55e7755c86d81ee87e65a46a40b2bc7843af85c249d
     policy-profile.yml: 4ed3ced94b6144dbd66461b4af831147de048ef1b31dc80c36b5fff587118540
-    project.yml: 14c86fa9dce1558e81be95c903be7ec6f7719b0d7cf39decbcaf45c669cb8f7d
+    project.yml: 031afa55f1d12e857754f517253148f40e2787866ed7552a9dc52f491b06db22
     quality-gates.yml: 79e633b2fa815b352af1ed57003bb4b9a45b12986a857db44b2c1d075fb83916
-    requirements.yml: 16dbcf92d30e6ecf13841acb1646797e5c80f89ca7ff7685f1fe60bd025db15a
+    requirements.yml: 4cf7982e0308bb8be6ba21b7b58e5573fd31d4be4d436fd147faa003ce5ded64
     skills/sandbox-loom-intake/SKILL.md: 9d9ab18514eb29d0ac75bf5eb64f0e3aaab21c1015c513b0a3b9e78bcd3c6159
     workflow.yml: 93da7c71ed6ecb8d1bfb4635ba3c4ea5451b0671ad29f466cf31efe30d76b23a
 decision_approvals:

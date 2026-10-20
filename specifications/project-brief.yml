@@ -18,6 +18,10 @@ harness:
   coding_agent:
     provider: codex
     executable: codex
+execution:
+  bounded_multi_slice:
+    allowed: true
+    default_max_slices: 30
 mvp:
 - id: mvp-001
   outcome: MVP1 — Filesystem/file-segment ingestion. Use completed files produced

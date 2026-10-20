@@ -331,6 +331,9 @@ phases:
     acceptance_criteria:
     - Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including
       stable artifact publication, checksum verification, and durable-ledger integration.
+    - After the Taytay ledger confirms Completed or Retained, move the matching
+      checksum-verified source file and optional sidecar from input to archive;
+      retain sources for all other ledger states.
     quality_gates:
     - declared_cargo_fmt
     - declared_cargo_check

@@ -1,5 +1,5 @@
 use lunsaran_taytay::{
-    Artifact, SourceId, TaytayError, adapter::SourceAdapter,
+    Artifact, ArtifactState, SourceId, TaytayError, adapter::SourceAdapter,
     adapter::filesystem::FilesystemAdapter, spool::Spool,
 };
 use serde::Deserialize;
@@ -161,6 +161,7 @@ fn ingest_stable_files(config: &Config) -> Result<String, String> {
         .map_err(|_| "could not open durable spool".to_owned())?;
     let mut published = 0;
     let mut duplicates = 0;
+    let mut archived = 0;
     for artifact in artifacts {
         let source_path = PathBuf::from(&artifact.path);
         let file =
@@ -179,10 +180,29 @@ fn ingest_stable_files(config: &Config) -> Result<String, String> {
             if existing.artifact.checksum_sha256 != artifact.checksum_sha256 {
                 return Err("artifact ID conflicts with a different durable checksum".into());
             }
-            spool
-                .verify(&existing)
-                .map_err(|_| "existing duplicate checksum verification failed".to_owned())?;
             duplicates += 1;
+            if matches!(
+                existing.state,
+                ArtifactState::Completed | ArtifactState::Retained
+            ) {
+                archive_completed_source(&source_path, &config.archive_dir, &bytes)?;
+                let sidecar = source_path.with_extension("json");
+                if sidecar.exists() {
+                    archive_copy(
+                        &sidecar,
+                        &config.archive_dir.join(
+                            sidecar
+                                .file_name()
+                                .ok_or_else(|| "invalid sidecar filename".to_owned())?,
+                        ),
+                    )?;
+                }
+                archived += 1;
+            } else {
+                spool
+                    .verify(&existing)
+                    .map_err(|_| "existing duplicate checksum verification failed".to_owned())?;
+            }
             continue;
         }
         let job = spool
@@ -201,8 +221,81 @@ fn ingest_stable_files(config: &Config) -> Result<String, String> {
         published += 1;
     }
     Ok(format!(
-        "published {published} stable artifact(s); skipped {duplicates} verified duplicate(s); source files retained"
+        "published {published} stable artifact(s); skipped {duplicates} verified duplicate(s); archived {archived} completed source(s)"
     ))
+}
+
+fn archive_completed_source(source: &Path, archive_dir: &Path, bytes: &[u8]) -> Result<(), String> {
+    let filename = source
+        .file_name()
+        .ok_or_else(|| "invalid source filename".to_owned())?;
+    let destination = archive_dir.join(filename);
+    let expected = format!("{:x}", Sha256::digest(bytes));
+    archive_copy_with_checksum(source, &destination, Some(&expected))
+}
+
+fn archive_copy(source: &Path, destination: &Path) -> Result<(), String> {
+    archive_copy_with_checksum(source, destination, None)
+}
+
+fn archive_copy_with_checksum(
+    source: &Path,
+    destination: &Path,
+    expected_checksum: Option<&str>,
+) -> Result<(), String> {
+    let source_checksum = checksum_file(source)?;
+    if expected_checksum.is_some_and(|expected| expected != source_checksum) {
+        return Err("source changed before archival".into());
+    }
+    if destination.exists() {
+        if checksum_file(destination)? != source_checksum {
+            return Err("archive destination conflicts with source".into());
+        }
+        fs::remove_file(source).map_err(|_| "could not remove archived source".to_owned())?;
+        return Ok(());
+    }
+    let filename = destination
+        .file_name()
+        .ok_or_else(|| "invalid archive filename".to_owned())?;
+    let temporary =
+        destination.with_file_name(format!(".{}.archive.part", filename.to_string_lossy()));
+    let mut input =
+        fs::File::open(source).map_err(|_| "could not read source for archival".to_owned())?;
+    let mut output = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&temporary)
+        .map_err(|_| "could not create archive temporary file".to_owned())?;
+    std::io::copy(&mut input, &mut output)
+        .map_err(|_| "could not copy source to archive".to_owned())?;
+    output
+        .sync_all()
+        .map_err(|_| "could not sync archived source".to_owned())?;
+    drop(output);
+    if checksum_file(&temporary)? != source_checksum {
+        let _ = fs::remove_file(&temporary);
+        return Err("archived source checksum verification failed".into());
+    }
+    fs::rename(&temporary, destination)
+        .map_err(|_| "could not publish archived source".to_owned())?;
+    fs::remove_file(source).map_err(|_| "could not remove archived source".to_owned())?;
+    Ok(())
+}
+
+fn checksum_file(path: &Path) -> Result<String, String> {
+    let mut file = fs::File::open(path).map_err(|_| "could not read file checksum".to_owned())?;
+    let mut hasher = Sha256::new();
+    let mut buffer = [0; 16 * 1024];
+    loop {
+        let count = file
+            .read(&mut buffer)
+            .map_err(|_| "could not read file checksum".to_owned())?;
+        if count == 0 {
+            break;
+        }
+        hasher.update(&buffer[..count]);
+    }
+    Ok(format!("{:x}", hasher.finalize()))
 }
 
 fn matches_observed_checksum(expected: Option<&str>, bytes: &[u8]) -> bool {
@@ -334,7 +427,10 @@ mod tests {
         ExitCode, USAGE, enrich_capture_metadata, execute, filename_capture_time,
         poll_completed_files, run, supported_media_type, valid_utc_timestamp,
     };
-    use lunsaran_taytay::{Artifact, ArtifactId, SourceId, adapter::filesystem::FilesystemAdapter};
+    use lunsaran_taytay::{
+        Artifact, ArtifactId, ArtifactState, SourceId, adapter::filesystem::FilesystemAdapter,
+        spool::Spool,
+    };
     use sha2::{Digest, Sha256};
     use std::{
         fs,
@@ -485,6 +581,12 @@ mod tests {
             execute("fixture", &config_path).unwrap(),
             "published fixture.jpg"
         );
+        fs::write(
+            root.join("input/fixture.json"),
+            r#"{"captured_at":"2024-10-21T12:34:56Z"}"#,
+        )
+        .unwrap();
+        let source_bytes = fs::read(root.join("input/fixture.jpg")).unwrap();
         assert!(
             execute("run-filesystem", &config_path)
                 .unwrap()
@@ -497,9 +599,27 @@ mod tests {
         assert!(root.join("archive").is_dir());
         assert_eq!(
             execute("run-filesystem", &config_path).unwrap(),
-            "published 0 stable artifact(s); skipped 1 verified duplicate(s); source files retained"
+            "published 0 stable artifact(s); skipped 1 verified duplicate(s); archived 0 completed source(s)"
         );
         assert_eq!(fs::read_dir(root.join("spool")).unwrap().count(), 2);
+
+        let spool = Spool::open(root.join("spool"), 1048576).unwrap();
+        let mut job = spool.ledger().pending().remove(0);
+        job.transition(ArtifactState::Uploading).unwrap();
+        job.transition(ArtifactState::Completed).unwrap();
+        spool.ledger().update(job).unwrap();
+
+        assert_eq!(
+            execute("run-filesystem", &config_path).unwrap(),
+            "published 0 stable artifact(s); skipped 1 verified duplicate(s); archived 1 completed source(s)"
+        );
+        assert!(!root.join("input/fixture.jpg").exists());
+        assert!(!root.join("input/fixture.json").exists());
+        assert_eq!(
+            fs::read(root.join("archive/fixture.jpg")).unwrap(),
+            source_bytes
+        );
+        assert!(root.join("archive/fixture.json").is_file());
 
         fs::remove_dir_all(root).unwrap();
     }

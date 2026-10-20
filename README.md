@@ -49,9 +49,12 @@ receive two stable observations. It publishes stable files through Taytay's
 durable spool and ledger, and verifies each published checksum. Artifact IDs
 are content-derived; a file already represented in the ledger with the same
 full checksum is skipped as a verified duplicate on later runs. A conflicting
-checksum for an existing ID is reported as an error. It retains source files;
-archive cleanup is not part of this command. This slice does not start an
-uploader or require camera hardware or Lunsaran credentials.
+checksum for an existing ID is reported as an error. Once the Taytay ledger
+reports an artifact as `Completed` or `Retained`, a later run moves its
+checksum-verified source file and optional JSON sidecar from input to the
+configured archive directory. Pending, failed, paused, and uploading artifacts
+remain in input. The archive keeps the source copy. This command does not start
+an uploader or require camera hardware or Lunsaran credentials.
 
 MVP1 accepts `.jpg`/`.jpeg` images as `image/jpeg` and `.mp4` videos as
 `video/mp4`; other file types are ignored. To attach a capture time, either

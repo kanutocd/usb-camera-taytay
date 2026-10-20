@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-2-slice-7: completed-file cleanup only after durable upload completion
+
 - phase-2-slice-6: bounded observation and upload scheduling
 
 - phase-2-slice-5: taytay spool publication and checksum verification

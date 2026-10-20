@@ -16,6 +16,64 @@ use std::{
     time::Duration,
 };
 
+#[cfg(target_os = "linux")]
+static V4L2_SHUTDOWN: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+#[cfg(target_os = "linux")]
+extern "C" fn request_v4l2_shutdown(_: libc::c_int) {
+    V4L2_SHUTDOWN.store(true, std::sync::atomic::Ordering::Relaxed);
+}
+
+#[cfg(target_os = "linux")]
+struct V4l2SignalGuard {
+    previous_int: libc::sighandler_t,
+    previous_term: libc::sighandler_t,
+}
+
+#[cfg(target_os = "linux")]
+impl V4l2SignalGuard {
+    fn install() -> Result<Self, String> {
+        V4L2_SHUTDOWN.store(false, std::sync::atomic::Ordering::Relaxed);
+        // SAFETY: handler only stores to a lock-free atomic; previous handlers are restored on drop.
+        let previous_int = unsafe {
+            libc::signal(
+                libc::SIGINT,
+                request_v4l2_shutdown as *const () as libc::sighandler_t,
+            )
+        };
+        if previous_int == libc::SIG_ERR {
+            return Err("could not install V4L2 shutdown handler".into());
+        }
+        // SAFETY: same async-signal-safe handler and restoration guarantee as SIGINT above.
+        let previous_term = unsafe {
+            libc::signal(
+                libc::SIGTERM,
+                request_v4l2_shutdown as *const () as libc::sighandler_t,
+            )
+        };
+        if previous_term == libc::SIG_ERR {
+            // SAFETY: restore the successfully replaced SIGINT handler.
+            unsafe { libc::signal(libc::SIGINT, previous_int) };
+            return Err("could not install V4L2 shutdown handler".into());
+        }
+        Ok(Self {
+            previous_int,
+            previous_term,
+        })
+    }
+}
+
+#[cfg(target_os = "linux")]
+impl Drop for V4l2SignalGuard {
+    fn drop(&mut self) {
+        // SAFETY: restore handlers replaced by install before leaving the capture command.
+        unsafe {
+            libc::signal(libc::SIGINT, self.previous_int);
+            libc::signal(libc::SIGTERM, self.previous_term);
+        }
+    }
+}
+
 const USAGE: &str = "Usage: usb-camera-taytay <check-config|fixture|run-filesystem|run-v4l2|status> CONFIG | <pause|resume> ARTIFACT_ID CONFIG | --help | --version";
 const MAX_ARTIFACT_BYTES: u64 = 64 * 1024 * 1024;
 const PARTIAL_FILE_SUFFIX: &str = ".part";
@@ -180,25 +238,83 @@ fn capture_v4l2_segment(config: &Config) -> Result<String, String> {
         return Err("V4L2 segment limits must be 1-300 frames and at most 64 MiB".into());
     }
     let fourcc = u32::from_ne_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
-    let mut capture = v4l2::Capture::open(device, width, height, fourcc)
-        .map_err(|_| "could not initialize V4L2 capture; verify device and mode".to_owned())?;
+    let _signal_guard = V4l2SignalGuard::install()?;
+    let mut capture = Some(
+        v4l2::Capture::open(device, width, height, fourcc)
+            .map_err(|_| "could not initialize V4L2 capture; verify device and mode".to_owned())?,
+    );
+    let mut reconnects = 0;
     write_v4l2_frames(&config.input_dir, frame_count, max_bytes, || {
-        capture
-            .next_frame()
+        next_v4l2_frame(&mut capture, &mut reconnects, device, width, height, fourcc)
             .map_err(|_| "could not read a complete V4L2 frame".to_owned())
     })
+}
+
+#[cfg(target_os = "linux")]
+fn next_v4l2_frame(
+    capture: &mut Option<v4l2::Capture>,
+    reconnects: &mut usize,
+    device: &Path,
+    width: u32,
+    height: u32,
+    fourcc: u32,
+) -> std::io::Result<Option<Vec<u8>>> {
+    loop {
+        if V4L2_SHUTDOWN.load(std::sync::atomic::Ordering::Relaxed) {
+            return Ok(None);
+        }
+        let result = capture
+            .as_mut()
+            .expect("capture is initialized before reading")
+            .next_frame();
+        match result {
+            Ok(frame) => return Ok(Some(frame)),
+            Err(error)
+                if error.kind() == std::io::ErrorKind::Interrupted
+                    && V4L2_SHUTDOWN.load(std::sync::atomic::Ordering::Relaxed) =>
+            {
+                return Ok(None);
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                thread::sleep(Duration::from_millis(20));
+            }
+            Err(error) if v4l2::is_device_disconnect(&error) && *reconnects < 3 => {
+                // Drop the old descriptor and mappings before reopening the device.
+                *capture = None;
+                *reconnects += 1;
+                let mut reopened = false;
+                for _ in 0..3 {
+                    if V4L2_SHUTDOWN.load(std::sync::atomic::Ordering::Relaxed) {
+                        return Ok(None);
+                    }
+                    thread::sleep(Duration::from_millis(250));
+                    if let Ok(new_capture) = v4l2::Capture::open(device, width, height, fourcc) {
+                        *capture = Some(new_capture);
+                        reopened = true;
+                        break;
+                    }
+                }
+                if !reopened {
+                    return Err(error);
+                }
+            }
+            Err(error) => return Err(error),
+        }
+    }
 }
 
 fn write_v4l2_frames(
     directory: &Path,
     frame_count: usize,
     max_bytes: u64,
-    mut next_frame: impl FnMut() -> Result<Vec<u8>, String>,
+    mut next_frame: impl FnMut() -> Result<Option<Vec<u8>>, String>,
 ) -> Result<String, String> {
     let mut total_bytes = 0_u64;
     let mut written = 0;
     for _ in 0..frame_count {
-        let frame = next_frame()?;
+        let Some(frame) = next_frame()? else {
+            break;
+        };
         let frame_size = u64::try_from(frame.len()).map_err(|_| "invalid V4L2 frame size")?;
         total_bytes = total_bytes
             .checked_add(frame_size)
@@ -722,17 +838,39 @@ mod tests {
         let mut count = 0;
         let result = write_v4l2_frames(&root, 2, 10, || {
             count += 1;
-            Ok(vec![0xff, 0xd8, 0x01, 0xff, 0xd9])
+            Ok(Some(vec![0xff, 0xd8, 0x01, 0xff, 0xd9]))
         })
         .unwrap();
         assert!(result.contains("captured 2 timestamped V4L2 JPEG frames (10 bytes)"));
         assert_eq!(count, 2);
         assert_eq!(fs::read_dir(&root).unwrap().count(), 4);
 
-        let result = write_v4l2_frames(&root, 2, 9, || Ok(vec![0xff, 0xd8, 0x01, 0xff, 0xd9]));
+        let result =
+            write_v4l2_frames(&root, 2, 9, || Ok(Some(vec![0xff, 0xd8, 0x01, 0xff, 0xd9])));
         assert!(result.unwrap_err().contains("size limit"));
         let result = write_v4l2_frames(&root, 1, 10, || Err("frame failure".into()));
         assert_eq!(result.unwrap_err(), "frame failure");
+
+        let result = write_v4l2_frames(&root, 2, 10, || Ok(None)).unwrap();
+        assert!(result.contains("captured 0 timestamped V4L2 JPEG frames (0 bytes)"));
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn stops_after_shutdown_without_discarding_completed_frames() {
+        let root = std::env::temp_dir().join(format!(
+            "usb-camera-taytay-v4l2-shutdown-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let mut frames = [Some(vec![0xff, 0xd8, 0x01, 0xff, 0xd9]), None].into_iter();
+        let result = write_v4l2_frames(&root, 30, 1024, || Ok(frames.next().unwrap())).unwrap();
+
+        assert!(result.contains("captured 1 timestamped V4L2 JPEG frames (5 bytes)"));
+        assert_eq!(fs::read_dir(&root).unwrap().count(), 2);
         fs::remove_dir_all(root).unwrap();
     }
 

@@ -356,12 +356,19 @@ fn frame_bytes(mappings: &[Mapping], index: usize, bytes_used: usize) -> io::Res
     Ok(frame.to_vec())
 }
 
+pub fn is_device_disconnect(error: &io::Error) -> bool {
+    matches!(
+        error.raw_os_error(),
+        Some(libc::ENODEV | libc::ENXIO | libc::EIO | libc::EPIPE)
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
         BUFFER_COUNT, Buffer, Capture, Format, Kernel, Mapping, RequestBuffers, VIDIOC_DQBUF,
         VIDIOC_QBUF, VIDIOC_QUERYBUF, VIDIOC_REQBUFS, VIDIOC_S_FMT, VIDIOC_STREAMOFF,
-        VIDIOC_STREAMON, frame_bytes,
+        VIDIOC_STREAMON, frame_bytes, is_device_disconnect,
     };
     use std::{cell::RefCell, ffi::c_void, fs::OpenOptions, io, os::fd::AsRawFd, ptr};
 
@@ -642,5 +649,19 @@ mod tests {
             frame_bytes(&[mapping], 0, 0).unwrap_err().kind(),
             io::ErrorKind::InvalidData
         );
+    }
+
+    #[test]
+    fn recognizes_disconnect_errors_but_leaves_malformed_frames_permanent() {
+        for code in [libc::ENODEV, libc::ENXIO, libc::EIO, libc::EPIPE] {
+            assert!(is_device_disconnect(&io::Error::from_raw_os_error(code)));
+        }
+        assert!(!is_device_disconnect(&io::Error::new(
+            io::ErrorKind::InvalidData,
+            "invalid frame",
+        )));
+        assert!(!is_device_disconnect(&io::Error::from_raw_os_error(
+            libc::EACCES
+        )));
     }
 }

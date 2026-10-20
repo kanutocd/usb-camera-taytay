@@ -80,10 +80,13 @@ currently written; other capture formats are rejected.
 cargo run -- run-v4l2 config.toml
 ```
 
-The mappings and stream are released when the capture command exits, including
-on frame validation errors. Camera-independent tests cover frame length,
-buffer-index validation, JPEG completeness, timestamp sidecars, and atomic file
-publication.
+The command allows up to three reconnect cycles, with up to three open attempts
+per cycle using the configured device and capture mode. `Ctrl-C` and `SIGTERM`
+stop capture after the current frame is returned; completed JPEGs remain
+published and incomplete frames are discarded. Mappings and streaming state are
+released on shutdown and frame errors. Camera-independent tests cover frame
+validation, disconnect classification, JPEG completeness, timestamp sidecars,
+and atomic file publication.
 
 `status` reads artifact IDs and lifecycle states from the durable ledger.
 `pause` and `resume` persist state changes through Taytay's ledger; resume makes

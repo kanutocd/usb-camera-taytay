@@ -16,7 +16,7 @@ Use the executable referenced by the `SANDBOX_LOOM` environment variable.
 For a repository checkout, set it before running the intake workflow:
 
 ```bash
-export SANDBOX_LOOM="/path/to/agent-platform/bin/sandbox-loom"
+export SANDBOX_LOOM="$MY_PROJECTS_HOME/sandbox-loom/bin/sandbox-loom"
 ```
 
 If the project has a local wrapper, `bin/sandbox-loom` is the portable default.
@@ -36,6 +36,23 @@ generated artifacts. Verify the executable before using it:
 - Add an optional `answer_suggestion` to each open question when the available
   scope supports a useful candidate answer. Mark it as a proposal for review;
   never copy it into `answer` or change `status` without an explicit decision.
+- Select a harness template from clear project-shape evidence instead of
+  leaving it null by default. For example, a single Rust CLI application maps
+  to `rust-binary`; a declared multi-crate Cargo workspace maps to
+  `rust-workspace`. Use only names in the schema/template catalog. If the shape
+  is ambiguous, leave `harness.template: null`, ask the owner, and explain the
+  ambiguity rather than guessing. Report inferred templates as proposals or
+  assumptions, not as stakeholder-approved decisions.
+- Treat `harness.coding_agent` as execution-environment configuration, separate
+  from the application's language or architecture. If the owner, task prompt,
+  or explicit project instructions select a supported provider, record both
+  its provider and executable (for example `codex` / `codex` or `opencode` /
+  `opencode`). Otherwise ask which installed CLI should execute the harness;
+  leave its executable unset until confirmed and explicitly report that the
+  generated harness will retain a deferred executable placeholder. Never infer
+  the provider merely from the language, repository files, or the agent
+  currently conducting intake. Provider credentials and secrets must remain
+  external to the brief.
 - For `frontend-spa` and `frontend-pwa` harness templates, infer the default
   `design_system` contract when the brief omits it: `DESIGN.md` as the source,
   `DESIGN.baseline.md` as the optional baseline, design-md tokens, rationale,
@@ -59,7 +76,7 @@ generated artifacts. Verify the executable before using it:
 2. Interview the project owner and relevant technical, QA, security, and
    platform contributors.
 3. Draft the brief with a portable YAML schema directive.
-4. Present proposals, assumptions, and blocking questions for confirmation.
+4. Present proposals, assumptions, inferred template, unresolved provider / executable choice, and blocking questions for confirmation.
 5. Validate with `bin/sandbox-loom intake validate`.
 6. Import and normalize only after the brief is schema-valid.
 7. Stop before harness generation when blocking questions remain unresolved.
@@ -72,7 +89,7 @@ review, approval, policy, quality gates, evidence, and commits.
 
 - Project root: `/home/ken/Documents/mi-proyekto/usb-camera-taytay`
 - Brief path: `/home/ken/Documents/mi-proyekto/usb-camera-taytay/specifications/project-brief.yml`
-- Sandbox Loom executable: `/home/ken/Documents/mi-proyekto/agent-platform/bin/sandbox-loom`
+- Sandbox Loom executable: `/home/ken/Documents/mi-proyekto/sandbox-loom/bin/sandbox-loom`
 - Skill source: `sandbox-loom-intake`
-- Skill source SHA-256: `4043eaf1c812b537740d0330309ead43eed2ae1e12b1be215774dd9dd77fdd09`
+- Skill source SHA-256: `a785abea2128d0336782d30c2d8f393188a7cd7fff93967a6063939323abc785`
 - Target: `standalone`

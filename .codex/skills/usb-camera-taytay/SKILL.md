@@ -7,15 +7,58 @@ version: "0.1"
 # USB Camera Taytay project skill
 
 Use this skill when working in the
-`/home/ken/Documents/mi-proyekto/usb-camera-taytay` repository. USB Camera
+`$MY_PROJECTS_HOME$/usb-camera-taytay` repository. USB Camera
 Taytay is a Rust CLI reference application for capturing or receiving local
 camera media and delivering it to Lunsaran through the Taytay edge bridge.
 
 This project is also a reference application for the private Sandbox Loom
-project in `/home/ken/Documents/mi-proyekto/agent-platform`. Sandbox Loom
+project in `$MY_PROJECTS_HOME/sandbox-loom`. Sandbox Loom
 governs intake, policy, bounded execution, quality evidence, approvals, and
 commits. This skill provides project context; it does not grant authority or
 override repository instructions, Sandbox Loom policy, or human approval.
+
+## Related project folders
+
+The reference application participates in a local cross-repository workflow.
+Use these paths when they exist in the current environment:
+
+| Project | Folder | Responsibility |
+| --- | --- | --- |
+| USB Camera Taytay | `$MY_PROJECTS_HOME$/usb-camera-taytay` | Rust CLI reference app, filesystem/V4L2 source integration, fixtures, and project-owned acceptance |
+| Taytay | `$MY_PROJECTS_HOME$/taytay` | Public `lunsaran-taytay` crate, durable edge spool, upload runtime, and public documentation |
+| Lunsaran | `$MY_PROJECTS_HOME$/lunsaran` | Control plane, device credentials, organization/project authorization, and upload-session API |
+| Brutus | `$MY_PROJECTS_HOME$/brutus` | TUS data plane, committed offsets, byte transfer, and provider execution |
+| Sandbox Loom | `$MY_PROJECTS_HOME$/sandbox-loom` | Private policy-governed intake, harness, bounded execution, evidence, approvals, and commit workflow |
+
+The USB Camera Taytay repository is the default implementation target. Read
+Taytay, Lunsaran, and Brutus when verifying a documented contract or running an
+explicit cross-repository acceptance path. Treat those repositories as
+separate ownership boundaries:
+
+- Do not modify Taytay, Lunsaran, Brutus, or Sandbox Loom while implementing
+  USB Camera Taytay work unless the request explicitly includes that
+  repository and the change has its own review/commit boundary.
+- Prefer published Taytay and Entregar crate contracts for normal development;
+  use sibling source trees to investigate compatibility or local acceptance,
+  not to introduce undeclared path dependencies.
+- Do not copy credentials, database contents, signed URLs, captured media, or
+  private harness artifacts between repositories.
+- Do not start, stop, reset, migrate, or reconfigure a sibling repository's
+  services without an explicitly configured acceptance task and approval.
+- When a cross-repository check fails, report which repository owns the
+  failing boundary instead of applying an unrelated local workaround.
+
+For the live cross-repository acceptance environment, the related Compose
+inputs are normally supplied from:
+
+```text
+$MY_PROJECTS_HOME$/lunsaran/infra/compose.yaml
+$MY_PROJECTS_HOME$/lunsaran/infra/compose.dev.yaml
+$MY_PROJECTS_HOME$/brutus/docker-compose.yaml
+```
+
+These paths are environment-specific examples, not permission to expose
+services, credentials, or local database state in source or evidence.
 
 ## Project shape
 

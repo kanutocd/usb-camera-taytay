@@ -1,21 +1,18 @@
-# Shared implementation progress ledger.
-# Sandbox Loom marks the runtime-selected slice in_progress before implementation.
-# The runtime records completion and commit metadata only after verification and approval.
-# Sandbox Loom owns runtime task/run records under runtime; preserve that section.
-# Valid lifecycle values are pending, in_progress, completed, and blocked.
 ---
 version: '0.1'
 project: usb-camera-taytay
 plan: ".sandbox-loom/implementation-plan.yml"
-status: proposed
+status: in_progress
 phases:
 - id: phase-1
   title: Project bootstrap and local development
-  status: pending
+  status: in_progress
   slices:
   - id: phase-1-slice-1
     title: Initialize the repository and project structure
-    status: pending
+    status: in_progress
+    run_id: project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1
+    started_at: '2026-10-20T18:22:23Z'
   - id: phase-1-slice-2
     title: Local development environment
     status: pending
@@ -125,5 +122,45 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: idle
-  runs: {}
+  status: running
+  runs:
+    project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1:
+      status: running
+      pid: 1083185
+      started_at: '2026-10-20T18:22:23Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T18:22:56Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T18:23:54Z'
+          attempts: 1
+          repairs: 0
+        implement_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T18:24:39Z'
+          attempts: 1
+          repairs: 0
+        verify:
+          status: completed
+          action: verify
+          updated_at: '2026-10-20T18:24:49Z'
+          attempts: 1
+          repairs: 0
+        commit:
+          status: running
+          action: gateway.git.commit
+          updated_at: '2026-10-20T18:24:49Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+  last_run_id: project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1
+  active_slice:
+    phase_id: phase-1
+    slice_id: phase-1-slice-1
+    run_id: project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1
+updated_at: '2026-10-20T18:24:49Z'

@@ -1,0 +1,15 @@
+{
+  "version": "0.1",
+  "sources": [
+    {
+      "source": "/home/ken/Documents/mi-proyekto/usb-camera-taytay/specifications/project-brief.yml",
+      "stored_path": "source-materials/project-brief.yml",
+      "sha256": "a09fdfcf35f9555f60ec1a66de336c57039f6a5649d104211cc2f4e05f09f292",
+      "bytes": 40958,
+      "source_sha256": "e1e62d9600ce74719c238817ccc36b10e07110a2f24e4fddc1e4e1c13e46012f",
+      "source_bytes": 40952,
+      "format": "yml",
+      "imported_at": "2026-10-20T18:13:59.860838Z"
+    }
+  ]
+}

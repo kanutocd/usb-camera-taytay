@@ -48,7 +48,10 @@ cli:
   network_mode: none
 quality_gates: ".sandbox-loom/quality-gates.yml"
 implementation_status: ".sandbox-loom/implementation-status.yml"
-execution: {}
+execution:
+  bounded_multi_slice:
+    allowed: true
+    default_max_slices: 30
 approval:
   required_before_commit: true
 commit:

@@ -382,11 +382,28 @@ components:
 - name: Sandbox Loom
   responsibility: Separate policy-governed workflow, approvals, quality evidence,
     and commits.
+
+documentation:
+  audiences:
+    consumer:
+      public: true
+      template: consumer
+    technical:
+      public: true
+      template: technical
+    stakeholder:
+      public: true
+      template: arc42-detailed
+  publication:
+    targets:
+      - github-pages
+
 quality_expectations:
   commands:
   - cargo fmt --all -- --check
   - cargo check --workspace --all-targets --all-features
   - cargo test --workspace --all-features
+  - cargo llvm-cov --workspace --all-features --fail-under-lines 90
   - cargo clippy --workspace --all-targets --all-features -- -D warnings
   - scripts/quality.sh
   - scripts/acceptance-mock.sh
@@ -502,7 +519,7 @@ open_questions:
     reliably with the reference hardware. This follows the scope's one-verified-mode
     MVP boundary; the specific mode remains undecided until the camera is inspected,
     and supporting only that mode limits initial hardware compatibility.
-  answered_by: Technical Lead
+  answered_by: Technical lead
 - id: Q-003
   question: Should MVP1 invoke an external producer, document a manual drop directory,
     or support both?
@@ -518,7 +535,7 @@ open_questions:
     producer command as an optional demonstration path. This keeps ordinary MVP1 setup
     simple while retaining a real-camera demonstration; the trade- off is that producer
     lifecycle management is not automated.
-  answered_by: Project Owner
+  answered_by: Project owner
 - id: Q-004
   question: Should MVP2 write encoded camera frames directly or depend on a Rust encoder?
   owner: Technical lead
@@ -567,7 +584,7 @@ open_questions:
     test project and narrowly scoped device credential, and define rotation or revocation
     after acceptance. This keeps live validation separate from production access;
     the trade-off is environment and credential setup overhead.
-  answered_by: security lead
+  answered_by: Security lead
 facts:
 - The project is a small Linux reference application and integration example, not
   a hosted camera platform or replacement for Lunsaran authorization/storage.

@@ -40,6 +40,18 @@ phases:
   - id: phase-2-slice-1
     title: Implement MVP1-FS-001
     status: pending
+    resume:
+      previous_run_id: project-usb-camera-taytay-6a427a3bf47d1eb4
+      interrupted_at: '2026-10-20T18:03:03Z'
+      reason: failed
+      completed_tasks:
+      - inspect_scope
+      - bootstrap_scope
+      interrupted_task: implement_scope
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+    interrupted_at: '2026-10-20T18:03:03Z'
+    interrupted_run_id: project-usb-camera-taytay-6a427a3bf47d1eb4
+    interruption_reason: failed
   - id: phase-2-slice-2
     title: Implement MVP1-FS-002
     status: pending
@@ -139,7 +151,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: completed
+  status: failed
   runs:
     project-usb-camera-taytay-fc3ab93e2ae65ace:
       status: failed
@@ -261,5 +273,38 @@ runtime:
       - verify
       - commit
       - checkpoint
-  last_run_id: project-usb-camera-taytay-40bf93655b41468a
-updated_at: '2026-10-20T17:27:31Z'
+    project-usb-camera-taytay-6a427a3bf47d1eb4:
+      status: failed
+      pid: 1024114
+      started_at: '2026-10-20T17:54:59Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T17:55:35Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T17:56:34Z'
+          attempts: 1
+          repairs: 0
+        implement_scope:
+          status: running
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T17:56:34Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+      finished_at: '2026-10-20T18:01:35Z'
+      failure:
+        error: 'coding-agent execution timed_out: CLI execution timed_out; exit_status=0;
+          Reading prompt from stdin...
+
+          '
+        error_class: ProjectHarness::Error
+  last_run_id: project-usb-camera-taytay-6a427a3bf47d1eb4
+  active_slice:
+    phase_id: phase-2
+    slice_id: phase-2-slice-1
+    run_id: project-usb-camera-taytay-6a427a3bf47d1eb4
+updated_at: '2026-10-20T18:01:35Z'

@@ -4,9 +4,9 @@
 > The YAML ledger remains authoritative. This page is safe to publish through Zensical.
 
 - Overall status: `in_progress`
-- Runtime status: `completed`
-- Last run: `project-usb-camera-taytay-55eb280d1cba3fd6`
-- Last run result: `completed`
+- Runtime status: `failed`
+- Last run: `project-usb-camera-taytay-54a25695f5737335`
+- Last run result: `failed`
 
 ## Phases and slices
 

@@ -91,6 +91,28 @@ released on shutdown and frame errors. Camera-independent tests cover frame
 validation, disconnect classification, JPEG completeness, timestamp sidecars,
 atomic file publication, and stopping capture when spool capacity is exhausted.
 
+### Hardware acceptance matrix
+
+| Linux host | Camera | Reported mode | Segment settings | Capture and delivery result |
+| --- | --- | --- | --- | --- |
+| Linux Mint 22.3, kernel 7.0.0-28-generic, x86_64 | A4ech FHD 1080P PC Camera (`/dev/video0`) | FFmpeg reports MJPEG at 1920x1080, 1280x720, 1024x768, 800x600, 640x480, and 320x240; frame interval not verified | Attempted 640x480 MJPEG, one frame, 64 MiB maximum | Capture could not initialize; the current user is not in the `video` group that owns the device. No artifact, checksum, reconnect result, or Taytay publication was verified. |
+
+Before recording a successful hardware run, inspect the configured device with
+`v4l2-ctl --all --list-formats-ext`, choose a reported mode and frame interval,
+and ensure the operator can open the device. Then run `run-v4l2`, record the
+Linux version, camera model, negotiated mode, segment settings, and SHA-256 of
+each completed JPEG. Run `run-filesystem` and confirm the artifact appears in
+the Taytay ledger before marking delivery verified. Keep captured media and
+credentials out of committed evidence.
+
+If capture reports that it could not initialize, check `ls -l /dev/video*`
+and the current user's device permissions, then confirm no other process has
+exclusive access to the camera. On systems that restrict the node to the
+`video` group, arrange access through the host's normal device policy and start
+a new login session before retrying. If the requested mode is rejected, use a
+format, resolution, and frame interval reported by the device. Record reconnect
+as unverified until a physical disconnect and reconnect has been observed.
+
 `status` reads artifact IDs and lifecycle states from the durable ledger.
 `pause` and `resume` persist state changes through Taytay's ledger; resume makes
 the artifact eligible for a later uploader run. Command errors omit underlying

@@ -4,9 +4,9 @@
 > The YAML ledger remains authoritative. This page is safe to publish through Zensical.
 
 - Overall status: `in_progress`
-- Runtime status: `running`
+- Runtime status: `completed`
 - Last run: `project-usb-camera-taytay-bounded-0d61c83422c7809a-slice-1`
-- Last run result: `running`
+- Last run result: `completed`
 
 ## Phases and slices
 
@@ -28,7 +28,7 @@
 |  |  | phase-2-slice-12 Implement MVP2-V4L2-002 | completed | 55b757a | project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-8 |
 |  |  | phase-2-slice-13 Implement MVP2-V4L2-003 | completed | 9727bc2 | project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-9 |
 |  |  | phase-2-slice-14 Implement MVP2-V4L2-004 | completed | b9bd27d | project-usb-camera-taytay-bounded-fc8c065f7c822a71-slice-10 |
-|  |  | phase-2-slice-15 Implement MVP2-V4L2-005 | in_progress | — | project-usb-camera-taytay-bounded-0d61c83422c7809a-slice-1 |
+|  |  | phase-2-slice-15 Implement MVP2-V4L2-005 | completed | b919755 | project-usb-camera-taytay-bounded-0d61c83422c7809a-slice-1 |
 |  |  | phase-2-slice-16 Implement MVP2-V4L2-006 | pending | — | — |
 |  |  | phase-2-slice-17 Implement MVP2-V4L2-007 | pending | — | — |
 |  |  | phase-2-slice-18 Implement MVP2-V4L2-008 | pending | — | — |

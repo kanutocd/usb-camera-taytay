@@ -1281,6 +1281,7 @@ dependencies = [
 name = "usb-camera-taytay"
 version = "0.1.0"
 dependencies = [
+ "libc",
  "lunsaran-taytay",
  "serde",
  "serde_json",

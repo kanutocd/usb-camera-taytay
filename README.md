@@ -61,6 +61,24 @@ configured archive directory. Pending, failed, paused, and uploading artifacts
 remain in input. The archive keeps the source copy. This command does not start
 an uploader or require camera hardware or Lunsaran credentials.
 
+## MVP2 V4L2 buffer lifecycle
+
+On Linux, `run-v4l2` opens the configured device, requests the configured
+capture mode, maps four driver-owned buffers, queues them for streaming, copies
+one dequeued frame, and returns that buffer to the driver. Set
+`v4l2_device`, `v4l2_width`, `v4l2_height`, and the four-character
+`v4l2_pixel_format` in the config after inspecting the device's capabilities.
+The command requires device access and currently verifies capture of one frame;
+it does not write or publish a segment.
+
+```sh
+cargo run -- run-v4l2 config.toml
+```
+
+The mappings and stream are released when the capture command exits, including
+on frame validation errors. Camera-independent tests cover frame length and
+buffer-index validation.
+
 `status` reads artifact IDs and lifecycle states from the durable ledger.
 `pause` and `resume` persist state changes through Taytay's ledger; resume makes
 the artifact eligible for a later uploader run. Command errors omit underlying

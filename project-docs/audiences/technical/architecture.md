@@ -35,11 +35,16 @@ deployment: Local reference application and integration example; no hosted contr
 
 ## Components
 
-- USB Camera Taytay CLI
+- USB Camera Taytay CLI, including a Linux V4L2 streaming boundary that negotiates
+  one configured mode and owns the mapped driver buffers for the capture lifetime
 - Taytay spool and ledger
 - Entregar uploader
 - Lunsaran
 - Brutus
 - Sandbox Loom
 
+The current `run-v4l2` command is a buffer-lifecycle increment: it captures one
+frame, copies only the driver's reported byte count, and queues the buffer back
+before continuing. Capture mappings and streaming are released by RAII cleanup.
+Timestamped segments and Taytay publication are delivered by later MVP2 slices.
 

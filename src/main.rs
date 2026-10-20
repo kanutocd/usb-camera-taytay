@@ -1,3 +1,6 @@
+#[cfg(target_os = "linux")]
+mod v4l2;
+
 use lunsaran_taytay::{
     Artifact, ArtifactState, SourceId, TaytayError, adapter::SourceAdapter,
     adapter::filesystem::FilesystemAdapter, spool::Spool,
@@ -13,7 +16,7 @@ use std::{
     time::Duration,
 };
 
-const USAGE: &str = "Usage: usb-camera-taytay <check-config|fixture|run-filesystem|status> CONFIG | <pause|resume> ARTIFACT_ID CONFIG | --help | --version";
+const USAGE: &str = "Usage: usb-camera-taytay <check-config|fixture|run-filesystem|run-v4l2|status> CONFIG | <pause|resume> ARTIFACT_ID CONFIG | --help | --version";
 const MAX_ARTIFACT_BYTES: u64 = 64 * 1024 * 1024;
 const PARTIAL_FILE_SUFFIX: &str = ".part";
 const OBSERVATION_POLL_COUNT: usize = 3;
@@ -31,6 +34,10 @@ struct Config {
     archive_dir: PathBuf,
     source_id: String,
     spool_quota_bytes: u64,
+    v4l2_device: Option<PathBuf>,
+    v4l2_width: Option<u32>,
+    v4l2_height: Option<u32>,
+    v4l2_pixel_format: Option<String>,
 }
 
 impl Config {
@@ -83,7 +90,7 @@ fn run(mut arguments: impl Iterator<Item = String>) -> ExitCode {
             println!("usb-camera-taytay {}", env!("CARGO_PKG_VERSION"));
             ExitCode::SUCCESS
         }
-        Some(command @ ("check-config" | "fixture" | "run-filesystem" | "status")) => {
+        Some(command @ ("check-config" | "fixture" | "run-filesystem" | "run-v4l2" | "status")) => {
             let Some(path) = arguments.next() else {
                 eprintln!("configuration path is required\n{USAGE}");
                 return ExitCode::from(2);
@@ -140,9 +147,40 @@ fn execute(command: &str, config_path: &Path) -> Result<String, String> {
         "check-config" => Ok("configuration is valid".into()),
         "fixture" => write_fixture(&config),
         "run-filesystem" => ingest_stable_files(&config),
+        "run-v4l2" => capture_v4l2_frame(&config),
         "status" => show_status(&config),
         _ => unreachable!(),
     }
+}
+
+#[cfg(target_os = "linux")]
+fn capture_v4l2_frame(config: &Config) -> Result<String, String> {
+    let (Some(device), Some(width), Some(height), Some(pixel_format)) = (
+        config.v4l2_device.as_deref(),
+        config.v4l2_width,
+        config.v4l2_height,
+        config.v4l2_pixel_format.as_deref(),
+    ) else {
+        return Err(
+            "V4L2 device, width, height, and four-character pixel format are required".into(),
+        );
+    };
+    let bytes = pixel_format.as_bytes();
+    if bytes.len() != 4 || !bytes.is_ascii() {
+        return Err("V4L2 pixel format must contain four ASCII characters".into());
+    }
+    let fourcc = u32::from_ne_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
+    let mut capture = v4l2::Capture::open(device, width, height, fourcc)
+        .map_err(|_| "could not initialize V4L2 capture; verify device and mode".to_owned())?;
+    let frame = capture
+        .next_frame()
+        .map_err(|_| "could not read a complete V4L2 frame".to_owned())?;
+    Ok(format!("captured one V4L2 frame ({} bytes)", frame.len()))
+}
+
+#[cfg(not(target_os = "linux"))]
+fn capture_v4l2_frame(_config: &Config) -> Result<String, String> {
+    Err("V4L2 capture is supported only on Linux".into())
 }
 
 fn open_spool(config: &Config) -> Result<Spool, String> {
@@ -488,9 +526,9 @@ fn valid_utc_timestamp(value: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{
-        Config, ExitCode, USAGE, enrich_capture_metadata, execute, filename_capture_time,
-        manage_job, poll_completed_files, run, show_status, supported_media_type,
-        valid_utc_timestamp,
+        Config, ExitCode, USAGE, capture_v4l2_frame, enrich_capture_metadata, execute,
+        filename_capture_time, manage_job, poll_completed_files, run, show_status,
+        supported_media_type, valid_utc_timestamp,
     };
     use lunsaran_taytay::{
         Artifact, ArtifactId, ArtifactState, SourceId, adapter::filesystem::FilesystemAdapter,
@@ -508,6 +546,25 @@ mod tests {
         assert!(USAGE.contains("--help"));
         assert!(USAGE.contains("--version"));
         assert!(USAGE.contains("run-filesystem"));
+    }
+
+    #[test]
+    fn v4l2_requires_a_complete_device_configuration() {
+        let config = Config {
+            input_dir: "input".into(),
+            spool_dir: "spool".into(),
+            archive_dir: "archive".into(),
+            source_id: "camera-1".into(),
+            spool_quota_bytes: 1024,
+            v4l2_device: None,
+            v4l2_width: None,
+            v4l2_height: None,
+            v4l2_pixel_format: None,
+        };
+        assert_eq!(
+            capture_v4l2_frame(&config).unwrap_err(),
+            "V4L2 device, width, height, and four-character pixel format are required"
+        );
     }
 
     #[test]

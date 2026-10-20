@@ -4,6 +4,8 @@ All notable changes to `usb-camera-taytay` are recorded here.
 
 ## Unreleased
 
+- phase-2-slice-13: memory-mapped or explicitly approved V4L2 buffer lifecycle
+
 - phase-2-slice-12: format, resolution, and frame-interval negotiation
 
 - phase-2-slice-11: configured device discovery and capability inspection

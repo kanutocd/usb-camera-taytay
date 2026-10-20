@@ -6,6 +6,7 @@ description = "Linux USB camera ingestion reference CLI"
 license = "MIT"
 
 [dependencies]
+libc = "0.2"
 lunsaran-taytay = "=0.2.0"
 sha2 = "0.10"
 serde = { version = "1.0", features = ["derive"] }

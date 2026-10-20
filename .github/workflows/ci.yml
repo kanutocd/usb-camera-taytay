@@ -44,6 +44,9 @@ jobs:
       run: bin/ci documentation_redaction
     - name: 'Quality gate: mermaid_validation'
       run: bin/ci mermaid_validation
+    - name: Install Zensical
+      run: |
+        python3 -m venv .venv-zensical
+        .venv-zensical/bin/python -m pip install --requirement requirements-zensical.txt
     - name: 'Quality gate: zensical_build'
-      run: bash -lc source\ .venv-zensical/bin/activate\ \&\&\ zensical\ build\ --clean\
-        --strict
+      run: bin/ci zensical_build

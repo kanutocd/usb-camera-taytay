@@ -543,8 +543,10 @@ The acceptance coverage should include:
 
 ## 10. Publish the reference application and documentation
 
-Publish only after the approved release checks pass and the publication
-audience/redaction rules have been reviewed. Use the deployment target actually
+Publish only after the applicable release quality gates pass, the publication
+audience/redaction rules have been reviewed, and an authorized human explicitly
+approves the specific release. Keep that approval separate from the approval
+required before Sandbox Loom commits a slice. Use the deployment target actually
 configured for this project (do not assume GitHub Pages is enabled). Retain
 the brief revision, implementation status, quality-gate results, and Sandbox
 Loom evidence reference with the release. Never publish captured media,

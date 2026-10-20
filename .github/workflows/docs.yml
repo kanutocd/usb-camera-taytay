@@ -1,0 +1,51 @@
+---
+name: Documentation
+'on':
+  push:
+    branches:
+    - main
+  pull_request: {}
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: docs-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v7
+      with:
+        python-version: 3.x
+    - name: Install Zensical
+      run: python3 -m venv .venv-zensical && source .venv-zensical/bin/activate &&
+        python -m pip install --requirement requirements-zensical.txt
+    - name: 'Documentation gate: documentation_links'
+      run: bin/ci documentation_links
+    - name: 'Documentation gate: documentation_navigation'
+      run: bin/ci documentation_navigation
+    - name: 'Documentation gate: documentation_redaction'
+      run: bin/ci documentation_redaction
+    - name: 'Documentation gate: zensical_build'
+      run: bash -lc source\ .venv-zensical/bin/activate\ \&\&\ zensical\ build\ --clean\
+        --strict
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v5
+      with:
+        path: site
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: "${{ steps.deployment.outputs.page_url }}"
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v5

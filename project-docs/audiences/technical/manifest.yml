@@ -1,0 +1,12 @@
+---
+version: '0.1'
+audience: technical
+public: true
+template: technical
+files:
+- architecture.md
+- index.md
+scope_sha256: 10d7ca655f05203658aafb9927770286aaa2345fd1bd97437acc495be80517d3
+diagrams: []
+source_references:
+- README.md

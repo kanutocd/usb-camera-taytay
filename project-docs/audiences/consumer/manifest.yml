@@ -1,0 +1,11 @@
+---
+version: '0.1'
+audience: consumer
+public: true
+template: consumer
+files:
+- index.md
+scope_sha256: 10d7ca655f05203658aafb9927770286aaa2345fd1bd97437acc495be80517d3
+diagrams: []
+source_references:
+- README.md

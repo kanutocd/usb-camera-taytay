@@ -1,0 +1,9 @@
+/* Allow wide API reference pages and embedded Rustdoc to use the available viewport. */
+.md-grid {
+  max-width: none;
+  /* max-width: 1440px;  */
+}
+/* 
+.md-content {
+  max-width: 1440px; 
+} */

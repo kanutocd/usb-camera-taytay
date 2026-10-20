@@ -10,6 +10,7 @@ using the `rust-binary` template.
 - [Generated harness documentation](project-docs/harness/README.md)
 - [Architecture](project-docs/harness/ARCHITECTURE.md)
 - [Requirements](project-docs/harness/REQUIREMENTS.md)
+- [Intake traceability](project-requirements/traceability.md)
 - [Architecture decisions](project-docs/adrs/README.md)
 - [Implementation plan](project-docs/implementation/README.md)
 - [Backlog](project-docs/backlog/README.md)

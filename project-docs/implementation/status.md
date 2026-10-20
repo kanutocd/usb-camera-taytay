@@ -4,9 +4,9 @@
 > The YAML ledger remains authoritative. This page is safe to publish through Zensical.
 
 - Overall status: `in_progress`
-- Runtime status: `running`
+- Runtime status: `completed`
 - Last run: `project-usb-camera-taytay-bounded-1473a0277735d05c-slice-11`
-- Last run result: `running`
+- Last run result: `completed`
 
 ## Phases and slices
 
@@ -14,7 +14,7 @@
 | --- | --- | --- | --- | --- | --- |
 | phase-1 Project bootstrap and local development | completed | phase-1-slice-1 Initialize the repository and project structure | completed | 66e508f | project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1 |
 |  |  | phase-1-slice-2 Local development environment | completed | 4fe7797 | project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-2 |
-| phase-2 Functional requirements | in_progress | phase-2-slice-1 Implement MVP1-FS-001 | completed | 899d67d | project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-3 |
+| phase-2 Functional requirements | completed | phase-2-slice-1 Implement MVP1-FS-001 | completed | 899d67d | project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-3 |
 |  |  | phase-2-slice-2 Implement MVP1-FS-002 | completed | 24c2c4e | project-usb-camera-taytay-8a4071958733123e |
 |  |  | phase-2-slice-3 Implement MVP1-FS-003 | completed | 2515db5 | project-usb-camera-taytay-bounded-3ba4431918e6c886-slice-1 |
 |  |  | phase-2-slice-4 Implement MVP1-FS-004 | completed | 10156b6 | project-usb-camera-taytay-e1cdc85be678b3c9 |
@@ -41,7 +41,7 @@
 |  |  | phase-2-slice-25 Implement LOOM-001 | completed | 62eb82e | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-8 |
 |  |  | phase-2-slice-26 Implement LOOM-002 | completed | 136f872 | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-9 |
 |  |  | phase-2-slice-27 Implement LOOM-003 | completed | 01f333f | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-10 |
-|  |  | phase-2-slice-28 Implement LOOM-004 | in_progress | — | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-11 |
+|  |  | phase-2-slice-28 Implement LOOM-004 | completed | 69229c0 | project-usb-camera-taytay-bounded-1473a0277735d05c-slice-11 |
 | phase-3 Non-functional requirements and acceptance | pending | phase-3-slice-1 Harden tenancy.model | pending | — | — |
 |  |  | phase-3-slice-2 Harden operations.recovery | pending | — | — |
 | phase-4 Technical documentation | pending | phase-4-slice-1 Publish technical documentation | pending | — | — |

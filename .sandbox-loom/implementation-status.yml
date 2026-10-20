@@ -24,7 +24,7 @@ phases:
     commit_sha: 4fe7797
 - id: phase-2
   title: Functional requirements
-  status: in_progress
+  status: completed
   slices:
   - id: phase-2-slice-1
     title: Implement MVP1-FS-001
@@ -275,9 +275,11 @@ phases:
     commit_sha: 01f333f
   - id: phase-2-slice-28
     title: Implement LOOM-004
-    status: in_progress
+    status: completed
     run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-11
     started_at: '2026-10-20T21:03:04Z'
+    completed_at: '2026-10-20T21:06:31Z'
+    commit_sha: 69229c0
 - id: phase-3
   title: Non-functional requirements and acceptance
   status: pending
@@ -296,7 +298,7 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: running
+  status: completed
   runs:
     project-usb-camera-taytay-bounded-a8d21ea5c6d5a8f5-slice-1:
       status: completed
@@ -1884,7 +1886,7 @@ runtime:
       - commit
       - checkpoint
     project-usb-camera-taytay-bounded-1473a0277735d05c-slice-11:
-      status: running
+      status: completed
       pid: 1367252
       started_at: '2026-10-20T21:03:04Z'
       tasks:
@@ -1913,13 +1915,25 @@ runtime:
           attempts: 1
           repairs: 0
         commit:
-          status: running
+          status: completed
           action: gateway.git.commit
-          updated_at: '2026-10-20T21:06:28Z'
+          updated_at: '2026-10-20T21:06:29Z'
+          attempts: 1
+          repairs: 0
+        checkpoint:
+          status: completed
+          action: checkpoint
+          updated_at: '2026-10-20T21:06:30Z'
+          attempts: 1
+          repairs: 0
       evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+      finished_at: '2026-10-20T21:06:30Z'
+      result_task_ids:
+      - inspect_scope
+      - bootstrap_scope
+      - implement_scope
+      - verify
+      - commit
+      - checkpoint
   last_run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-11
-  active_slice:
-    phase_id: phase-2
-    slice_id: phase-2-slice-28
-    run_id: project-usb-camera-taytay-bounded-1473a0277735d05c-slice-11
-updated_at: '2026-10-20T21:06:28Z'
+updated_at: '2026-10-20T21:06:30Z'

@@ -8,6 +8,6 @@ Live status is recorded in `.sandbox-loom/implementation-status.yml`; Sandbox Lo
 
 - Source: `requirements`
 - Requirement: `MVP1-FS-002`
-- Acceptance criteria: 
-- Quality gates: fmt, clippy, unit_tests, code_coverage, documentation_links, documentation_navigation, documentation_redaction, mermaid_validation, zensical_build
+- Acceptance criteria: Build the MVP1 fixture producer, filesystem observer, and Taytay adapter, including stable artifact publication, checksum verification, and durable-ledger integration.; Run and record a real USB-camera-to-file-segment demonstration using an external producer.
+- Quality gates: declared_cargo_fmt, declared_cargo_check, declared_cargo_test, declared_cargo_llvm_cov, declared_cargo_clippy, declared_quality, declared_acceptance_mock, documentation_links, documentation_navigation, documentation_redaction, mermaid_validation, zensical_build
 - Commit required: `true`

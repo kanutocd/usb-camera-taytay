@@ -7,4 +7,38 @@ audience using the `consumer` template.
 
 ## Getting started
 
-See the project setup and usage guidance.
+# USB Camera Taytay
+
+USB Camera Taytay is a local Linux reference application for moving
+camera media to Lunsaran through Taytay's edge upload path.
+
+## Project scope
+
+Work is staged in two MVPs. MVP1 accepts completed media files from an
+existing camera or media tool and also supports synthetic fixtures for
+camera-independent local use. MVP2 is planned to replace that external
+file producer with a pure Rust capture loop using one configured V4L2
+camera device. This is a local reference application, not a hosted
+camera service or video management system.
+
+## Setup and operation
+
+The scope requires a concise operator and developer guide, protected
+local credential files, and safe diagnostics. Stable installation
+steps, configuration fields, and CLI commands are not specified in
+this brief; refer to the repository's current README and operator
+documentation for available instructions. MVP1 synthetic fixtures are
+intended to allow local testing without a camera or live Lunsaran
+environment.
+
+## Media and credentials
+
+The application is expected to publish only complete, stable media
+files and upload them through Taytay. Keep device credentials in
+protected local files. Do not put credentials, signed URLs, or media
+payloads in logs, diagnostics, or acceptance evidence.
+
+## License and support
+
+The repository includes the Apache License 2.0 in `LICENSE`. This
+brief does not specify a support address or security-reporting contact.

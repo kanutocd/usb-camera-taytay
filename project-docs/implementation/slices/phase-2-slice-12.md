@@ -8,6 +8,6 @@ Live status is recorded in `.sandbox-loom/implementation-status.yml`; Sandbox Lo
 
 - Source: `requirements`
 - Requirement: `MVP2-V4L2-002`
-- Acceptance criteria: 
-- Quality gates: fmt, clippy, unit_tests, code_coverage, documentation_links, documentation_navigation, documentation_redaction, mermaid_validation, zensical_build
+- Acceptance criteria: Inspect available camera capabilities and record the Linux version, camera model, and one supported pixel format, resolution, and frame interval selected for MVP2.
+- Quality gates: declared_cargo_fmt, declared_cargo_check, declared_cargo_test, declared_cargo_llvm_cov, declared_cargo_clippy, declared_quality, declared_acceptance_mock, documentation_links, documentation_navigation, documentation_redaction, mermaid_validation, zensical_build
 - Commit required: `true`

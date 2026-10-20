@@ -41,4 +41,4 @@ deployment: Local reference application and integration example; no hosted contr
 
 Orchestrator: `docker-compose`. Health checks: `required`.
 
-> Generation status: proposed. No unresolved open questions remain; facts, template defaults, and proposals still require review.
+> Harness approval: approved. No unresolved open questions remain; recorded decisions are approved.

@@ -8,5 +8,5 @@ Live status is recorded in `.sandbox-loom/implementation-status.yml`; Sandbox Lo
 
 - Source: `objective`
 - Acceptance criteria: The repository has the declared project layout; The project has repeatable developer entry points
-- Quality gates: fmt, clippy, unit_tests, code_coverage, documentation_links, documentation_navigation, documentation_redaction, mermaid_validation, zensical_build
+- Quality gates: declared_cargo_fmt, declared_cargo_check, declared_cargo_test, declared_cargo_llvm_cov, declared_cargo_clippy, declared_quality, declared_acceptance_mock, documentation_links, documentation_navigation, documentation_redaction, mermaid_validation, zensical_build
 - Commit required: `true`

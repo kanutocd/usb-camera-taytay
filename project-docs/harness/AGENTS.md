@@ -75,11 +75,11 @@ Keep changes within the declared workspace and run the configured quality gates.
 ## Validation expectations
 
 - Run the narrowest relevant checks first, then the complete quality harness before merge.
-- Required gates: `fmt`, `clippy`, `unit_tests`, `code_coverage`, `documentation_links`, `documentation_navigation`, `documentation_redaction`, `mermaid_validation`, `zensical_build`.
+- Required gates: `declared_cargo_fmt`, `declared_cargo_check`, `declared_cargo_test`, `declared_cargo_llvm_cov`, `declared_cargo_clippy`, `declared_quality`, `declared_acceptance_mock`, `documentation_links`, `documentation_navigation`, `documentation_redaction`, `mermaid_validation`, `zensical_build`.
 
 
 ## Executable proposal
 
 Profile: `safe-development`. Workflow: `.sandbox-loom/workflow.yml`. Quality gates: `.sandbox-loom/quality-gates.yml`.
 
-> Generation status: proposed. No unresolved open questions remain; facts, template defaults, and proposals still require review.
+> Harness approval: approved. No unresolved open questions remain; recorded decisions are approved.

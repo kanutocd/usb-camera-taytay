@@ -6,7 +6,7 @@ template: technical
 files:
 - architecture.md
 - index.md
-scope_sha256: 10d7ca655f05203658aafb9927770286aaa2345fd1bd97437acc495be80517d3
+scope_sha256: 4c2245c825920f8cd6d6dafa955ee97f6413ac7ccee8dc6ed98b10e86225b50a
 diagrams: []
 source_references:
 - README.md

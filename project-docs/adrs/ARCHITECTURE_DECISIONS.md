@@ -37,6 +37,6 @@
     the trade-off is environment and credential setup overhead.
 
 
-Decisions must be recorded and reviewed before autonomous execution.
+All recorded architecture decisions and the harness are approved.
 
-> Generation status: proposed. No unresolved open questions remain; facts, template defaults, and proposals still require review.
+> Harness approval: approved. No unresolved open questions remain; recorded decisions are approved.

@@ -20,4 +20,4 @@ For unapproved sketches or possible future slices, use
 [`../backlog/README.md`](../backlog/README.md). Backlog material does not
 authorize implementation.
 
-> Generation status: proposed. No unresolved open questions remain; facts, template defaults, and proposals still require review.
+> Harness approval: approved. No unresolved open questions remain; recorded decisions are approved.

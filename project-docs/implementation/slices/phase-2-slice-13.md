@@ -8,6 +8,6 @@ Live status is recorded in `.sandbox-loom/implementation-status.yml`; Sandbox Lo
 
 - Source: `requirements`
 - Requirement: `MVP2-V4L2-003`
-- Acceptance criteria: 
-- Quality gates: fmt, clippy, unit_tests, code_coverage, documentation_links, documentation_navigation, documentation_redaction, mermaid_validation, zensical_build
+- Acceptance criteria: Implement pure Rust capture for the selected V4L2 mode, configure and safely return streaming buffers, and write bounded timestamped segments that are complete and readable before publication. Handle malformed frames, shutdown, disconnect, and reconnect without corrupting completed artifacts. Apply backpressure at the spool boundary and publish through the same Taytay Artifact, spool, and upload path used by MVP1, without application-specific upload logic.
+- Quality gates: declared_cargo_fmt, declared_cargo_check, declared_cargo_test, declared_cargo_llvm_cov, declared_cargo_clippy, declared_quality, declared_acceptance_mock, documentation_links, documentation_navigation, documentation_redaction, mermaid_validation, zensical_build
 - Commit required: `true`

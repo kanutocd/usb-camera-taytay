@@ -5,7 +5,7 @@ public: true
 template: technical
 renderer: zensical
 source_directory: project-docs
-source_scope_sha256: 517ed97c92befef9de3465a543eb3cda941cadc3dd08fbaa6e2dcfcffa904979
+source_scope_sha256: 937ceafca80d9214dd79cc1f976c4fd8312d11b92064c7b6a2e4909bdcc16e56
 included_sources:
 - README.md
 - project-docs/audiences/technical/architecture.md
@@ -35,6 +35,7 @@ excluded_sources:
 - project-docs/audiences/stakeholder/delivery.md
 - project-docs/audiences/stakeholder/index.md
 - project-docs/backlog/README.md
+- project-docs/documentation/manifests/README.md
 - project-docs/harness/AGENTS.md
 - project-docs/harness/ARCHITECTURE.md
 - project-docs/harness/IMPLEMENTATION.md

@@ -2,10 +2,13 @@
 
 ## Configured gates
 
-- `fmt` — `bin/ci fmt`
-- `clippy` — `bin/ci clippy`
-- `unit_tests` — `bin/ci unit_tests`
-- `code_coverage` — `bin/ci code_coverage`
+- `declared_cargo_fmt` — `cargo fmt --all -- --check`
+- `declared_cargo_check` — `cargo check --workspace --all-targets --all-features`
+- `declared_cargo_test` — `cargo test --workspace --all-features`
+- `declared_cargo_llvm_cov` — `cargo llvm-cov --workspace --all-features --fail-under-lines 90`
+- `declared_cargo_clippy` — `cargo clippy --workspace --all-targets --all-features -- -D warnings`
+- `declared_quality` — `scripts/quality.sh`
+- `declared_acceptance_mock` — `scripts/acceptance-mock.sh`
 - `documentation_links` — `bin/ci documentation_links`
 - `documentation_navigation` — `bin/ci documentation_navigation`
 - `documentation_redaction` — `bin/ci documentation_redaction`
@@ -14,4 +17,4 @@
 
 These commands are copied from `.sandbox-loom/quality-gates.yml`; update the harness and regenerate documentation if they change.
 
-> Generation status: proposed. No unresolved open questions remain; facts, template defaults, and proposals still require review.
+> Harness approval: approved. No unresolved open questions remain; recorded decisions are approved.

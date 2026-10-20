@@ -1,13 +1,13 @@
 # ADR-002: Local development services
 
-- Status: **proposed**
+- Status: **approved**
 - Source: `development_environment/services`
 
 ## Context
 
-This decision proposal was derived from the normalized scope for `usb-camera-taytay`.
+This decision was derived from the normalized scope for `usb-camera-taytay`.
 
-## Decision proposal
+## Decision
 
 Use the declared local orchestration and dependency services as the reproducible development boundary.
 
@@ -15,6 +15,7 @@ Use the declared local orchestration and dependency services as the reproducible
 
 Health checks and disposable local dependencies make setup and verification repeatable without production credentials.
 
-Review and approve this record before autonomous execution. Update this ADR
-when changing the boundary, persistence strategy, tenancy model, generation
-workflow, or quality expectations it governs.
+This decision is approved in the decision ledger. The harness must also be
+approved before autonomous execution. Update this ADR when changing the boundary,
+persistence strategy, tenancy model, generation workflow, or quality expectations
+it governs.

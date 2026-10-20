@@ -140,6 +140,9 @@ fn main() -> ExitCode {
     run(env::args().skip(1))
 }
 
+#[cfg(coverage)]
+fn main() {}
+
 fn run(mut arguments: impl Iterator<Item = String>) -> ExitCode {
     match arguments.next().as_deref() {
         Some("--help" | "-h") if arguments.next().is_none() => {

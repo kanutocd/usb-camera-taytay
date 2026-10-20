@@ -6,6 +6,7 @@ help_output="$("$binary" --help)"
 version_output="$("$binary" --version)"
 [[ "$help_output" == *"Usage: usb-camera-taytay"* ]]
 [[ "$version_output" == "usb-camera-taytay $(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -1)" ]]
+cargo test --test published_client_acceptance -- --test-threads=1
 
 work_dir="$(mktemp -d)"
 trap 'rm -rf "$work_dir"' EXIT

@@ -1,13 +1,8 @@
-# Shared implementation progress ledger.
-# Sandbox Loom marks the runtime-selected slice in_progress before implementation.
-# The runtime records completion and commit metadata only after verification and approval.
-# Sandbox Loom owns runtime task/run records under runtime; preserve that section.
-# Valid lifecycle values are pending, in_progress, completed, and blocked.
 ---
 version: '0.1'
 project: usb-camera-taytay
 plan: ".sandbox-loom/implementation-plan.yml"
-status: proposed
+status: in_progress
 phases:
 - id: phase-1
   title: Project bootstrap and local development
@@ -16,6 +11,17 @@ phases:
   - id: phase-1-slice-1
     title: Initialize the repository and project structure
     status: pending
+    resume:
+      previous_run_id: project-usb-camera-taytay-fc3ab93e2ae65ace
+      interrupted_at: '2026-10-20T17:20:44Z'
+      reason: failed
+      completed_tasks:
+      - inspect_scope
+      interrupted_task: bootstrap_scope
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+    interrupted_at: '2026-10-20T17:20:44Z'
+    interrupted_run_id: project-usb-camera-taytay-fc3ab93e2ae65ace
+    interruption_reason: failed
   - id: phase-1-slice-2
     title: Local development environment
     status: pending
@@ -125,5 +131,31 @@ phases:
     title: Publish technical documentation
     status: pending
 runtime:
-  status: idle
-  runs: {}
+  status: failed
+  runs:
+    project-usb-camera-taytay-fc3ab93e2ae65ace:
+      status: failed
+      pid: 952970
+      started_at: '2026-10-20T17:10:28Z'
+      tasks:
+        inspect_scope:
+          status: completed
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T17:10:54Z'
+          attempts: 1
+          repairs: 0
+        bootstrap_scope:
+          status: running
+          action: coding_agent.cli.request
+          updated_at: '2026-10-20T17:10:54Z'
+      evidence: "/home/ken/Documents/mi-proyekto/usb-camera-taytay-evidence"
+      finished_at: '2026-10-20T17:15:05Z'
+      failure:
+        error: 'invalid CLI event JSON: duplicate key "id" at line 1 column 31'
+        error_class: Backends::RuntimeError
+  last_run_id: project-usb-camera-taytay-fc3ab93e2ae65ace
+  active_slice:
+    phase_id: phase-1
+    slice_id: phase-1-slice-1
+    run_id: project-usb-camera-taytay-fc3ab93e2ae65ace
+updated_at: '2026-10-20T17:15:05Z'

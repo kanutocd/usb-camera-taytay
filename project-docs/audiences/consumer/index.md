@@ -38,6 +38,16 @@ files and upload them through Taytay. Keep device credentials in
 protected local files. Do not put credentials, signed URLs, or media
 payloads in logs, diagnostics, or acceptance evidence.
 
+The current filesystem and V4L2 CLI commands do not read device tokens or
+connect to Lunsaran, so local fixture, capture, and spool checks need no
+credentials. If an optional authenticated acceptance client is provided by a
+provisioned local environment, store its narrowly scoped test credential in a
+separate owner-only file outside the repository (directory mode `0700`, file
+mode `0600`), rather than in the application TOML, command arguments, or shell
+history. Enter it with a local editor; do not pass the token to a shell command.
+Do not retain the token in logs or evidence; rotate or revoke it after
+acceptance. The current CLI does not consume a token file.
+
 ## License and support
 
 The repository includes the Apache License 2.0 in `LICENSE`. This

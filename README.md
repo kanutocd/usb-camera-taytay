@@ -37,6 +37,27 @@ archive directories to paths writable by the current user. The CLI creates
 these directories when they do not exist. `spool_quota_bytes` bounds durable
 spool usage; individual input artifacts are limited to 64 MiB.
 
+The current filesystem and V4L2 commands do not read device tokens or connect
+to Lunsaran; local fixture, capture, and spool checks need no credentials. For
+an optional authenticated acceptance client supplied by a provisioned local
+environment, keep its device token in a separate owner-only file outside the
+repository. Create a private directory and empty file, then enter the token
+using a local editor:
+
+```sh
+install -d -m 700 "$HOME/.config/usb-camera-taytay"
+umask 077
+touch "$HOME/.config/usb-camera-taytay/device-token"
+chmod 600 "$HOME/.config/usb-camera-taytay/device-token"
+${EDITOR:-vi} "$HOME/.config/usb-camera-taytay/device-token"
+stat -c '%a %U' "$HOME/.config/usb-camera-taytay/device-token"
+```
+
+Do not put tokens in `config.toml`, command arguments, shell history, logs, or
+acceptance evidence. Use a test project and narrowly scoped credential for live
+acceptance, and rotate or revoke that credential afterward. The current CLI
+does not consume such a token file.
+
 ```sh
 cargo run -- check-config config.toml
 cargo run -- fixture config.toml

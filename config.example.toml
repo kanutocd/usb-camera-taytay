@@ -5,6 +5,9 @@ archive_dir = "./var/archive"
 source_id = "usb-camera-1"
 spool_quota_bytes = 1073741824
 
+# MVP1 filesystem commands and MVP2 capture do not read or require credentials.
+# Do not add device tokens or other secrets to this configuration file.
+
 # Optional MVP2 MJPEG segment settings. Set the mode from inspected device
 # capabilities before using `run-v4l2`.
 # v4l2_device = "/dev/video0"

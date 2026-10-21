@@ -31,6 +31,10 @@ Sandbox Loom is shown as a separate project workflow. It does not run in the med
 
 ## Technical context
 
+The diagram shows the target integration context. The application currently
+publishes to the local Taytay spool and ledger; the separately run Taytay
+uploader performs any remote transfer to Lunsaran.
+
 | Boundary | Responsibility |
 | --- | --- |
 | USB Camera Taytay | Local configuration, filesystem observation or V4L2 capture, and reference-app orchestration. |

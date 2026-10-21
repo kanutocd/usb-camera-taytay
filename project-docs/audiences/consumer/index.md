@@ -75,5 +75,7 @@ TOML, command arguments, shell history, logs, or evidence. The current USB
 Camera Taytay CLI does not read a token file; configure credentials only in the
 separate Taytay upload process.
 
+For a provisioned local platform, follow [Verify a local Lunsaran integration](../technical/verify-local-lunsaran.md).
+
 See the [Reference App Guide](../technical/index.md) for the integration
 boundaries and links to Taytay's reusable crate documentation.

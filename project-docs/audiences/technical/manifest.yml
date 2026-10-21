@@ -6,6 +6,7 @@ template: technical
 files:
 - architecture.md
 - index.md
+- verify-local-lunsaran.md
 scope_sha256: 4c2245c825920f8cd6d6dafa955ee97f6413ac7ccee8dc6ed98b10e86225b50a
 diagrams: []
 source_references:

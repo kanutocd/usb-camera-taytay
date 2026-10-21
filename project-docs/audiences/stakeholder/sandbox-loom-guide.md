@@ -4,14 +4,30 @@ This guide describes the intended path from project scoping to governed
 autonomous development for "USB Camera Taytay". For Sandbox Loom product
 documentation, see the [Sandbox Loom documentation site](https://sandbox-loom-documentation.dogfooding.shop/).
 
-It assumes the private Sandbox Loom repository is available locally at
-`$MY_PROJECTS_HOME/sandbox-loom`
-`$MY_PROJECTS_HOME/usb-camera-taytay`.
+It assumes both repositories are checked out locally and
+`MY_PROJECTS_HOME` points to their parent directory:
+
+- `$MY_PROJECTS_HOME/sandbox-loom` is the private Sandbox Loom checkout.
+- `$MY_PROJECTS_HOME/usb-camera-taytay` is this public application checkout.
+
+## Guide map
+
+1. [Prepare the project](#1-prepare-the-project)
+2. [Install the intake skill](#2-install-the-sandbox-loom-intake-skill)
+3. [Add project-specific agent context](#3-add-the-usb-camera-taytay-project-skill)
+4. [Create the project brief](#4-create-the-high-level-intake-brief)
+5. [Resolve and validate intake](#5-resolve-and-validate-intake)
+6. [Generate and approve the harness](#6-generate-and-approve-the-harness)
+7. [Run local development and bounded slices](#7-run-local-development-and-bounded-slices)
+8. [Optional provider integration](#8-optional-provider-integration)
+9. [MVP and quality-gate acceptance](#9-mvp-and-quality-gate-acceptance)
+10. [Publish the reference application and documentation](#10-publish-the-reference-application-and-documentation)
 
 ## 1. Prepare the project
 
 ```bash
-cd $MY_PROJECTS_HOME/usb-camera-taytay
+: "${MY_PROJECTS_HOME:?Set MY_PROJECTS_HOME to the directory containing both repositories}"
+cd "$MY_PROJECTS_HOME/usb-camera-taytay"
 export SANDBOX_LOOM_REPO="$MY_PROJECTS_HOME/sandbox-loom"
 export SANDBOX_LOOM="$SANDBOX_LOOM_REPO/bin/sandbox-loom"
 ```
@@ -28,7 +44,9 @@ Sandbox Loom can generate the same intake skill for different coding-agent envir
 "$SANDBOX_LOOM" intake skill roles
 ```
 
-The current catalog provides `sandbox-loom-intake`. The planned `requirements-analyst` skill is described in Sandbox Loom’s planning notes, but is not yet a current catalog entry. Do not use `requirements-analyst` as the value of `--skill` until it appears in `intake skills`.
+Use a skill name returned by `intake skills`. Catalog entries can change
+between Sandbox Loom versions; inspect the installed catalog before selecting
+one.
 
 Generate only the targets that will actually be used:
 
@@ -341,17 +359,17 @@ Approve one decision at a time, using its exact `id` from the review output or
 ```bash
 "$SANDBOX_LOOM" harness approve-decision . \
   --id tenant-isolation \
-  --reviewer "Technical lead" \
+  --reviewer "FULL NAME OF AUTHORIZED REVIEWER" \
   --rationale "Accepted: enforce tenant boundaries in application authorization and persistence so either layer fails closed independently."
 
 "$SANDBOX_LOOM" harness approve-decision . \
   --id local-development-services \
-  --reviewer "Technical lead" \
+  --reviewer "FULL NAME OF AUTHORIZED REVIEWER" \
   --rationale "Accepted: use the declared local services as the reproducible development boundary; live acceptance remains conditional on provisioned services."
 
 "$SANDBOX_LOOM" harness approve-decision . \
   --id quality-gates-and-evidence \
-  --reviewer "QA lead" \
+  --reviewer "FULL NAME OF AUTHORIZED REVIEWER" \
   --rationale "Accepted: require the declared deterministic quality gates and preserve their evidence for slice acceptance."
 ```
 
@@ -383,7 +401,7 @@ individual decision approvals:
 
 ```bash
 "$SANDBOX_LOOM" harness approve . \
-  --reviewer "Project owner" \
+  --reviewer "FULL NAME OF AUTHORIZED REVIEWER" \
   --rationale "Approved USB Camera Taytay scope, quality gates, and execution policy."
 ```
 
@@ -442,9 +460,12 @@ Review the generated files before approval, especially:
 
 For documentation-enabled projects, also review `zensical.toml`,
 `project-docs/zensical/`, and the generated audience/redaction policy. The
-generated Zensical `docs_dir` is `project-docs`; internal harness, ledger, and
-stakeholder-only material must not be published to a consumer or technical
-build.
+generated Zensical `docs_dir` is `project-docs`. This repository publishes
+consumer, technical, and project-team documentation because the repository is
+public. For other projects, audience labels alone do not determine
+publication: inspect the configured navigation and exclusions. Never publish
+credentials, private policy, raw runtime state, or evidence that contains
+secrets or personal data.
 
 ## 7. Run local development and bounded slices
 

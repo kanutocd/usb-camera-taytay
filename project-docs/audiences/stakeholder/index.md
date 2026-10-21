@@ -17,3 +17,4 @@ reference application for the private Sandbox Loom project.
 
 - [Arc42 architecture](arc42/01-introduction-and-goals.md)
 - [Implementation roadmap](../../implementation/roadmap.md)
+- [Delivery status and acceptance](delivery.md)

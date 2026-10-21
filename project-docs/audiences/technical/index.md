@@ -47,6 +47,9 @@ the Linux version, camera model, negotiated mode, segment settings, and
 checksums. A successful fixture or mock run does not establish physical
 camera capture or a live Lunsaran upload.
 
+For the separate uploader workflow, see [Verify a local Lunsaran
+integration](verify-local-lunsaran.md).
+
 ## Project relationship
 
 USB Camera Taytay is also a reference application for the private Sandbox Loom

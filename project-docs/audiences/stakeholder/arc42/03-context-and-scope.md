@@ -2,6 +2,10 @@
 
 ## Business context
 
+See the [architecture overview diagram](architecture-overview.html) for a
+visual summary of the application, Taytay upload path, platform services, and
+separate Sandbox Loom workflow.
+
 The reference app receives media locally and hands it to Taytay for durable upload. The architecture has two staged source paths: MVP1 file input and MVP2 camera capture.
 
 ```mermaid

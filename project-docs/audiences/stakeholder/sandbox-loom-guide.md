@@ -1,6 +1,8 @@
 # USB Camera Taytay: Sandbox Loom Guide
 
-This guide describes the intended path from project scoping to governed autonomous development for "USB Camera Taytay".
+This guide describes the intended path from project scoping to governed
+autonomous development for "USB Camera Taytay". For Sandbox Loom product
+documentation, see the [Sandbox Loom documentation site](https://sandbox-loom-documentation.dogfooding.shop/).
 
 It assumes the private Sandbox Loom repository is available locally at
 `$MY_PROJECTS_HOME/sandbox-loom`
@@ -10,7 +12,7 @@ It assumes the private Sandbox Loom repository is available locally at
 
 ```bash
 cd $MY_PROJECTS_HOME/usb-camera-taytay
-export SANDBOX_LOOM_REPO="$HOME$MY_PROJECTS_HOME/sandbox-loom"
+export SANDBOX_LOOM_REPO="$MY_PROJECTS_HOME/sandbox-loom"
 export SANDBOX_LOOM="$SANDBOX_LOOM_REPO/bin/sandbox-loom"
 ```
 
@@ -54,6 +56,25 @@ Generate only the targets that will actually be used:
   --skill sandbox-loom-intake \
   --target hermes \
   --output .hermes/skills/sandbox-loom-intake/SKILL.md
+```
+
+The folder structure would look like:
+
+```tree
+.codex/skills
+├── sandbox-loom-intake
+│   └── SKILL.md
+└── usb-camera-taytay
+    └── SKILL.md
+.hermes/skills
+└── sandbox-loom-intake
+    └── SKILL.md
+.opencode/skills
+└── sandbox-loom-intake
+    └── SKILL.md
+.sandbox-loom/skills
+└── sandbox-loom-intake
+    └── SKILL.md
 ```
 
 The generated skill contains the project context and intake procedure. It does not contain credentials. Commit the generated skill when it is part of the project’s reproducible agent harness.
@@ -116,7 +137,7 @@ domain, architecture, security, MVP, and validation context.
 
 Use this Codex-specific prompt from the USB Camera Taytay project root:
 
-```text
+```prompt
 You are Codex working in the USB Camera Taytay project root.
 
 First read and follow these two project artifacts:
@@ -268,6 +289,16 @@ INTAKE_DIR=".sandbox-loom/intake-$(date +%Y%m%d-%H%M%S)"
   --output "$INTAKE_DIR/normalized-scope.yml"
 ```
 
+The generated artifacts would be something like:
+
+```tree
+.sandbox-loom/intake-20261020-230819/
+├── normalized-scope.yml
+├── provenance.json
+└── source-materials
+    └── project-brief.yml
+```
+
 Review the normalized scope and provenance before using that exact
 `normalized-scope.yml` in section 6. Keep earlier imports for comparison;
 do not delete them as a routine regeneration step.
@@ -310,17 +341,17 @@ Approve one decision at a time, using its exact `id` from the review output or
 ```bash
 "$SANDBOX_LOOM" harness approve-decision . \
   --id tenant-isolation \
-  --reviewer "Authorized technical or security decision owner" \
+  --reviewer "Technical lead" \
   --rationale "Accepted: enforce tenant boundaries in application authorization and persistence so either layer fails closed independently."
 
 "$SANDBOX_LOOM" harness approve-decision . \
   --id local-development-services \
-  --reviewer "Authorized technical decision owner" \
+  --reviewer "Technical lead" \
   --rationale "Accepted: use the declared local services as the reproducible development boundary; live acceptance remains conditional on provisioned services."
 
 "$SANDBOX_LOOM" harness approve-decision . \
   --id quality-gates-and-evidence \
-  --reviewer "Authorized QA decision owner" \
+  --reviewer "QA lead" \
   --rationale "Accepted: require the declared deterministic quality gates and preserve their evidence for slice acceptance."
 ```
 

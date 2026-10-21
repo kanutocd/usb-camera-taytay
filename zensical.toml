@@ -215,4 +215,11 @@ custom_checkbox = true
 
 [project.markdown_extensions.pymdownx.tilde]
 
+[project.markdown_extensions.pymdownx.blocks.caption]
+
 [project.markdown_extensions.tables]
+
+
+[project.plugins.glightbox]
+auto_caption = true
+auto_themed = true

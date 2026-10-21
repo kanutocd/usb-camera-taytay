@@ -403,9 +403,17 @@ fn capture_v4l2_segment(_config: &Config) -> Result<String, String> {
 }
 
 fn write_jpeg_frame(directory: &Path, frame: &[u8], captured_at: &str) -> Result<(), String> {
-    if frame.len() < 4 || !frame.starts_with(&[0xff, 0xd8]) || !frame.ends_with(&[0xff, 0xd9]) {
+    let Some(end) = frame
+        .windows(2)
+        .rposition(|marker| marker == [0xff, 0xd9])
+        .map(|index| index + 2)
+    else {
+        return Err("V4L2 returned an incomplete JPEG frame".into());
+    };
+    if frame.len() < 4 || !frame.starts_with(&[0xff, 0xd8]) {
         return Err("V4L2 returned an incomplete JPEG frame".into());
     }
+    let frame = &frame[..end];
     if !valid_utc_timestamp(captured_at) {
         return Err("invalid V4L2 capture timestamp".into());
     }
@@ -1146,6 +1154,26 @@ mod tests {
                 .captured_at
                 .as_deref(),
             Some(captured_at)
+        );
+
+        write_jpeg_frame(
+            &root,
+            &[0xff, 0xd8, 0x02, 0xff, 0xd9, 0x00, 0x00],
+            captured_at,
+        )
+        .unwrap();
+        let padded_image = fs::read_dir(&root)
+            .unwrap()
+            .filter_map(Result::ok)
+            .map(|entry| entry.path())
+            .find(|path| {
+                path.extension().is_some_and(|ext| ext == "jpg")
+                    && fs::read(path).is_ok_and(|bytes| bytes.contains(&0x02))
+            })
+            .unwrap();
+        assert_eq!(
+            fs::read(padded_image).unwrap(),
+            [0xff, 0xd8, 0x02, 0xff, 0xd9]
         );
         fs::remove_dir_all(root).unwrap();
     }

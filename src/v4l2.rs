@@ -70,6 +70,12 @@ struct TimeVal {
 }
 
 #[repr(C)]
+union BufferMemory {
+    offset: u32,
+    userptr: u64,
+}
+
+#[repr(C)]
 struct Buffer {
     index: u32,
     type_: u32,
@@ -80,7 +86,7 @@ struct Buffer {
     timecode: [u32; 4],
     sequence: u32,
     memory: u32,
-    offset: u32,
+    memory_offset: BufferMemory,
     length: u32,
     reserved2: u32,
     request_fd: i32,
@@ -265,7 +271,7 @@ impl Capture {
             let address = unsafe {
                 capture
                     .kernel
-                    .map(fd, length, buffer.offset as libc::off_t)?
+                    .map(fd, length, buffer.memory_offset.offset as libc::off_t)?
             };
             capture.mappings.push(Mapping { address, length });
             capture
@@ -331,7 +337,7 @@ fn empty_buffer(index: u32) -> Buffer {
         timecode: [0; 4],
         sequence: 0,
         memory: MEMORY_MMAP,
-        offset: 0,
+        memory_offset: BufferMemory { offset: 0 },
         length: 0,
         reserved2: 0,
         request_fd: 0,
@@ -423,7 +429,7 @@ mod tests {
                     VIDIOC_QUERYBUF => {
                         let buffer = &mut *value.cast::<Buffer>();
                         buffer.length = self.buffer_length;
-                        buffer.offset = buffer.index * self.buffer_length;
+                        buffer.memory_offset.offset = buffer.index * self.buffer_length;
                     }
                     VIDIOC_QBUF => {
                         let mut calls = self.qbuf_calls.borrow_mut();

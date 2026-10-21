@@ -5,7 +5,9 @@ Provide a small, reproducible Linux Rust CLI reference application that captures
 This area is for product development members and readers interested in the
 project's architecture and delivery. USB Camera Taytay has two connected
 goals: demonstrate Linux camera-media delivery through Taytay, and serve as a
-reference application for the private Sandbox Loom project.
+reference implementation for the private Sandbox Loom project. Sandbox Loom
+also bootstrapped this site's Zensical documentation and generated its initial
+documentation projections, which the project team reviewed and refined.
 
 ## Project source documents
 
@@ -17,4 +19,6 @@ reference application for the private Sandbox Loom project.
 
 - [Arc42 architecture](arc42/01-introduction-and-goals.md)
 - [Implementation roadmap](../../implementation/roadmap.md)
+- [Implementation progress](../../implementation/status.md) — generated
+  project phase and slice status, published for stakeholders.
 - [Delivery status and acceptance](delivery.md)

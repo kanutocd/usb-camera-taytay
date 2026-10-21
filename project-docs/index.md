@@ -11,11 +11,20 @@ handles transfer to Lunsaran. This application does not start that uploader or
 implement its own HTTP or TUS upload path. Fixture and mock checks can be run
 locally without a camera or live Lunsaran credentials.
 
-This repository is also a public reference application for the private Sandbox
-Loom project. Its documentation shows the project scope, architecture, and
-delivery workflow. See the [Sandbox Loom documentation site](https://sandbox-loom-documentation.dogfooding.shop/)
-for product documentation. This site does not publish credentials, captured
-media, or raw private evidence.
+This repository is also a public reference implementation for the private
+Sandbox Loom project. Sandbox Loom bootstrapped this Zensical documentation
+site and generated its initial documentation projections; the project team
+reviewed and refined the published content. See the [Sandbox Loom
+documentation site](https://sandbox-loom-documentation.dogfooding.shop/) for
+Sandbox Loom product documentation. This site does not publish credentials,
+captured media, or raw private evidence.
+
+The [implementation status](implementation/status.md) is the public progress
+projection for project phases and slices. Sandbox Loom refreshes it as
+implementation work is recorded, and the documentation workflow rebuilds and
+publishes it to GitHub Pages when changes reach `main`. Stakeholders can use it
+to follow the reported development progress; it reflects the latest committed
+projection, not a live connection to the private status ledger.
 
 For the repository overview and development quick start, see the
 [root README](https://github.com/kanutocd/usb-camera-taytay#readme).
@@ -38,5 +47,5 @@ Both input paths publish through Taytay. The CLI does not start the uploader or 
 - [Reference App Guide](audiences/technical/index.md) — understand the source
   adapters, Taytay integration boundary, and acceptance approach.
 - [Project Team](audiences/stakeholder/index.md) — read the scope statement,
-  project brief, Arc42 architecture, implementation roadmap, and Sandbox Loom
-  guide.
+  project brief, Arc42 architecture, implementation roadmap and status, and
+  Sandbox Loom guide.

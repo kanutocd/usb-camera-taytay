@@ -4,6 +4,17 @@ This guide describes the intended path from project scoping to governed
 autonomous development for "USB Camera Taytay". For Sandbox Loom product
 documentation, see the [Sandbox Loom documentation site](https://sandbox-loom-documentation.dogfooding.shop/).
 
+USB Camera Taytay is also a reference implementation for Sandbox Loom. Sandbox
+Loom bootstrapped this project's Zensical site and generated its initial
+documentation projections from the approved project scope. The project team
+reviewed and refined those pages. The public [implementation
+progress](../../implementation/status.md) is a generated view of phase and
+slice status. Sandbox Loom refreshes the projection as implementation work is
+recorded; the documentation workflow builds and publishes committed updates
+to GitHub Pages on pushes to `main`. Stakeholders can follow the latest
+published progress there. The page is a committed projection, not a live
+connection to the private status ledger.
+
 It assumes both repositories are checked out locally and
 `MY_PROJECTS_HOME` points to their parent directory:
 

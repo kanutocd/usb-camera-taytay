@@ -39,7 +39,7 @@ nav = [
     ] },
     { Implementation = [
       { Roadmap = "implementation/roadmap.md" },
-      { "Current status" = "implementation/status.md" },
+      { "Implementation progress" = "implementation/status.md" },
       { Phases = [
         { "phase-1 — Project bootstrap and local development" = "implementation/phases/phase-1.md" },
         { "phase-2 — Functional requirements" = "implementation/phases/phase-2.md" },

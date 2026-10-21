@@ -2,7 +2,7 @@
 
 ## Business context
 
-See the [architecture overview diagram](architecture-overview.html) for a
+See the [architecture overview diagram](../../../zensical/assets/images/architecture-overview.png) for a
 visual summary of the application, Taytay upload path, platform services, and
 separate Sandbox Loom workflow.
 
